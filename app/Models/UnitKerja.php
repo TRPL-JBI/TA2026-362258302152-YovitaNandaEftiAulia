@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class UnitKerja extends Model
+{
+    protected $table = 'unit_kerja';
+
+    protected $fillable = [
+        'nama',
+        'kategori_unit_kerja'
+    ];
+}

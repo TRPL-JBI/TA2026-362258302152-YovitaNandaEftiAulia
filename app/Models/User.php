@@ -6,15 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-    protected $table = 'users';
-
     protected $fillable = [
-        'nama',
-        'email',
-        'password',
-        'id_unit_kerja',
-        'status'
-    ];
+    'nama',
+    'email',
+    'password',
+    'id_unit_kerja',
+    'status'
+];
 
     public $timestamps = false;
 

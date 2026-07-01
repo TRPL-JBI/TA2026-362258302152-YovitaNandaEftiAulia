@@ -6,20 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-   public function up(): void
-{
-    Schema::create('standar_mutu', function (Blueprint $table) {
-        $table->id();
-        $table->string('nama_standar_mutu');
-    });
-}
+    public function up(): void
+    {
+        Schema::create('standar_mutu', function (Blueprint $table) {
 
-    /**
-     * Reverse the migrations.
-     */
+            $table->id();
+
+            $table->string('nama_standar_mutu');
+
+            $table->timestamps();
+
+        });
+    }
+
     public function down(): void
     {
         Schema::dropIfExists('standar_mutu');

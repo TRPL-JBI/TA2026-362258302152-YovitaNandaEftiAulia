@@ -2,83 +2,169 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\StandarMutu;
 use App\Models\IsiStandarMutu;
+use Illuminate\Http\Request;
 
 class IsiStandarMutuController extends Controller
 {
-    // ================= KATEGORI =================
-    public function kategori($standar_id)
-    {
-        $data = IsiStandarMutu::where('id_standar_mutu', $standar_id)
-            ->whereNull('parent_standar_id')
-            ->get();
 
-        return view('isi.kategori', compact('data', 'standar_id'));
+    /**
+     * Menampilkan daftar Isi Standar berdasarkan Standar Mutu
+     */
+    public function index($standar)
+    {
+        $standarMutu = StandarMutu::findOrFail($standar);
+
+        $isiStandar = IsiStandarMutu::where(
+            'id_standar_mutu',
+            $standar
+        )->orderBy('id')->get();
+
+        return view(
+            'isi_standar.index',
+            compact(
+                'standarMutu',
+                'isiStandar'
+            )
+        );
     }
 
-    // ================= JENIS =================
-    public function jenis($id)
+    /**
+     * Form tambah
+     */
+    public function create($standar)
     {
-        $parent = IsiStandarMutu::findOrFail($id);
+        $standarMutu = StandarMutu::findOrFail($standar);
 
-        $data = IsiStandarMutu::where('parent_standar_id', $id)->get();
+        $parent = IsiStandarMutu::where(
+            'id_standar_mutu',
+            $standar
+        )->get();
 
-        return view('isi.jenis', compact('data', 'parent'));
+        return view(
+            'isi_standar.create',
+            compact(
+                'standarMutu',
+                'parent'
+            )
+        );
     }
 
-    // ================= SUB =================
-    public function sub($id)
+    /**
+     * Simpan
+     */
+    public function store(Request $request,$standar)
     {
-        $parent = IsiStandarMutu::findOrFail($id);
 
-        $data = IsiStandarMutu::where('parent_standar_id', $id)->get();
-
-        return view('isi.sub', compact('data', 'parent'));
-    }
-
-    // ================= STORE =================
-    public function store(Request $request)
-    {
-        IsiStandarMutu::create([
-            'id_standar_mutu' => $request->id_standar_mutu,
-            'nama_standar' => $request->nama_standar,
-            'parent_standar_id' => $request->parent_standar_id
+        $request->validate([
+            'nama_standar'=>'required|max:255'
         ]);
 
-        return back();
+        IsiStandarMutu::create([
+
+            'id_standar_mutu'=>$standar,
+
+            'nama_standar'=>$request->nama_standar,
+
+            'parent_standar_id'=>$request->parent_standar_id
+
+        ]);
+
+        return redirect()
+                ->route('isi.index',$standar)
+                ->with('success','Isi Standar berhasil ditambahkan.');
+
     }
 
-    // ================= DETAIL =================
-    public function show($id)
+    /**
+     * Edit
+     */
+    public function edit($isi)
     {
-        $data = IsiStandarMutu::findOrFail($id);
-        return view('isi.show', compact('data'));
+
+        $isiStandar = IsiStandarMutu::findOrFail($isi);
+
+        $parent = IsiStandarMutu::where(
+            'id_standar_mutu',
+            $isiStandar->id_standar_mutu
+        )->where(
+            'id',
+            '!=',
+            $isi
+        )->get();
+
+        return view(
+            'isi_standar.edit',
+            compact(
+                'isiStandar',
+                'parent'
+            )
+        );
+
     }
 
-    // ================= EDIT =================
-    public function edit($id)
+    /**
+     * Update
+     */
+    public function update(Request $request,$isi)
     {
-        $data = IsiStandarMutu::findOrFail($id);
-        return view('isi.edit', compact('data'));
-    }
 
-    // ================= UPDATE =================
-    public function update(Request $request, $id)
-    {
-        $data = IsiStandarMutu::findOrFail($id);
+        $request->validate([
+            'nama_standar'=>'required|max:255'
+        ]);
+
+        $data = IsiStandarMutu::findOrFail($isi);
 
         $data->update([
-            'nama_standar' => $request->nama_standar
+
+            'nama_standar'=>$request->nama_standar,
+
+            'parent_standar_id'=>$request->parent_standar_id
+
         ]);
 
-        return redirect()->back();
+        return redirect()
+                ->route(
+                    'isi.index',
+                    $data->id_standar_mutu
+                )
+                ->with('success','Isi Standar berhasil diupdate.');
+
     }
 
-    // ================= DELETE =================
-    public function destroy($id)
+    /**
+     * Hapus
+     */
+    public function destroy($isi)
     {
-        IsiStandarMutu::destroy($id);
-        return back();
+
+        $data = IsiStandarMutu::findOrFail($isi);
+
+        $standar = $data->id_standar_mutu;
+
+        $data->delete();
+
+        return redirect()
+                ->route(
+                    'isi.index',
+                    $standar
+                )
+                ->with('success','Isi Standar berhasil dihapus.');
+
     }
+
+    public function show($id)
+{
+    $isi = IsiStandarMutu::with([
+        'standarMutu',
+        'indikator'
+    ])->findOrFail($id);
+
+    return view(
+        'isi_standar.show',
+        compact('isi')
+    );
 }
+}
+

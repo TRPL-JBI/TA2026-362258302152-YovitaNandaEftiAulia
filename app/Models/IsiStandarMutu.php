@@ -14,14 +14,37 @@ class IsiStandarMutu extends Model
         'parent_standar_id'
     ];
 
+    public $timestamps = false;
+
+    public function standarMutu()
+    {
+        return $this->belongsTo(
+            StandarMutu::class,
+            'id_standar_mutu'
+        );
+    }
+
+    public function indikator()
+    {
+        return $this->hasMany(
+            IndikatorStandar::class,
+            'id_isi_standar_mutu'
+        );
+    }
+
     public function parent()
     {
-        return $this->belongsTo(IsiStandarMutu::class, 'parent_standar_id');
+        return $this->belongsTo(
+            IsiStandarMutu::class,
+            'parent_standar_id'
+        );
     }
 
     public function children()
     {
-        return $this->hasMany(IsiStandarMutu::class, 'parent_standar_id');
+        return $this->hasMany(
+            IsiStandarMutu::class,
+            'parent_standar_id'
+        );
     }
 }
-

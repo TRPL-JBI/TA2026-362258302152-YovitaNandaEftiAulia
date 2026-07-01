@@ -9,28 +9,48 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up(): void
-{
-    Schema::create('periode_ami', function (Blueprint $table) {
-        $table->id();
+    public function up(): void
+    {
+        Schema::create('periode_ami', function (Blueprint $table) {
 
-        $table->year('tahun');
+            $table->id();
 
-        // relasi
-        $table->foreignId('id_standar_mutu')->constrained('standar_mutu');
-        $table->foreignId('id_unit_kerja')->constrained('unit_kerja');
-        $table->foreignId('id_user')->constrained('users');
+            $table->year('tahun');
 
-        $table->text('tujuan_audit');
-        $table->text('lingkup_audit');
-        $table->string('waktu_audit');
+            // RELASI
+            $table->foreignId('id_standar_mutu')
+                  ->constrained('standar_mutu')
+                  ->onDelete('cascade');
 
-        $table->date('tanggal_buka_ami');
-        $table->date('tanggal_tutup_ami');
+            $table->foreignId('id_unit_kerja')
+                  ->constrained('unit_kerja')
+                  ->onDelete('cascade');
 
-        $table->enum('status', ['draft','berjalan','ditutup']);
-    });
-}
+            $table->foreignId('id_user')
+                  ->constrained('users')
+                  ->onDelete('cascade');
+
+            // FIELD
+            $table->text('tujuan_audit');
+
+            $table->text('lingkup_audit');
+
+            $table->string('waktu_audit');
+
+            $table->date('tanggal_buka_ami');
+
+            $table->date('tanggal_tutup_ami');
+
+            $table->enum('status', [
+                'draft',
+                'berjalan',
+                'ditutup'
+            ]);
+
+            // TIMESTAMP
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

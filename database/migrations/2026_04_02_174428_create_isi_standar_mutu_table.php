@@ -6,32 +6,31 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
-{
-    Schema::create('isi_standar_mutu', function (Blueprint $table) {
-        $table->id();
+    {
+        Schema::create('isi_standar_mutu', function (Blueprint $table) {
 
-        // relasi ke standar_mutu
-        $table->foreignId('id_standar_mutu')
-              ->constrained('standar_mutu')
-              ->cascadeOnDelete();
+            $table->id();
 
-        $table->string('nama_standar');
+            $table->foreignId('id_standar_mutu')
+                  ->constrained('standar_mutu')
+                  ->cascadeOnDelete();
 
-        // parent (hirarki)
-        $table->foreignId('parent_standar_id')
-              ->nullable()
-              ->constrained('isi_standar_mutu')
-              ->cascadeOnDelete();
-    });
-}
+            $table->string('nama_standar');
 
-    /**
-     * Reverse the migrations.
-     */
+            $table->unsignedBigInteger('parent_standar_id')
+                  ->nullable();
+
+            $table->timestamps();
+
+            $table->foreign('parent_standar_id')
+                  ->references('id')
+                  ->on('isi_standar_mutu')
+                  ->cascadeOnDelete();
+
+        });
+    }
+
     public function down(): void
     {
         Schema::dropIfExists('isi_standar_mutu');

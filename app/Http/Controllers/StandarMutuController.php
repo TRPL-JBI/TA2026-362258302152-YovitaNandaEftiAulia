@@ -2,64 +2,102 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\StandarMutu;
+use Illuminate\Http\Request;
 
 class StandarMutuController extends Controller
 {
+
+    /**
+     * Menampilkan daftar Standar Mutu
+     */
     public function index()
     {
-        $data = StandarMutu::all();
-        return view('standarmutu.index', compact('data'));
+        $standar = StandarMutu::orderBy('id', 'asc')->get();
+
+        return view('standarmutu.index', compact('standar'));
     }
 
+    /**
+     * Form tambah
+     */
     public function create()
     {
         return view('standarmutu.create');
     }
 
+    /**
+     * Simpan data
+     */
     public function store(Request $request)
     {
         $request->validate([
-            'nama_standar_mutu' => 'required'
+            'nama_standar_mutu' => 'required|max:255'
+        ],[
+            'nama_standar_mutu.required'=>'Nama Standar Mutu wajib diisi.'
         ]);
 
         StandarMutu::create([
-            'nama_standar_mutu' => $request->nama_standar_mutu
+            'nama_standar_mutu'=>$request->nama_standar_mutu
         ]);
 
-        return redirect()->route('standarmutu.index');
+        return redirect()
+            ->route('standarmutu.index')
+            ->with('success','Standar Mutu berhasil ditambahkan.');
     }
 
+    /**
+     * Detail
+     */
+    public function show($id)
+    {
+        $standar = StandarMutu::findOrFail($id);
+
+        return view('standarmutu.show', compact('standar'));
+    }
+
+    /**
+     * Form edit
+     */
     public function edit($id)
     {
-        $data = StandarMutu::findOrFail($id);
-        return view('standarmutu.edit', compact('data'));
+        $standar = StandarMutu::findOrFail($id);
+
+        return view('standarmutu.edit', compact('standar'));
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Update
+     */
+    public function update(Request $request,$id)
     {
         $request->validate([
-            'nama_standar_mutu' => 'required'
+            'nama_standar_mutu'=>'required|max:255'
         ]);
 
-        $data = StandarMutu::findOrFail($id);
-        $data->update([
-            'nama_standar_mutu' => $request->nama_standar_mutu
+        $standar = StandarMutu::findOrFail($id);
+
+        $standar->update([
+            'nama_standar_mutu'=>$request->nama_standar_mutu
         ]);
 
-        return redirect()->route('standarmutu.index');
+        return redirect()
+            ->route('standarmutu.index')
+            ->with('success','Standar Mutu berhasil diperbarui.');
     }
 
-    public function show($id)
-{
-    $data = StandarMutu::findOrFail($id);
-    return view('standarmutu.show', compact('data'));
-}
-
+    /**
+     * Hapus
+     */
     public function destroy($id)
     {
-        StandarMutu::destroy($id);
-        return redirect()->route('standarmutu.index');
+        $standar = StandarMutu::findOrFail($id);
+
+        $standar->delete();
+
+        return redirect()
+            ->route('standarmutu.index')
+            ->with('success','Standar Mutu berhasil dihapus.');
     }
+
 }

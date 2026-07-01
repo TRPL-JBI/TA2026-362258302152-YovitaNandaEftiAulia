@@ -1,36 +1,135 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
+use App\Models\StandarMutu;
+use App\Models\PeriodeAmi;
 
-class AuthController extends Controller
+class DashboardController extends Controller
 {
-    public function showLogin()
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD ADMIN
+    |--------------------------------------------------------------------------
+    */
+
+    public function index()
     {
-        return view('auth.login');
+        $totalStandar = StandarMutu::count();
+
+        $periodeAktif = PeriodeAmi::where(
+            'status',
+            'berjalan'
+        )->count();
+
+        $jumlahTemuan = 0;
+
+        $grafik = [
+            'sesuai' => 18,
+            'observasi' => 13,
+            'tidak_sesuai' => 8
+        ];
+
+        $periodeBerjalan = PeriodeAmi::with([
+            'standarMutu',
+            'unitKerja'
+        ])
+        ->where('status','berjalan')
+        ->get();
+
+        return view(
+            'dashboard',
+            compact(
+                'totalStandar',
+                'periodeAktif',
+                'jumlahTemuan',
+                'grafik',
+                'periodeBerjalan'
+            )
+        );
     }
 
-    public function login(Request $request)
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD AUDITEE
+    |--------------------------------------------------------------------------
+    */
+
+    public function dashboardAuditee()
     {
-        $user = DB::table('users')
-            ->where('nama', $request->username)
-            ->where('status', 'aktif')
-            ->first();
+        $totalStandar = StandarMutu::count();
 
-        if ($user && $request->password == $user->password) {
-            Session::put('user', $user);
+        $periodeAktif = PeriodeAmi::where(
+            'status',
+            'berjalan'
+        )->count();
 
-            return redirect()->route('unit-kerja.index');
-        }
+        $jumlahTemuan = 0;
 
-        return back()->with('error', 'Username atau password salah');
+        $grafik = [
+            'sesuai' => 18,
+            'observasi' => 13,
+            'tidak_sesuai' => 8
+        ];
+
+        $periodeBerjalan = PeriodeAmi::with([
+            'standarMutu',
+            'unitKerja'
+        ])
+        ->where('status','berjalan')
+        ->get();
+
+        return view(
+            'auditee.dashboard',
+            compact(
+                'totalStandar',
+                'periodeAktif',
+                'jumlahTemuan',
+                'grafik',
+                'periodeBerjalan'
+            )
+        );
     }
 
-    public function logout()
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD AUDITOR
+    |--------------------------------------------------------------------------
+    */
+
+    public function dashboardAuditor()
     {
-        Session::forget('user');
-        return redirect()->route('login');
+        $totalStandar = StandarMutu::count();
+
+        $periodeAktif = PeriodeAmi::where(
+            'status',
+            'berjalan'
+        )->count();
+
+        $jumlahTemuan = 0;
+
+        $grafik = [
+            'sesuai' => 18,
+            'observasi' => 13,
+            'tidak_sesuai' => 8
+        ];
+
+        $periodeBerjalan = PeriodeAmi::with([
+            'standarMutu',
+            'unitKerja'
+        ])
+        ->where('status','berjalan')
+        ->get();
+
+        return view(
+            'auditor.dashboard',
+            compact(
+                'totalStandar',
+                'periodeAktif',
+                'jumlahTemuan',
+                'grafik',
+                'periodeBerjalan'
+            )
+        );
     }
 }

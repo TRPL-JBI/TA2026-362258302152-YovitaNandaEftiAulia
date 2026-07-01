@@ -8,12 +8,18 @@ class StandarMutu extends Model
 {
     protected $table = 'standar_mutu';
 
-    protected $fillable = ['nama_standar_mutu'];
+    protected $fillable = [
+        'nama_standar_mutu'
+    ];
 
-    public $timestamps = false; // 🔥 TAMBAH INI
+    // TAMBAHKAN INI
+    public $timestamps = false;
 
-    public function isi()
+    public function isiStandar()
     {
-        return $this->hasMany(IsiStandarMutu::class, 'id_standar_mutu');
+        return $this->hasMany(
+            IsiStandarMutu::class,
+            'id_standar_mutu'
+        );
     }
 }

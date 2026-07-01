@@ -2,34 +2,62 @@
 
 @section('content')
 
-<div class="content-wrapper">
+<h3 class="breadcrumb">
+    Dashboard / Standar Mutu / Edit Standar Mutu
+</h3>
 
-    <h3 class="breadcrumb">Dashboard / Edit Standar Mutu</h3>
+<div class="form-container">
 
     <div class="form-card">
 
-        <h2 class="form-title">Form Edit Standar Mutu</h2>
+        <h3 class="form-title">
+            Edit Standar Mutu
+        </h3>
 
-        <form action="{{ route('standarmutu.update', $data->id) }}" method="POST">
+        <form action="{{ route('standarmutu.update',$standar->id) }}"
+              method="POST">
+
             @csrf
             @method('PUT')
 
             <div class="form-group">
-                <label>Nama Standar Mutu</label>
-                <input 
-                    type="text" 
-                    name="nama_standar_mutu" 
-                    value="{{ $data->nama_standar_mutu }}" 
-                    required
-                >
+
+                <label>
+                    Nama Standar Mutu
+                </label>
+
+                <input type="text"
+                       name="nama_standar_mutu"
+                       value="{{ old('nama_standar_mutu',$standar->nama_standar_mutu) }}">
+
+                @error('nama_standar_mutu')
+
+                    <small style="color:red">
+
+                        {{ $message }}
+
+                    </small>
+
+                @enderror
+
             </div>
 
             <div class="form-action">
-                <button type="submit" class="btn-save">Simpan</button>
 
-                <a href="{{ route('standarmutu.index') }}" class="btn-cancel">
+                <button type="submit"
+                        class="btn-save">
+
+                    Update
+
+                </button>
+
+                <a href="{{ route('standarmutu.index') }}"
+                   class="btn-cancel">
+
                     Batal
+
                 </a>
+
             </div>
 
         </form>

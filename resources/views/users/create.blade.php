@@ -25,6 +25,32 @@
 </div>
 
 <div class="form-group">
+
+    <label>Role</label>
+
+    <select name="role" required>
+
+        <option value="">
+            Pilih Role
+        </option>
+
+        <option value="admin">
+            Admin
+        </option>
+
+        <option value="auditor">
+            Auditor
+        </option>
+
+        <option value="auditee">
+            Auditee
+        </option>
+
+    </select>
+
+</div>
+
+<div class="form-group">
     <label>Unit Kerja</label>
     <select name="id_unit_kerja">
         @foreach($unit as $u)

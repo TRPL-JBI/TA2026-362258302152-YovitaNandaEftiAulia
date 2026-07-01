@@ -26,7 +26,8 @@ class UserController extends Controller
         User::create([
             'nama' => $request->nama,
             'email' => $request->email,
-            'password' => $request->password,
+            'password' => bcrypt($request->password),
+            'role' => $request->role,
             'id_unit_kerja' => $request->id_unit_kerja,
             'status' => $request->status
         ]);
@@ -46,10 +47,30 @@ class UserController extends Controller
     {
         $data = User::findOrFail($id);
 
-        $data->update($request->all());
+$data->update([
 
-        return redirect()->route('user.index');
-    }
+    'nama' => $request->nama,
+
+    'email' => $request->email,
+
+    'role' => $request->role,
+
+    'id_unit_kerja' => $request->id_unit_kerja,
+
+    'status' => $request->status
+
+]);
+
+if($request->password){
+
+    $data->update([
+        'password' => bcrypt($request->password)
+    ]);
+}
+
+return redirect()
+        ->route('user.index');
+}
 
     public function destroy($id)
     {

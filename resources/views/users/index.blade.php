@@ -34,7 +34,7 @@
                 <td>{{ $item->nama }}</td>
                 <td>{{ $item->email }}</td>
                 <td>{{ $item->unit->nama ?? '-' }}</td>
-                <td>Admin</td>
+                <td>{{ ucfirst($item->role) }}</td>
                 <td>{{ $item->status }}</td>
                 <td>
                     <a href="{{ route('user.edit', $item->id) }}" class="btn-icon">

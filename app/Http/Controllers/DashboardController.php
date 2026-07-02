@@ -134,4 +134,20 @@ class DashboardController extends Controller
             )
         );
     }
+
+    public function periodeAuditee()
+{
+    $data = PeriodeAmi::with([
+        'standarMutu',
+        'unitKerja'
+    ])
+    ->orderBy('tahun','desc')
+    ->get();
+
+    return view(
+        'auditee.periode.index',
+        compact('data')
+    );
+}
+
 }

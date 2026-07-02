@@ -93,7 +93,6 @@ class PeriodeAmiController extends Controller
     public function edit($id)
     {
         $data = PeriodeAmi::findOrFail($id);
-
         $standarMutu = StandarMutu::all();
         $unitKerja   = UnitKerja::all();
 

@@ -3,33 +3,63 @@
 @section('content')
 
 <h3 class="breadcrumb">
-    Dashboard / Standar Mutu / Isi Standar
+
+    Dashboard /
+
+    Standar Mutu
+
+    @foreach($breadcrumb as $item)
+
+        / {{ $item->nama_standar }}
+
+    @endforeach
+
 </h3>
 
 <div class="card">
 
     <div class="card-header"
-         style="display:flex;
-                justify-content:space-between;
-                align-items:center;">
+        style="display:flex;justify-content:space-between;align-items:center;">
 
         <div>
 
-            <h4>Data Isi Standar</h4>
+            <h4>
+
+                {{ $parent ? $parent->nama_standar : 'Data Isi Standar' }}
+
+            </h4>
 
             <small>
+
                 Standar Mutu :
+
                 <b>{{ $standarMutu->nama_standar_mutu }}</b>
+
             </small>
 
         </div>
 
-        <a href="{{ route('isi.create',$standarMutu->id) }}"
-           class="btn-add">
+        @if($parent)
 
-            + Tambah Isi Standar
+            <a
+                href="{{ route('isi.node.create',$parent->id) }}"
+                class="btn-add">
 
-        </a>
+                + Tambah Isi Standar
+
+            </a>
+
+        @else
+
+            <a
+                href="{{ route('isi.create',$standarMutu->id) }}"
+                class="btn-add">
+
+                + Tambah Isi Standar
+
+            </a>
+
+        @endif
 
     </div>
 
@@ -37,101 +67,132 @@
 
         <thead>
 
-        <tr>
+            <tr>
 
-            <th>No</th>
+                <th width="60">No</th>
 
-            <th>Nama Isi Standar</th>
+                <th>Nama Isi Standar</th>
 
-            <th width="250">
-                Aksi
-            </th>
+                <th width="260">Aksi</th>
 
-        </tr>
+            </tr>
 
         </thead>
 
         <tbody>
 
-        @forelse($isiStandar as $item)
+        @forelse($data as $item)
 
-        <tr>
+            <tr>
 
-            <td>
+                <td>
 
-                {{ $loop->iteration }}
+                    {{ $loop->iteration }}
 
-            </td>
+                </td>
 
- <td>
-    {{ $item->nama_standar }}
-</td>
+                <td>
 
-<td>
+                    {{ $item->nama_standar }}
 
-    <div class="action-buttons">
+                    @if($item->children->count())
 
-        <!-- Detail -->
-        <a href="{{ route('isi.show', $item->id) }}"
-           class="btn-icon btn-detail">
+                        <span
+                            style="
+                            background:#E0F2FE;
+                            color:#2563EB;
+                            padding:3px 8px;
+                            border-radius:20px;
+                            font-size:11px;
+                            margin-left:10px;">
 
-            <i class="bi bi-eye"></i>
+                            {{ $item->children->count() }} Child
 
-        </a>
+                        </span>
 
-        <!-- Indikator -->
-        <a href="{{ route('indikator.index', $item->id) }}"
-           class="btn-icon"
-           style="background:#DBEAFE;color:#2563EB;">
+                    @endif
 
-            <i class="bi bi-card-checklist"></i>
+                </td>
 
-        </a>
+                <td>
 
-        <!-- Edit -->
-        <a href="{{ route('isi.edit', $item->id) }}"
-           class="btn-icon btn-edit">
+                    <div class="action-buttons">
 
-            <i class="bi bi-pencil"></i>
+                        @if($item->children->count())
 
-        </a>
+                            <a
+                                href="{{ route('isi.show',$item->id) }}"
+                                class="btn-icon"
+                                style="background:#DBEAFE;color:#2563EB;">
 
-        <!-- Delete -->
-        <form action="{{ route('isi.destroy', $item->id) }}"
-              method="POST">
+                                <i class="bi bi-folder2-open"></i>
 
-            @csrf
-            @method('DELETE')
+                            </a>
 
-            <button
-                type="submit"
-                class="btn-icon btn-delete"
-                onclick="return confirm('Yakin ingin menghapus data ini?')">
+                        @else
 
-                <i class="bi bi-trash"></i>
+                            <a
+                                href="{{ route('indikator.index',$item->id) }}"
+                                class="btn-icon"
+                                style="background:#DBEAFE;color:#2563EB;">
 
-            </button>
+                                <i class="bi bi-card-checklist"></i>
 
-        </form>
+                            </a>
 
-    </div>
+                        @endif
 
-</td>
+                        <a
+                            href="{{ route('isi.detail',$item->id) }}"
+                            class="btn-icon btn-detail">
 
-        </tr>
+                            <i class="bi bi-eye"></i>
+
+                        </a>
+
+                        <a
+                            href="{{ route('isi.edit',$item->id) }}"
+                            class="btn-icon btn-edit">
+
+                            <i class="bi bi-pencil"></i>
+
+                        </a>
+
+                        <form
+                            action="{{ route('isi.destroy',$item->id) }}"
+                            method="POST">
+
+                            @csrf
+                            @method('DELETE')
+
+                            <button
+                                type="submit"
+                                class="btn-icon btn-delete"
+                                onclick="return confirm('Yakin hapus data ini?')">
+
+                                <i class="bi bi-trash"></i>
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </td>
+
+            </tr>
 
         @empty
 
-        <tr>
+            <tr>
 
-            <td colspan="3"
-                 style="text-align:center">
+                <td colspan="3" style="text-align:center;">
 
-                 Data belum tersedia
+                    Data belum tersedia
 
-            </td>
+                </td>
 
-        </tr>
+            </tr>
 
         @endforelse
 

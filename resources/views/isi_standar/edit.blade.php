@@ -3,97 +3,102 @@
 @section('content')
 
 <h3 class="breadcrumb">
-
-Dashboard / Standar Mutu / Isi Standar / Edit
-
+    Dashboard / Standar Mutu / Isi Standar / Edit
 </h3>
 
 <div class="form-container">
 
-<div class="form-card">
+    <div class="form-card">
 
-<h3 class="form-title">
+        <h3 class="form-title">
+            Edit Isi Standar
+        </h3>
 
-Edit Isi Standar
+        <form action="{{ route('isi.update',$data->id) }}" method="POST">
 
-</h3>
+            @csrf
+            @method('PUT')
 
-<form
-action="{{ route('isi.update',$isiStandar->id) }}"
-method="POST">
+            @if($parent)
 
-@csrf
-@method('PUT')
+                <div class="form-group">
 
-<div class="form-group">
+                    <label>Parent Standar</label>
 
-<label>
+                    <input
+                        type="text"
+                        value="{{ $parent->nama_standar }}"
+                        readonly>
 
-Nama Isi Standar
+                </div>
 
-</label>
+            @endif
 
-<input
-type="text"
-name="nama_standar"
-value="{{ $isiStandar->nama_standar }}">
+            <div class="form-group">
 
-</div>
+                <label for="nama_standar">
 
-<div class="form-group">
+                    Nama Isi Standar
 
-<label>
+                </label>
 
-Parent Standar
+                <input
+                    type="text"
+                    id="nama_standar"
+                    name="nama_standar"
+                    value="{{ old('nama_standar',$data->nama_standar) }}"
+                    placeholder="Masukkan nama isi standar"
+                    required>
 
-</label>
+                @error('nama_standar')
 
-<select name="parent_standar_id">
+                    <small class="text-danger">
 
-<option value="">
+                        {{ $message }}
 
-Tidak Ada
+                    </small>
 
-</option>
+                @enderror
 
-@foreach($parent as $p)
+            </div>
 
-<option
-value="{{ $p->id }}"
-{{ $isiStandar->parent_standar_id==$p->id?'selected':'' }}>
+            <div class="form-action">
 
-{{ $p->nama_standar }}
+                <button
+                    type="submit"
+                    class="btn-save">
 
-</option>
+                    Update
 
-@endforeach
+                </button>
 
-</select>
+                @if($parent)
 
-</div>
+                    <a
+                        href="{{ route('isi.show',$parent->id) }}"
+                        class="btn-cancel">
 
-<div class="form-action">
+                        Batal
 
-<button
-class="btn-save">
+                    </a>
 
-Update
+                @else
 
-</button>
+                    <a
+                        href="{{ route('isi.index',$standarMutu->id) }}"
+                        class="btn-cancel">
 
-<a
-href="{{ route('isi.index',$isiStandar->id_standar_mutu) }}"
-class="btn-cancel">
+                        Batal
 
-Batal
+                    </a>
 
-</a>
+                @endif
 
-</div>
+            </div>
 
-</form>
+        </form>
 
-</div>
+    </div>
 
 </div>
 

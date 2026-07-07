@@ -15,191 +15,218 @@ use App\Http\Controllers\TemuanAuditorController;
 
 /*
 |--------------------------------------------------------------------------
-| AUDITOR
+| ROUTE AUDITOR
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth.session')->group(function () {
+Route::middleware([
+    'auth.session',
+    'auditor'
+])->prefix('auditor')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | DASHBOARD AUDITOR
+    | DASHBOARD
     |--------------------------------------------------------------------------
     */
 
     Route::get(
-        '/dashboard-auditor',
-        [DashboardAuditorController::class,'index']
+        '/dashboard',
+        [DashboardAuditorController::class, 'index']
     )->name('dashboard.auditor');
 
-/*
-|--------------------------------------------------------------------------
-| STANDAR MUTU
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | STANDAR MUTU
+    |--------------------------------------------------------------------------
+    */
 
-Route::get(
-    '/auditor/standar-mutu',
-    [StandarMutuAuditorController::class,'index']
-)->name('auditor.standarmutu.index');
+    Route::get(
+        '/standar-mutu',
+        [StandarMutuAuditorController::class, 'index']
+    )->name('auditor.standarmutu.index');
 
-Route::get(
-    '/auditor/standar-mutu/{id}',
-    [StandarMutuAuditorController::class,'show']
-)->name('auditor.standarmutu.show');
+    Route::get(
+        '/standar-mutu/{id}',
+        [StandarMutuAuditorController::class, 'show']
+    )->name('auditor.standarmutu.show');
 
-/*
-|--------------------------------------------------------------------------
-| ISI STANDAR AUDITOR
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | ISI STANDAR
+    |--------------------------------------------------------------------------
+    */
 
-Route::get(
-    '/auditor/standar-mutu/{id}/isi',
-    [IsiStandarAuditorController::class,'index']
-)->name('auditor.isi.index');
+    Route::get(
+        '/standar-mutu/{id}/isi',
+        [IsiStandarAuditorController::class, 'index']
+    )->name('auditor.isi.index');
 
-Route::get(
-    '/auditor/isi/{id}',
-    [IsiStandarAuditorController::class,'show']
-)->name('auditor.isi.show');
+    Route::get(
+        '/isi/{id}',
+        [IsiStandarAuditorController::class, 'show']
+    )->name('auditor.isi.show');
 
-/*
-|--------------------------------------------------------------------------
-| INDIKATOR AUDITOR
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | INDIKATOR
+    |--------------------------------------------------------------------------
+    */
 
-Route::get(
-    '/auditor/isi/{id}/indikator',
-    [IndikatorAuditorController::class,'index']
-)->name('auditor.indikator.index');
+    Route::get(
+        '/isi/{id}/indikator',
+        [IndikatorAuditorController::class, 'index']
+    )->name('auditor.indikator.index');
 
-Route::get(
-    '/auditor/indikator/{id}',
-    [IndikatorAuditorController::class,'show']
-)->name('auditor.indikator.show');
+    Route::get(
+        '/indikator/{id}',
+        [IndikatorAuditorController::class, 'show']
+    )->name('auditor.indikator.show');
 
-/*
-|--------------------------------------------------------------------------
-| PERIODE AMI AUDITOR
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | PERIODE AMI
+    |--------------------------------------------------------------------------
+    */
 
-Route::get(
-    '/auditor/periode',
-    [PeriodeAuditorController::class,'index']
-)->name('auditor.periode.index');
+    Route::get(
+        '/periode',
+        [PeriodeAuditorController::class, 'index']
+    )->name('auditor.periode.index');
 
-Route::get(
-    '/auditor/periode/{id}',
-    [PeriodeAuditorController::class,'show']
-)->name('auditor.periode.show');
+    Route::get(
+        '/periode/{id}',
+        [PeriodeAuditorController::class, 'show']
+    )->name('auditor.periode.show');
 
-/*
-|--------------------------------------------------------------------------
-| JADWAL AMI AUDITOR
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | JADWAL AMI
+    |--------------------------------------------------------------------------
+    */
 
-Route::get(
-    '/auditor/periode/{id}/jadwal',
-    [JadwalAuditorController::class,'index']
-)->name('auditor.jadwal.index');
+    Route::get(
+        '/periode/{id}/jadwal',
+        [JadwalAuditorController::class, 'index']
+    )->name('auditor.jadwal.index');
 
-Route::get(
-    '/auditor/jadwal/{id}',
-    [JadwalAuditorController::class,'show']
-)->name('auditor.jadwal.show');
+    Route::get(
+        '/jadwal/{id}',
+        [JadwalAuditorController::class, 'show']
+    )->name('auditor.jadwal.show');
 
-/*
-|--------------------------------------------------------------------------
-| TIM AMI AUDITOR
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | TIM AMI
+    |--------------------------------------------------------------------------
+    */
 
-Route::get(
-    '/auditor/periode/{id}/tim',
-    [TimAuditorController::class,'index']
-)->name('auditor.tim.index');
+    Route::get(
+        '/periode/{id}/tim',
+        [TimAuditorController::class, 'index']
+    )->name('auditor.tim.index');
 
-Route::get(
-    '/auditor/tim/{id}',
-    [TimAuditorController::class,'show']
-)->name('auditor.tim.show');
+    Route::get(
+        '/tim/{id}',
+        [TimAuditorController::class, 'show']
+    )->name('auditor.tim.show');
 
-/*
-|--------------------------------------------------------------------------
-| PENERAPAN STANDAR AUDITOR
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | PENERAPAN STANDAR
+    |--------------------------------------------------------------------------
+    */
 
-Route::get(
-    '/auditor/periode/{id}/penerapan',
-    [PenerapanAuditorController::class,'index']
-)->name('auditor.penerapan.index');
+    Route::get(
+        '/periode/{id}/penerapan',
+        [PenerapanAuditorController::class, 'index']
+    )->name('auditor.penerapan.index');
 
-Route::get(
-    '/auditor/periode/{id}/penerapan/{penerapan}',
-    [PenerapanAuditorController::class,'show']
-)->name('auditor.penerapan.show');
+    Route::get(
+        '/periode/{id}/penerapan/{penerapan}',
+        [PenerapanAuditorController::class, 'show']
+    )->name('auditor.penerapan.show');
 
+    /*
+    |--------------------------------------------------------------------------
+    | PERTANYAAN AMI
+    |--------------------------------------------------------------------------
+    */
 
-/*
-|--------------------------------------------------------------------------
-| PERTANYAAN AMI AUDITOR
-|--------------------------------------------------------------------------
-*/
+    Route::get(
+        '/periode/{id}/pertanyaan',
+        [PertanyaanAuditorController::class, 'index']
+    )->name('auditor.pertanyaan.index');
 
-Route::get(
-    '/auditor/periode/{id}/pertanyaan',
-    [PertanyaanAuditorController::class,'index']
-)->name('auditor.pertanyaan.index');
+    Route::get(
+        '/periode/{id}/pertanyaan/create',
+        [PertanyaanAuditorController::class, 'create']
+    )->name('auditor.pertanyaan.create');
 
-Route::get(
-    '/auditor/periode/{id}/pertanyaan/{pertanyaan}',
-    [PertanyaanAuditorController::class,'show']
-)->name('auditor.pertanyaan.show');
+    Route::post(
+        '/periode/{id}/pertanyaan',
+        [PertanyaanAuditorController::class, 'store']
+    )->name('auditor.pertanyaan.store');
 
-/*
-|--------------------------------------------------------------------------
-| TEMUAN AUDIT
-|--------------------------------------------------------------------------
-*/
+    Route::get(
+        '/pertanyaan/{pertanyaan}',
+        [PertanyaanAuditorController::class, 'show']
+    )->name('auditor.pertanyaan.show');
 
-Route::get(
-    '/auditor/temuan',
-    [TemuanAuditorController::class,'index']
-)->name('auditor.temuan.index');
+    Route::get(
+        '/pertanyaan/{pertanyaan}/edit',
+        [PertanyaanAuditorController::class, 'edit']
+    )->name('auditor.pertanyaan.edit');
 
-Route::get(
-    '/auditor/temuan/create',
-    [TemuanAuditorController::class,'create']
-)->name('auditor.temuan.create');
+    Route::put(
+        '/pertanyaan/{pertanyaan}',
+        [PertanyaanAuditorController::class, 'update']
+    )->name('auditor.pertanyaan.update');
 
-Route::post(
-    '/auditor/temuan',
-    [TemuanAuditorController::class,'store']
-)->name('auditor.temuan.store');
+    Route::delete(
+        '/pertanyaan/{pertanyaan}',
+        [PertanyaanAuditorController::class, 'destroy']
+    )->name('auditor.pertanyaan.destroy');
 
-Route::get(
-    '/auditor/temuan/{id}',
-    [TemuanAuditorController::class,'show']
-)->name('auditor.temuan.show');
+    /*
+    |--------------------------------------------------------------------------
+    | TEMUAN AUDIT
+    |--------------------------------------------------------------------------
+    */
 
-Route::get(
-    '/auditor/temuan/{id}/edit',
-    [TemuanAuditorController::class,'edit']
-)->name('auditor.temuan.edit');
+    Route::get(
+        '/temuan',
+        [TemuanAuditorController::class, 'index']
+    )->name('auditor.temuan.index');
 
-Route::put(
-    '/auditor/temuan/{id}',
-    [TemuanAuditorController::class,'update']
-)->name('auditor.temuan.update');
+    Route::get(
+        '/temuan/create',
+        [TemuanAuditorController::class, 'create']
+    )->name('auditor.temuan.create');
 
-Route::delete(
-    '/auditor/temuan/{id}',
-    [TemuanAuditorController::class,'destroy']
-)->name('auditor.temuan.destroy');
+    Route::post(
+        '/temuan',
+        [TemuanAuditorController::class, 'store']
+    )->name('auditor.temuan.store');
+
+    Route::get(
+        '/temuan/{id}',
+        [TemuanAuditorController::class, 'show']
+    )->name('auditor.temuan.show');
+
+    Route::get(
+        '/temuan/{id}/edit',
+        [TemuanAuditorController::class, 'edit']
+    )->name('auditor.temuan.edit');
+
+    Route::put(
+        '/temuan/{id}',
+        [TemuanAuditorController::class, 'update']
+    )->name('auditor.temuan.update');
+
+    Route::delete(
+        '/temuan/{id}',
+        [TemuanAuditorController::class, 'destroy']
+    )->name('auditor.temuan.destroy');
 
 });

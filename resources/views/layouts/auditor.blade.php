@@ -84,15 +84,15 @@
 
             <!-- AUDIT MUTU INTERNAL -->
 
-            <li class="{{ request()->routeIs('auditor.temuan.*') ? 'active' : '' }}">
+            <li class="{{ request()->routeIs('auditor.periode.*') ? 'active' : '' }}">
 
-                <a href="{{ route('auditor.temuan.index') }}">
+                  <a href="/auditor/standar-mutu">
 
-                    <i class="bi bi-clipboard-check"></i>
+                  <i class="bi bi-clipboard-check"></i>
 
-                    Audit Mutu Internal
+                   Audit Mutu Internal
 
-                </a>
+                  </a>
 
             </li>
 

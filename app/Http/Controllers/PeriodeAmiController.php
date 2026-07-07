@@ -29,7 +29,7 @@ class PeriodeAmiController extends Controller
     public function create()
     {
         $standarMutu = StandarMutu::all();
-        $unitKerja   = UnitKerja::all();
+        $unitKerja = UnitKerja::all();
 
         return view(
             'periode.create',
@@ -45,29 +45,64 @@ class PeriodeAmiController extends Controller
     // =========================
     public function store(Request $request)
     {
+        $request->validate([
+
+            'tahun' => 'required|integer|min:2025|max:2035',
+
+            'id_standar_mutu' => 'required|exists:standar_mutu,id',
+
+            'id_unit_kerja' => 'required|exists:unit_kerja,id',
+
+            'tujuan_audit' => 'required|string',
+
+            'lingkup_audit' => 'required|string',
+
+            'waktu_audit' => 'required|string',
+
+            'tanggal_buka_ami' => 'required|date',
+
+            'tanggal_tutup_ami' => 'required|date|after_or_equal:tanggal_buka_ami',
+
+            'status' => 'required|in:draft,berjalan,ditutup',
+
+        ]);
+
+        $user = session('user');
+
+        $idUser = is_array($user)
+            ? $user['id']
+            : $user->id;
+
         PeriodeAmi::create([
 
-            'tahun'              => $request->tahun,
-            'id_standar_mutu'    => $request->id_standar_mutu,
-            'id_unit_kerja'      => $request->id_unit_kerja,
-            'id_user'            => session('user')['id'],
+            'tahun' => $request->tahun,
 
-            'tujuan_audit'       => $request->tujuan_audit,
-            'lingkup_audit'      => $request->lingkup_audit,
-            'waktu_audit'        => $request->waktu_audit,
+            'id_standar_mutu' => $request->id_standar_mutu,
 
-            'tanggal_buka_ami'   => $request->tanggal_buka_ami,
-            'tanggal_tutup_ami'  => $request->tanggal_tutup_ami,
+            'id_unit_kerja' => $request->id_unit_kerja,
 
-            'status'             => $request->status
+            'id_user' => $idUser,
+
+            'tujuan_audit' => $request->tujuan_audit,
+
+            'lingkup_audit' => $request->lingkup_audit,
+
+            'waktu_audit' => $request->waktu_audit,
+
+            'tanggal_buka_ami' => $request->tanggal_buka_ami,
+
+            'tanggal_tutup_ami' => $request->tanggal_tutup_ami,
+
+            'status' => $request->status
+
         ]);
 
         return redirect()
-                ->route('periode-ami.index')
-                ->with(
-                    'success',
-                    'Periode AMI berhasil ditambahkan'
-                );
+            ->route('periode-ami.index')
+            ->with(
+                'success',
+                'Periode AMI berhasil ditambahkan.'
+            );
     }
 
     // =========================
@@ -93,8 +128,10 @@ class PeriodeAmiController extends Controller
     public function edit($id)
     {
         $data = PeriodeAmi::findOrFail($id);
+
         $standarMutu = StandarMutu::all();
-        $unitKerja   = UnitKerja::all();
+
+        $unitKerja = UnitKerja::all();
 
         return view(
             'periode.edit',
@@ -111,31 +148,58 @@ class PeriodeAmiController extends Controller
     // =========================
     public function update(Request $request, $id)
     {
+        $request->validate([
+
+            'tahun' => 'required|integer|min:2025|max:2035',
+
+            'id_standar_mutu' => 'required|exists:standar_mutu,id',
+
+            'id_unit_kerja' => 'required|exists:unit_kerja,id',
+
+            'tujuan_audit' => 'required|string',
+
+            'lingkup_audit' => 'required|string',
+
+            'waktu_audit' => 'required|string',
+
+            'tanggal_buka_ami' => 'required|date',
+
+            'tanggal_tutup_ami' => 'required|date|after_or_equal:tanggal_buka_ami',
+
+            'status' => 'required|in:draft,berjalan,ditutup',
+
+        ]);
+
         $data = PeriodeAmi::findOrFail($id);
 
         $data->update([
 
-            'tahun'             => $request->tahun,
-            'id_standar_mutu'   => $request->id_standar_mutu,
-            'id_unit_kerja'     => $request->id_unit_kerja,
+            'tahun' => $request->tahun,
 
-            'tujuan_audit'      => $request->tujuan_audit,
-            'lingkup_audit'     => $request->lingkup_audit,
-            'waktu_audit'       => $request->waktu_audit,
+            'id_standar_mutu' => $request->id_standar_mutu,
 
-            'tanggal_buka_ami'  => $request->tanggal_buka_ami,
+            'id_unit_kerja' => $request->id_unit_kerja,
+
+            'tujuan_audit' => $request->tujuan_audit,
+
+            'lingkup_audit' => $request->lingkup_audit,
+
+            'waktu_audit' => $request->waktu_audit,
+
+            'tanggal_buka_ami' => $request->tanggal_buka_ami,
+
             'tanggal_tutup_ami' => $request->tanggal_tutup_ami,
 
-            'status'            => $request->status
+            'status' => $request->status
 
         ]);
 
         return redirect()
-                ->route('periode-ami.index')
-                ->with(
-                    'success',
-                    'Periode AMI berhasil diperbarui'
-                );
+            ->route('periode-ami.index')
+            ->with(
+                'success',
+                'Periode AMI berhasil diperbarui.'
+            );
     }
 
     // =========================
@@ -163,10 +227,10 @@ class PeriodeAmiController extends Controller
         PeriodeAmi::destroy($id);
 
         return redirect()
-                ->route('periode-ami.index')
-                ->with(
-                    'success',
-                    'Periode AMI berhasil dihapus'
-                );
+            ->route('periode-ami.index')
+            ->with(
+                'success',
+                'Periode AMI berhasil dihapus.'
+            );
     }
 }

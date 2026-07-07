@@ -104,8 +104,10 @@
     </label>
 
     <textarea
-        name=""
-        required></textarea>
+    name="pertanyaan"
+    class="form-control"
+    rows="5"
+    required></textarea>
 
 </div>
 

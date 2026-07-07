@@ -11,17 +11,57 @@
     <div class="form-card">
 
         <h3 class="form-title">
-            Tambah Isi Standar
+
+            @if(isset($parent))
+
+                Tambah Isi Standar
+
+            @else
+
+                Tambah Isi Standar
+
+            @endif
+
         </h3>
 
-        <form action="{{ route('isi.store', $standarMutu->id) }}" method="POST">
+        @if(isset($parent))
+
+            <form action="{{ route('isi.node.store',$parent->id) }}" method="POST">
+
+        @else
+
+            <form action="{{ route('isi.store',$standarMutu->id) }}" method="POST">
+
+        @endif
 
             @csrf
+
+            @if(isset($parent))
+
+                <input
+                    type="hidden"
+                    name="parent_standar_id"
+                    value="{{ $parent->id }}">
+
+                <div class="form-group">
+
+                    <label>Parent Standar</label>
+
+                    <input
+                        type="text"
+                        value="{{ $parent->nama_standar }}"
+                        readonly>
+
+                </div>
+
+            @endif
 
             <div class="form-group">
 
                 <label for="nama_standar">
+
                     Nama Isi Standar
+
                 </label>
 
                 <input
@@ -30,27 +70,51 @@
                     name="nama_standar"
                     value="{{ old('nama_standar') }}"
                     placeholder="Masukkan nama isi standar"
-                    required
-                >
+                    required>
 
                 @error('nama_standar')
+
                     <small class="text-danger">
+
                         {{ $message }}
+
                     </small>
+
                 @enderror
 
             </div>
 
             <div class="form-action">
 
-                <button type="submit" class="btn-save">
+                <button
+                    type="submit"
+                    class="btn-save">
+
                     Simpan
+
                 </button>
 
-                <a href="{{ route('isi.index', $standarMutu->id) }}"
-                   class="btn-cancel">
-                    Batal
-                </a>
+                @if(isset($parent))
+
+                    <a
+                        href="{{ route('isi.show',$parent->id) }}"
+                        class="btn-cancel">
+
+                        Batal
+
+                    </a>
+
+                @else
+
+                    <a
+                        href="{{ route('isi.index',$standarMutu->id) }}"
+                        class="btn-cancel">
+
+                        Batal
+
+                    </a>
+
+                @endif
 
             </div>
 

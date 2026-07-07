@@ -3,40 +3,50 @@
 @section('content')
 
 <h3 class="breadcrumb">
-    Dashboard / Detail Periode AMI
+    Dashboard / Audit Mutu Internal
 </h3>
 
 <!-- TAB MENU -->
 <div class="tab-menu">
 
-    <a href="{{ route('auditor.periode.show',$periodeAmi->id) }}">
-        Detail Periode AMI
+    <a href="{{ route('auditor.temuan.index') }}">
+        Temuan Audit
     </a>
 
-    <a href="{{ route('auditor.penerapan.index',$periodeAmi->id) }}">
-        Penerapan Standar
-    </a>
-
-    <a href="{{ route('auditor.pertanyaan.index',$periodeAmi->id) }}"
+    <a href="{{ route('auditor.pertanyaan.index',$periode->id) }}"
        class="active">
         Pertanyaan AMI
     </a>
 
-    <a href="{{ route('auditor.tim.index',$periodeAmi->id) }}">
-        Tim AMI
+    <a href="#">
+        Tanggapan Auditee
     </a>
 
-    <a href="{{ route('auditor.jadwal.index',$periodeAmi->id) }}">
-        Jadwal AMI
+    <a href="#">
+        Akar Masalah
+    </a>
+
+    <a href="#">
+        Rekomendasi
+    </a>
+
+    <a href="#">
+        Kesimpulan
+    </a>
+
+    <a href="#">
+        Lampiran
     </a>
 
 </div>
 
 <div class="card">
 
+    <!-- HEADER -->
+
     <div class="card-header periode-header">
 
-        <div>
+        <div class="header-left">
 
             <h4>Data Pertanyaan AMI</h4>
 
@@ -44,13 +54,28 @@
 
                 Periode AMI :
 
-                <b>{{ $periodeAmi->tahun }}</b>
+                <b>{{ $periode->tahun }}</b>
 
             </small>
 
         </div>
 
+        <div class="header-right">
+
+            <a href="{{ route('auditor.pertanyaan.create',$periode->id) }}"
+               class="btn-add">
+
+                <i class="bi bi-plus-lg"></i>
+
+                Tambah Pertanyaan
+
+            </a>
+
+        </div>
+
     </div>
+
+    <!-- TABLE -->
 
     <div class="table-wrapper">
 
@@ -60,15 +85,23 @@
 
                 <tr>
 
-                    <th>No</th>
+                    <th width="70">
+                        No.
+                    </th>
 
-                    <th>Indikator</th>
+                    <th>
+                        Standar Mutu
+                    </th>
 
-                    <th>Pertanyaan</th>
+                    <th>
+                        Pertanyaan
+                    </th>
 
-                    <th>Dibuat Oleh</th>
+                    <th>
+                        Dibuat Oleh
+                    </th>
 
-                    <th width="90">
+                    <th width="170">
                         Aksi
                     </th>
 
@@ -78,65 +111,90 @@
 
             <tbody>
 
-            @forelse($data as $item)
+                @forelse($data as $item)
 
-            <tr>
+                <tr>
 
-                <td>
+                    <td>
 
-                    {{ $loop->iteration }}
+                        {{ $loop->iteration }}
 
-                </td>
+                    </td>
 
-                <td>
+                    <td>
 
-                    {{ $item->indikator }}
+                        {{ $item->penerapanStandar->standarMutuPeriodeAmi->standarMutu->nama_standar_mutu }}
 
-                </td>
+                    </td>
 
-                <td>
+                    <td>
 
-                    {{ $item->pertanyaan }}
+                        {{ \Illuminate\Support\Str::limit($item->pertanyaan,80) }}
 
-                </td>
+                    </td>
 
-                <td>
+                    <td>
 
-                    {{ $item->user->nama ?? '-' }}
+                        {{ $item->user->nama ?? '-' }}
 
-                </td>
+                    </td>
 
-                <td>
+                    <td>
 
-                    <div class="action-buttons">
+                        <div class="action-buttons">
 
-                        <a href="{{ route('auditor.pertanyaan.show',[$periodeAmi->id,$item->id]) }}"
-                           class="btn-icon btn-detail">
+                            <a href="{{ route('auditor.pertanyaan.show',$item->id) }}"
+                               class="btn-icon btn-detail">
 
-                            <i class="bi bi-eye"></i>
+                                <i class="bi bi-eye"></i>
 
-                        </a>
+                            </a>
 
-                    </div>
+                            <a href="{{ route('auditor.pertanyaan.edit',$item->id) }}"
+                               class="btn-icon btn-edit">
 
-                </td>
+                                <i class="bi bi-pencil"></i>
 
-            </tr>
+                            </a>
 
-            @empty
+                            <form
+                                action="{{ route('auditor.pertanyaan.destroy',$item->id) }}"
+                                method="POST"
+                                style="display:inline;">
 
-            <tr>
+                                @csrf
+                                @method('DELETE')
 
-                <td colspan="5"
-                    style="text-align:center;padding:20px;">
+                                <button
+                                    class="btn-icon btn-delete"
+                                    onclick="return confirm('Yakin ingin menghapus data?')">
 
-                    Belum ada Pertanyaan AMI
+                                    <i class="bi bi-trash"></i>
 
-                </td>
+                                </button>
 
-            </tr>
+                            </form>
 
-            @endforelse
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                @empty
+
+                <tr>
+
+                    <td colspan="5"
+                        style="text-align:center;padding:25px;">
+
+                        Belum ada Pertanyaan AMI
+
+                    </td>
+
+                </tr>
+
+                @endforelse
 
             </tbody>
 

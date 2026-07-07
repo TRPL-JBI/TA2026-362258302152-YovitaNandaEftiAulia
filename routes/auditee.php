@@ -9,7 +9,12 @@ use App\Http\Controllers\DashboardController;
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth.session')->group(function () {
+Route::middleware([
+    'auth.session',
+    'auditee'
+])->group(function () {
+
+    // seluruh route auditee
 
     /*
     |--------------------------------------------------------------------------

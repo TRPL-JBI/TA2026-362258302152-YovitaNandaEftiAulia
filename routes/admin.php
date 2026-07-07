@@ -13,8 +13,12 @@ use App\Http\Controllers\TimAmiController;
 use App\Http\Controllers\IndikatorStandarController;
 use App\Http\Controllers\JadwalAmiController;
 
-Route::middleware('auth.session')->group(function () {
+Route::middleware([
+    'auth.session',
+    'admin'
+])->group(function(){
 
+    // semua CRUD Admin
     /*
     |--------------------------------------------------------------------------
     | REDIRECT
@@ -43,19 +47,73 @@ Route::middleware('auth.session')->group(function () {
     Route::resource('standarmutu', StandarMutuController::class);
 
     /*
-    |--------------------------------------------------------------------------
-    | ISI STANDAR
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| ISI STANDAR MUTU
+|--------------------------------------------------------------------------
+*/
 
-    Route::get('/standarmutu/{standar}/isi', [IsiStandarMutuController::class,'index'])->name('isi.index');
-    Route::get('/standarmutu/{standar}/isi/create', [IsiStandarMutuController::class,'create'])->name('isi.create');
-    Route::post('/standarmutu/{standar}/isi/store', [IsiStandarMutuController::class,'store'])->name('isi.store');
+/*
+|--------------------------------------------------------------------------
+| ROOT
+|--------------------------------------------------------------------------
+*/
 
-    Route::get('/isi/{isi}', [IsiStandarMutuController::class,'show'])->name('isi.show');
-    Route::get('/isi/{isi}/edit', [IsiStandarMutuController::class,'edit'])->name('isi.edit');
-    Route::put('/isi/{isi}', [IsiStandarMutuController::class,'update'])->name('isi.update');
-    Route::delete('/isi/{isi}', [IsiStandarMutuController::class,'destroy'])->name('isi.destroy');
+Route::get(
+    '/standarmutu/{standar}/isi',
+    [IsiStandarMutuController::class,'index']
+)->name('isi.index');
+
+Route::get(
+    '/standarmutu/{standar}/isi/create',
+    [IsiStandarMutuController::class,'create']
+)->name('isi.create');
+
+Route::post(
+    '/standarmutu/{standar}/isi',
+    [IsiStandarMutuController::class,'store']
+)->name('isi.store');
+
+
+/*
+|--------------------------------------------------------------------------
+| NODE
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/isi/{id}',
+    [IsiStandarMutuController::class,'show']
+)->name('isi.show');
+
+Route::get(
+    '/isi/{id}/detail',
+    [IsiStandarMutuController::class,'detail']
+)->name('isi.detail');
+
+Route::get(
+    '/isi/{id}/create',
+    [IsiStandarMutuController::class,'create']
+)->name('isi.node.create');
+
+Route::post(
+    '/isi/{id}',
+    [IsiStandarMutuController::class,'store']
+)->name('isi.node.store');
+
+Route::get(
+    '/isi/{id}/edit',
+    [IsiStandarMutuController::class,'edit']
+)->name('isi.edit');
+
+Route::put(
+    '/isi/{id}',
+    [IsiStandarMutuController::class,'update']
+)->name('isi.update');
+
+Route::delete(
+    '/isi/{id}',
+    [IsiStandarMutuController::class,'destroy']
+)->name('isi.destroy');
 
     /*
     |--------------------------------------------------------------------------

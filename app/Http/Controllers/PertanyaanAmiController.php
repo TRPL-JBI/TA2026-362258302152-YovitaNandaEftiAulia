@@ -9,32 +9,65 @@ use App\Models\PenerapanStandar;
 
 class PertanyaanAmiController extends Controller
 {
-    // =========================
-    // INDEX
-    // =========================
-  public function index($id)
+
+// =========================
+// INDEX
+// =========================
+public function index($id)
 {
-    $data = PertanyaanAmi::all();
+    $periode = PeriodeAmi::findOrFail($id);
+
+    $data = PertanyaanAmi::with([
+        'user',
+        'penerapanStandar',
+        'penerapanStandar.standarMutuPeriodeAmi',
+        'penerapanStandar.standarMutuPeriodeAmi.standarMutu'
+    ])
+    ->whereHas(
+        'penerapanStandar.standarMutuPeriodeAmi',
+        function ($q) use ($id) {
+
+            $q->where(
+                'id_periode_ami',
+                $id
+            );
+
+        }
+    )
+    ->get();
 
     return view(
         'pertanyaan.index',
         compact(
             'data',
-            'id'
+            'periode'
         )
     );
 }
 
-    // =========================
-    // CREATE
-    // =========================
+// =========================
+// CREATE
+// =========================
 public function create($id)
 {
     $periode = PeriodeAmi::findOrFail($id);
 
     $penerapan = PenerapanStandar::with([
-        'standarMutuPeriode'
-    ])->get();
+        'standarMutuPeriodeAmi',
+        'standarMutuPeriodeAmi.standarMutu'
+    ])
+    ->whereHas(
+        'standarMutuPeriodeAmi',
+        function ($q) use ($id) {
+
+            $q->where(
+                'id_periode_ami',
+                $id
+            );
+
+        }
+    )
+    ->get();
 
     return view(
         'pertanyaan.create',
@@ -45,12 +78,147 @@ public function create($id)
     );
 }
 
-    // =========================
-    // STORE
-    // =========================
-    public function store(Request $request)
+// =========================
+// STORE
+// =========================
+public function store(Request $request)
 {
+    $request->validate([
+
+        'indikator' => 'required|string',
+
+        'referensi' => 'required|string',
+
+        'pertanyaan' => 'required|string',
+
+        'id_penerapan_standar' => 'required|exists:penerapan_standar,id',
+
+        'id_periode' => 'required|exists:periode_ami,id'
+
+    ]);
+
+    $cek = PenerapanStandar::where(
+        'id',
+        $request->id_penerapan_standar
+    )
+    ->whereHas(
+        'standarMutuPeriodeAmi',
+        function ($q) use ($request) {
+
+            $q->where(
+                'id_periode_ami',
+                $request->id_periode
+            );
+
+        }
+    )
+    ->exists();
+
+    if (!$cek) {
+
+        return back()
+            ->withErrors([
+                'id_penerapan_standar' =>
+                    'Penerapan Standar tidak sesuai dengan Periode AMI.'
+            ])
+            ->withInput();
+
+    }
+
+    $user = session('user');
+
+    $idUser = is_array($user)
+        ? $user['id']
+        : $user->id;
+
     PertanyaanAmi::create([
+
+        'indikator' => $request->indikator,
+
+        'referensi' => $request->referensi,
+
+        'pertanyaan' => $request->pertanyaan,
+
+        'id_penerapan_standar' => $request->id_penerapan_standar,
+
+        'id_user' => $idUser
+
+    ]);
+
+    return redirect()
+        ->route(
+            'pertanyaan.index',
+            $request->id_periode
+        )
+        ->with(
+            'success',
+            'Pertanyaan berhasil ditambahkan.'
+        );
+}
+
+// =========================
+// EDIT
+// =========================
+public function edit($id)
+{
+    $data = PertanyaanAmi::with([
+        'penerapanStandar',
+        'penerapanStandar.standarMutuPeriodeAmi'
+    ])->findOrFail($id);
+
+    $idPeriode = $data->penerapanStandar
+        ->standarMutuPeriodeAmi
+        ->id_periode_ami;
+
+    $penerapanStandar = PenerapanStandar::with([
+        'standarMutuPeriodeAmi',
+        'standarMutuPeriodeAmi.standarMutu'
+    ])
+    ->whereHas(
+        'standarMutuPeriodeAmi',
+        function ($q) use ($idPeriode) {
+
+            $q->where(
+                'id_periode_ami',
+                $idPeriode
+            );
+
+        }
+    )
+    ->get();
+
+    return view(
+        'pertanyaan.edit',
+        compact(
+            'data',
+            'penerapanStandar'
+        )
+    );
+}
+    // =========================
+// UPDATE
+// =========================
+public function update(
+    Request $request,
+    $id
+)
+{
+    $request->validate([
+
+        'indikator' => 'required|string',
+
+        'referensi' => 'required|string',
+
+        'pertanyaan' => 'required|string',
+
+        'id_penerapan_standar' =>
+            'required|exists:penerapan_standar,id'
+
+    ]);
+
+    $data = PertanyaanAmi::findOrFail($id);
+
+    $data->update([
 
         'indikator' =>
             $request->indikator,
@@ -62,80 +230,40 @@ public function create($id)
             $request->pertanyaan,
 
         'id_penerapan_standar' =>
-            $request->id_penerapan_standar,
-
-        'id_user' => is_array(session('user'))
-                ? session('user')['id']
-                : session('user')->id
+            $request->id_penerapan_standar
 
     ]);
 
     return redirect()
-        ->route(
-            'pertanyaan.index',
-            $request->id_periode
+        ->back()
+        ->with(
+            'success',
+            'Pertanyaan berhasil diperbarui.'
         );
 }
 
     // =========================
-    // EDIT
-    // =========================
-    public function edit($id)
-    {
-        $data = PertanyaanAmi::findOrFail($id);
+// DELETE
+// =========================
+public function destroy($id)
+{
+    $data = PertanyaanAmi::findOrFail($id);
 
-        $penerapanStandar = PenerapanStandar::all();
+    $periode = $data
+        ->penerapanStandar
+        ->standarMutuPeriodeAmi
+        ->id_periode_ami;
 
-        return view(
-            'pertanyaan.edit',
-            compact(
-                'data',
-                'penerapanStandar'
-            )
+    $data->delete();
+
+    return redirect()
+        ->route(
+            'pertanyaan.index',
+            $periode
+        )
+        ->with(
+            'success',
+            'Pertanyaan berhasil dihapus.'
         );
-    }
-
-    // =========================
-    // UPDATE
-    // =========================
-    public function update(
-        Request $request,
-        $id
-    )
-    {
-        $data = PertanyaanAmi::findOrFail($id);
-
-        $data->update([
-
-            'pertanyaan' =>
-                $request->pertanyaan,
-
-            'id_penerapan_standar' =>
-                $request->id_penerapan_standar
-        ]);
-
-        return redirect()
-            ->back()
-            ->with(
-                'success',
-                'Pertanyaan berhasil diperbarui'
-            );
-    }
-
-    // =========================
-    // DELETE
-    // =========================
-    public function destroy($id)
-    {
-        $data = PertanyaanAmi::findOrFail($id);
-
-        $data->delete();
-
-        return redirect()
-            ->back()
-            ->with(
-                'success',
-                'Pertanyaan berhasil dihapus'
-            );
     }
 }

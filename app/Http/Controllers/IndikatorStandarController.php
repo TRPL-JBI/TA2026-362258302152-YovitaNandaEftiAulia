@@ -12,14 +12,28 @@ class IndikatorStandarController extends Controller
     /**
      * Menampilkan daftar indikator
      */
-    public function index($isi)
+        public function index($isi)
     {
-        $isiStandar = IsiStandarMutu::findOrFail($isi);
+        $isiStandar = IsiStandarMutu::with('children')->findOrFail($isi);
+
+        // Tidak boleh membuka indikator jika masih punya child
+        if ($isiStandar->children->count() > 0) {
+
+            return redirect()
+                ->route('isi.children', $isi)
+                ->with(
+                    'error',
+                    'Indikator hanya dapat ditambahkan pada Sub Standar terakhir.'
+                );
+
+        }
 
         $indikator = IndikatorStandar::where(
             'id_isi_standar_mutu',
             $isi
-        )->orderBy('id')->get();
+        )
+        ->orderBy('id')
+        ->get();
 
         return view(
             'indikator.index',
@@ -33,9 +47,20 @@ class IndikatorStandarController extends Controller
     /**
      * Form tambah indikator
      */
-    public function create($isi)
+        public function create($isi)
     {
-        $isiStandar = IsiStandarMutu::findOrFail($isi);
+        $isiStandar = IsiStandarMutu::with('children')->findOrFail($isi);
+
+        if ($isiStandar->children->count() > 0) {
+
+            return redirect()
+                ->route('isi.children', $isi)
+                ->with(
+                    'error',
+                    'Indikator hanya dapat ditambahkan pada Sub Standar terakhir.'
+                );
+
+        }
 
         return view(
             'indikator.create',
@@ -46,8 +71,21 @@ class IndikatorStandarController extends Controller
     /**
      * Simpan indikator
      */
-    public function store(Request $request, $isi)
+        public function store(Request $request, $isi)
     {
+        $isiStandar = IsiStandarMutu::with('children')->findOrFail($isi);
+
+        if ($isiStandar->children->count() > 0) {
+
+            return redirect()
+                ->route('isi.children', $isi)
+                ->with(
+                    'error',
+                    'Indikator hanya dapat ditambahkan pada Sub Standar terakhir.'
+                );
+
+        }
+
         $request->validate([
             'deskripsi' => 'required'
         ]);

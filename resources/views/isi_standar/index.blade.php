@@ -45,7 +45,7 @@
                 href="{{ route('isi.node.create',$parent->id) }}"
                 class="btn-add">
 
-                + Tambah Isi Standar
+                + Tambah Sub Standar
 
             </a>
 
@@ -73,7 +73,7 @@
 
                 <th>Nama Isi Standar</th>
 
-                <th width="260">Aksi</th>
+                <th width="280">Aksi</th>
 
             </tr>
 
@@ -118,30 +118,17 @@
 
                     <div class="action-buttons">
 
-                        @if($item->children->count())
+                        {{-- SELALU BUKA NODE --}}
+                        <a
+                            href="{{ route('isi.show',$item->id) }}"
+                            class="btn-icon"
+                            style="background:#DBEAFE;color:#2563EB;">
 
-                            <a
-                                href="{{ route('isi.show',$item->id) }}"
-                                class="btn-icon"
-                                style="background:#DBEAFE;color:#2563EB;">
+                            <i class="bi bi-folder2-open"></i>
 
-                                <i class="bi bi-folder2-open"></i>
+                        </a>
 
-                            </a>
-
-                        @else
-
-                            <a
-                                href="{{ route('indikator.index',$item->id) }}"
-                                class="btn-icon"
-                                style="background:#DBEAFE;color:#2563EB;">
-
-                                <i class="bi bi-card-checklist"></i>
-
-                            </a>
-
-                        @endif
-
+                        {{-- DETAIL --}}
                         <a
                             href="{{ route('isi.detail',$item->id) }}"
                             class="btn-icon btn-detail">
@@ -150,6 +137,7 @@
 
                         </a>
 
+                        {{-- EDIT --}}
                         <a
                             href="{{ route('isi.edit',$item->id) }}"
                             class="btn-icon btn-edit">
@@ -158,6 +146,7 @@
 
                         </a>
 
+                        {{-- DELETE --}}
                         <form
                             action="{{ route('isi.destroy',$item->id) }}"
                             method="POST">
@@ -186,9 +175,13 @@
 
             <tr>
 
-                <td colspan="3" style="text-align:center;">
+                <td colspan="3" style="text-align:center;padding:30px;">
 
-                    Data belum tersedia
+                    <b>Belum ada Sub Standar</b>
+
+                    <br>
+
+                    Silakan klik tombol <b>Tambah Sub Standar</b> untuk membuat struktur berikutnya.
 
                 </td>
 

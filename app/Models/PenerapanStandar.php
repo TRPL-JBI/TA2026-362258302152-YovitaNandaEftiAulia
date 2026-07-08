@@ -17,6 +17,12 @@ class PenerapanStandar extends Model
         'id_user'
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | USER
+    |--------------------------------------------------------------------------
+    */
+
     public function user()
     {
         return $this->belongsTo(
@@ -24,6 +30,26 @@ class PenerapanStandar extends Model
             'id_user'
         );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELASI BARU
+    |--------------------------------------------------------------------------
+    */
+
+    public function standarmutuPeriode()
+    {
+        return $this->belongsTo(
+            StandarMutuPeriodeAmi::class,
+            'id_standarmutu_periodeami'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ALIAS RELASI LAMA
+    |--------------------------------------------------------------------------
+    */
 
     public function standarMutuPeriodeAmi()
     {
@@ -33,7 +59,13 @@ class PenerapanStandar extends Model
         );
     }
 
-    public function pertanyaanAmi()
+    /*
+    |--------------------------------------------------------------------------
+    | PERTANYAAN
+    |--------------------------------------------------------------------------
+    */
+
+    public function pertanyaan()
     {
         return $this->hasMany(
             PertanyaanAmi::class,

@@ -13,13 +13,9 @@
         <h3 class="form-title">
 
             @if(isset($parent))
-
-                Tambah Isi Standar
-
+                Tambah Sub Standar
             @else
-
                 Tambah Isi Standar
-
             @endif
 
         </h3>
@@ -49,8 +45,10 @@
 
                     <input
                         type="text"
+                        class="readonly-input"
                         value="{{ $parent->nama_standar }}"
-                        readonly>
+                        readonly
+                        disabled>
 
                 </div>
 
@@ -60,7 +58,11 @@
 
                 <label for="nama_standar">
 
-                    Nama Isi Standar
+                    @if(isset($parent))
+                        Nama Sub Standar
+                    @else
+                        Nama Isi Standar
+                    @endif
 
                 </label>
 
@@ -123,5 +125,27 @@
     </div>
 
 </div>
+
+<style>
+
+.readonly-input{
+
+    background:#F3F4F6 !important;
+    color:#6B7280 !important;
+    border:1px solid #D1D5DB !important;
+    cursor:not-allowed;
+    pointer-events:none;
+    user-select:none;
+
+}
+
+.readonly-input:focus{
+
+    outline:none;
+    box-shadow:none;
+
+}
+
+</style>
 
 @endsection

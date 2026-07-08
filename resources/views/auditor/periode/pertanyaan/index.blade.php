@@ -2,53 +2,88 @@
 
 @section('content')
 
+<!-- ===========================================================
+    BREADCRUMB
+=========================================================== -->
+
 <h3 class="breadcrumb">
-    Dashboard / Audit Mutu Internal
+
+    Dashboard /
+
+    Audit Mutu Internal /
+
+    Pertanyaan AMI
+
 </h3>
 
-<!-- TAB MENU -->
-<div class="tab-menu">
+<!-- ===========================================================
+    TAB MENU
+=========================================================== -->
+
+<div class="temuan-tab">
 
     <a href="{{ route('auditor.temuan.index') }}">
+
         Temuan Audit
+
     </a>
 
     <a href="{{ route('auditor.pertanyaan.index',$periode->id) }}"
        class="active">
+
         Pertanyaan AMI
+
     </a>
 
-    <a href="#">
+    <a href="{{ route('auditor.tanggapan.index') }}">
+
         Tanggapan Auditee
+
     </a>
 
     <a href="#">
+
         Akar Masalah
+
     </a>
 
     <a href="#">
+
         Rekomendasi
+
     </a>
 
     <a href="#">
+
         Kesimpulan
+
     </a>
 
     <a href="#">
+
         Lampiran
+
     </a>
 
 </div>
+
+<!-- ===========================================================
+    CARD
+=========================================================== -->
 
 <div class="card">
 
     <!-- HEADER -->
 
-    <div class="card-header periode-header">
+    <div class="temuan-header">
 
-        <div class="header-left">
+        <div>
 
-            <h4>Data Pertanyaan AMI</h4>
+            <h4>
+
+                Data Pertanyaan AMI
+
+            </h4>
 
             <small>
 
@@ -60,147 +95,179 @@
 
         </div>
 
-        <div class="header-right">
+        <a href="{{ route('auditor.pertanyaan.create',$periode->id) }}"
+           class="btn-add">
 
-            <a href="{{ route('auditor.pertanyaan.create',$periode->id) }}"
-               class="btn-add">
+            <i class="bi bi-plus-lg"></i>
 
-                <i class="bi bi-plus-lg"></i>
+            Tambah Pertanyaan
 
-                Tambah Pertanyaan
-
-            </a>
-
-        </div>
+        </a>
 
     </div>
 
     <!-- TABLE -->
 
-    <div class="table-wrapper">
+    <table>
 
-        <table class="custom-table">
+        <thead>
 
-            <thead>
+            <tr>
 
-                <tr>
+                <th width="70">
 
-                    <th width="70">
-                        No.
-                    </th>
+                    No
 
-                    <th>
-                        Standar Mutu
-                    </th>
+                </th>
 
-                    <th>
-                        Pertanyaan
-                    </th>
+                <th>
 
-                    <th>
-                        Dibuat Oleh
-                    </th>
+                    Standar Mutu
 
-                    <th width="170">
-                        Aksi
-                    </th>
+                </th>
 
-                </tr>
+                <th>
 
-            </thead>
+                    Indikator
 
-            <tbody>
+                </th>
 
-                @forelse($data as $item)
+                <th>
 
-                <tr>
+                    Pertanyaan
 
-                    <td>
+                </th>
 
-                        {{ $loop->iteration }}
+                <th>
 
-                    </td>
+                    Referensi
 
-                    <td>
+                </th>
 
-                        {{ $item->penerapanStandar->standarMutuPeriodeAmi->standarMutu->nama_standar_mutu }}
+                <th>
 
-                    </td>
+                    Dibuat Oleh
 
-                    <td>
+                </th>
 
-                        {{ \Illuminate\Support\Str::limit($item->pertanyaan,80) }}
+                <th width="180">
 
-                    </td>
+                    Aksi
 
-                    <td>
+                </th>
 
-                        {{ $item->user->nama ?? '-' }}
+            </tr>
 
-                    </td>
+        </thead>
 
-                    <td>
+        <tbody>
 
-                        <div class="action-buttons">
+        @forelse($data as $item)
 
-                            <a href="{{ route('auditor.pertanyaan.show',$item->id) }}"
-                               class="btn-icon btn-detail">
+            <tr>
 
-                                <i class="bi bi-eye"></i>
+                <td>
 
-                            </a>
+                    {{ $loop->iteration }}
 
-                            <a href="{{ route('auditor.pertanyaan.edit',$item->id) }}"
-                               class="btn-icon btn-edit">
+                </td>
 
-                                <i class="bi bi-pencil"></i>
+                <td>
 
-                            </a>
+                    {{ $item->penerapanStandar->standarMutuPeriodeAmi->standarMutu->nama_standar_mutu ?? '-' }}
 
-                            <form
-                                action="{{ route('auditor.pertanyaan.destroy',$item->id) }}"
-                                method="POST"
-                                style="display:inline;">
+                </td>
 
-                                @csrf
-                                @method('DELETE')
+                <td>
 
-                                <button
+                    {{ $item->indikator ?? '-' }}
+
+                </td>
+
+                <td>
+
+                    {{ $item->pertanyaan }}
+
+                </td>
+
+                <td>
+
+                    {{ $item->referensi ?? '-' }}
+
+                </td>
+
+                <td>
+
+                    {{ $item->user->nama ?? '-' }}
+
+                </td>
+
+                <td>
+
+                    <div class="action-buttons">
+
+                        <!-- DETAIL -->
+
+                        <a href="{{ route('auditor.pertanyaan.show',$item->id) }}"
+                           class="btn-icon btn-detail">
+
+                            <i class="bi bi-eye"></i>
+
+                        </a>
+
+                        <!-- EDIT -->
+
+                        <a href="{{ route('auditor.pertanyaan.edit',$item->id) }}"
+                           class="btn-icon btn-edit">
+
+                            <i class="bi bi-pencil"></i>
+
+                        </a>
+
+                        <!-- DELETE -->
+
+                        <form action="{{ route('auditor.pertanyaan.destroy',$item->id) }}"
+                              method="POST"
+                              style="display:inline;">
+
+                            @csrf
+
+                            @method('DELETE')
+
+                            <button type="submit"
                                     class="btn-icon btn-delete"
-                                    onclick="return confirm('Yakin ingin menghapus data?')">
+                                    onclick="return confirm('Yakin ingin menghapus data ini?')">
 
-                                    <i class="bi bi-trash"></i>
+                                <i class="bi bi-trash"></i>
 
-                                </button>
+                            </button>
 
-                            </form>
+                        </form>
 
-                        </div>
+                    </div>
 
-                    </td>
+                </td>
 
-                </tr>
+            </tr>
 
-                @empty
+        @empty
 
-                <tr>
+            <tr>
 
-                    <td colspan="5"
-                        style="text-align:center;padding:25px;">
+                <td colspan="7"
+                    class="table-empty">
 
-                        Belum ada Pertanyaan AMI
+                    Belum ada data Pertanyaan AMI.
 
-                    </td>
+                </td>
 
-                </tr>
+            </tr>
 
-                @endforelse
+        @endforelse
 
-            </tbody>
+        </tbody>
 
-        </table>
-
-    </div>
+    </table>
 
 </div>
 

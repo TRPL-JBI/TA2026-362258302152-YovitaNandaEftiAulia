@@ -3,51 +3,28 @@
 @section('content')
 
 <h3 class="breadcrumb">
-    Dashboard / Audit Mutu Internal / Detail Temuan Audit
+
+    Dashboard /
+
+    Audit Mutu Internal /
+
+    Detail Temuan Audit
+
 </h3>
-
-<!-- TAB MENU -->
-<div class="tab-menu">
-
-    <a href="{{ route('auditor.temuan.index') }}"
-       class="active">
-        Temuan Audit
-    </a>
-
-    <a href="#">
-        Tanggapan Auditee
-    </a>
-
-    <a href="#">
-        Akar Masalah
-    </a>
-
-    <a href="#">
-        Rekomendasi
-    </a>
-
-    <a href="#">
-        Kesimpulan
-    </a>
-
-    <a href="#">
-        Lampiran
-    </a>
-
-</div>
 
 <div class="card">
 
-    <div class="card-header periode-header">
+    <div class="card-header">
 
-        <div>
+        <h4>
 
-            <h4>Detail Temuan Audit</h4>
+            Detail Temuan Audit
 
-        </div>
+        </h4>
 
-        <a href="{{ route('auditor.temuan.index') }}"
-           class="btn-back">
+        <a
+            href="{{ route('auditor.temuan.index') }}"
+            class="btn-back">
 
             <i class="bi bi-arrow-left"></i>
 
@@ -61,61 +38,15 @@
 
         <tr>
 
-            <th width="250">
-                Periode AMI
-            </th>
+            <th width="220">
 
-            <td>
-
-                {{ $data->pertanyaan->penerapanStandar->standarMutuPeriodeAmi->periodeAmi->tahun }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <th>
-
-                Unit Kerja
+                Pertanyaan Audit
 
             </th>
 
             <td>
 
-                {{ $data->pertanyaan->penerapanStandar->standarMutuPeriodeAmi->periodeAmi->unitKerja->nama }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <th>
-
-                Standar Mutu
-
-            </th>
-
-            <td>
-
-                {{ $data->pertanyaan->penerapanStandar->standarMutuPeriodeAmi->standarMutu->nama_standar_mutu }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <th>
-
-                Pertanyaan AMI
-
-            </th>
-
-            <td>
-
-                {{ $data->pertanyaan->pertanyaan }}
+                {{ $temuan->pertanyaan->pertanyaan }}
 
             </td>
 
@@ -131,7 +62,7 @@
 
             <td>
 
-                {{ $data->temuan }}
+                {{ $temuan->temuan }}
 
             </td>
 
@@ -141,15 +72,15 @@
 
             <th>
 
-                Status
+                Status Temuan
 
             </th>
 
             <td>
 
-                @if($data->status_temuan=='open')
+                @if($temuan->status_temuan=='Open')
 
-                    <span class="badge-draft">
+                    <span class="badge-open">
 
                         Open
 
@@ -157,13 +88,29 @@
 
                 @else
 
-                    <span class="badge-berjalan">
+                    <span class="badge-close">
 
                         Closed
 
                     </span>
 
                 @endif
+
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <th>
+
+                Dibuat Oleh
+
+            </th>
+
+            <td>
+
+                {{ $temuan->pertanyaan->user->nama ?? '-' }}
 
             </td>
 

@@ -20,13 +20,18 @@ class PertanyaanAuditorController extends Controller
         $periode = PeriodeAmi::findOrFail($id);
 
         $data = PertanyaanAmi::with([
+
             'user',
-            'penerapanStandar',
-            'penerapanStandar.standarMutuPeriodeAmi',
-            'penerapanStandar.standarMutuPeriodeAmi.standarMutu'
+
+            'penerapan',
+
+            'penerapan.standarmutuPeriode',
+
+            'penerapan.standarmutuPeriode.standarMutu'
+
         ])
         ->whereHas(
-            'penerapanStandar.standarMutuPeriodeAmi',
+            'penerapan.standarmutuPeriode',
             function ($q) use ($id) {
 
                 $q->where(
@@ -36,6 +41,7 @@ class PertanyaanAuditorController extends Controller
 
             }
         )
+        ->orderBy('id','desc')
         ->get();
 
         return view(
@@ -58,11 +64,14 @@ class PertanyaanAuditorController extends Controller
         $periode = PeriodeAmi::findOrFail($id);
 
         $penerapan = PenerapanStandar::with([
-            'standarMutuPeriodeAmi',
-            'standarMutuPeriodeAmi.standarMutu'
+
+            'standarmutuPeriode',
+
+            'standarmutuPeriode.standarMutu'
+
         ])
         ->whereHas(
-            'standarMutuPeriodeAmi',
+            'standarmutuPeriode',
             function ($q) use ($id) {
 
                 $q->where(
@@ -72,6 +81,7 @@ class PertanyaanAuditorController extends Controller
 
             }
         )
+        ->orderBy('id','desc')
         ->get();
 
         return view(
@@ -83,7 +93,7 @@ class PertanyaanAuditorController extends Controller
         );
     }
 
-    /*
+        /*
     |--------------------------------------------------------------------------
     | STORE
     |--------------------------------------------------------------------------
@@ -140,7 +150,7 @@ class PertanyaanAuditorController extends Controller
             );
     }
 
-        /*
+    /*
     |--------------------------------------------------------------------------
     | SHOW
     |--------------------------------------------------------------------------
@@ -149,11 +159,17 @@ class PertanyaanAuditorController extends Controller
     public function show($pertanyaan)
     {
         $data = PertanyaanAmi::with([
+
             'user',
-            'penerapanStandar',
-            'penerapanStandar.standarMutuPeriodeAmi',
-            'penerapanStandar.standarMutuPeriodeAmi.standarMutu',
-            'penerapanStandar.standarMutuPeriodeAmi.periodeAmi'
+
+            'penerapan',
+
+            'penerapan.standarmutuPeriode',
+
+            'penerapan.standarmutuPeriode.standarMutu',
+
+            'penerapan.standarmutuPeriode.periodeAmi'
+
         ])->findOrFail($pertanyaan);
 
         return view(
@@ -162,7 +178,7 @@ class PertanyaanAuditorController extends Controller
         );
     }
 
-    /*
+        /*
     |--------------------------------------------------------------------------
     | EDIT
     |--------------------------------------------------------------------------
@@ -171,20 +187,26 @@ class PertanyaanAuditorController extends Controller
     public function edit($pertanyaan)
     {
         $data = PertanyaanAmi::with([
-            'penerapanStandar',
-            'penerapanStandar.standarMutuPeriodeAmi'
+
+            'penerapan',
+
+            'penerapan.standarmutuPeriode'
+
         ])->findOrFail($pertanyaan);
 
-        $idPeriode = $data->penerapanStandar
-            ->standarMutuPeriodeAmi
+        $idPeriode = $data->penerapan
+            ->standarmutuPeriode
             ->id_periode_ami;
 
         $penerapan = PenerapanStandar::with([
-            'standarMutuPeriodeAmi',
-            'standarMutuPeriodeAmi.standarMutu'
+
+            'standarmutuPeriode',
+
+            'standarmutuPeriode.standarMutu'
+
         ])
         ->whereHas(
-            'standarMutuPeriodeAmi',
+            'standarmutuPeriode',
             function ($q) use ($idPeriode) {
 
                 $q->where(
@@ -194,6 +216,7 @@ class PertanyaanAuditorController extends Controller
 
             }
         )
+        ->orderBy('id','desc')
         ->get();
 
         return view(
@@ -230,9 +253,12 @@ class PertanyaanAuditorController extends Controller
         ]);
 
         $data = PertanyaanAmi::with([
-             'penerapanStandar.standarMutuPeriodeAmi'
-        ])->findOrFail($pertanyaan);
 
+            'penerapan',
+
+            'penerapan.standarmutuPeriode'
+
+        ])->findOrFail($pertanyaan);
 
         $data->update([
 
@@ -253,8 +279,8 @@ class PertanyaanAuditorController extends Controller
         return redirect()
             ->route(
                 'auditor.pertanyaan.index',
-                $data->penerapanStandar
-                     ->standarMutuPeriodeAmi
+                $data->penerapan
+                     ->standarmutuPeriode
                      ->id_periode_ami
             )
             ->with(
@@ -269,26 +295,31 @@ class PertanyaanAuditorController extends Controller
     |--------------------------------------------------------------------------
     */
 
-   public function destroy($pertanyaan)
-{
-    $data = PertanyaanAmi::with([
-        'penerapanStandar.standarMutuPeriodeAmi'
-    ])->findOrFail($pertanyaan);
+    public function destroy($pertanyaan)
+    {
+        $data = PertanyaanAmi::with([
 
-    $idPeriode = $data->penerapanStandar
-        ->standarMutuPeriodeAmi
-        ->id_periode_ami;
+            'penerapan',
 
-    $data->delete();
+            'penerapan.standarmutuPeriode'
 
-    return redirect()
-        ->route(
-            'auditor.pertanyaan.index',
-            $idPeriode
-        )
-        ->with(
-            'success',
-            'Pertanyaan AMI berhasil dihapus.'
-        );
+        ])->findOrFail($pertanyaan);
+
+        $idPeriode = $data->penerapan
+            ->standarmutuPeriode
+            ->id_periode_ami;
+
+        $data->delete();
+
+        return redirect()
+            ->route(
+                'auditor.pertanyaan.index',
+                $idPeriode
+            )
+            ->with(
+                'success',
+                'Pertanyaan AMI berhasil dihapus.'
+            );
     }
 }
+

@@ -3,7 +3,12 @@
 @section('content')
 
 <h3 class="breadcrumb">
-    Dashboard / Standar Mutu / Isi Standar / Indikator
+
+    Dashboard /
+    Standar Mutu /
+    Isi Standar /
+    Indikator
+
 </h3>
 
 <div class="card">
@@ -20,19 +25,42 @@
             <small>
 
                 Isi Standar :
-
                 <b>{{ $isiStandar->nama_standar }}</b>
 
             </small>
 
         </div>
 
-        <a href="{{ route('indikator.create',$isiStandar->id) }}"
-           class="btn-add">
+        <div style="display:flex;gap:10px;">
 
-            + Tambah Indikator
+            @if($isiStandar->parent_standar_id)
 
-        </a>
+                <a href="{{ route('isi.show',$isiStandar->parent_standar_id) }}"
+                   class="btn-secondary">
+
+                    ← Kembali
+
+                </a>
+
+            @else
+
+                <a href="{{ route('isi.index',$isiStandar->id_standar_mutu) }}"
+                   class="btn-secondary">
+
+                    ← Kembali
+
+                </a>
+
+            @endif
+
+            <a href="{{ route('indikator.create',$isiStandar->id) }}"
+               class="btn-add">
+
+                + Tambah Indikator
+
+            </a>
+
+        </div>
 
     </div>
 
@@ -42,13 +70,11 @@
 
             <tr>
 
-                <th>No</th>
+                <th width="70">No</th>
 
                 <th>Deskripsi Indikator</th>
 
-                <th width="180">
-                    Aksi
-                </th>
+                <th width="220">Aksi</th>
 
             </tr>
 
@@ -74,27 +100,25 @@
 
                 <td>
 
-       <div class="action-buttons">
+                    <div class="action-buttons">
 
-    <!-- Detail -->
-    <a href="{{ route('indikator.show', $item->id) }}"
-       class="btn-icon btn-detail">
+                        {{-- Detail --}}
+                        <a href="{{ route('indikator.show',$item->id) }}"
+                           class="btn-icon btn-detail">
 
-        <i class="bi bi-eye"></i>
+                            <i class="bi bi-eye"></i>
 
-    </a>
+                        </a>
 
-    <!-- Edit -->
-    <a href="{{ route('indikator.edit', $item->id) }}"
-       class="btn-icon btn-edit">
+                        {{-- Edit --}}
+                        <a href="{{ route('indikator.edit',$item->id) }}"
+                           class="btn-icon btn-edit">
 
-        <i class="bi bi-pencil"></i>
+                            <i class="bi bi-pencil"></i>
 
-    </a>
+                        </a>
 
-                      <!-- Delete -->
-  
-
+                        {{-- Delete --}}
                         <form action="{{ route('indikator.destroy',$item->id) }}"
                               method="POST">
 
@@ -102,8 +126,9 @@
                             @method('DELETE')
 
                             <button
+                                type="submit"
                                 class="btn-icon btn-delete"
-                                onclick="return confirm('Yakin ingin menghapus?')">
+                                onclick="return confirm('Yakin ingin menghapus indikator ini?')">
 
                                 <i class="bi bi-trash"></i>
 
@@ -122,9 +147,9 @@
             <tr>
 
                 <td colspan="3"
-                    style="text-align:center">
+                    style="text-align:center;padding:30px;">
 
-                    Belum ada indikator
+                    Belum ada indikator.
 
                 </td>
 

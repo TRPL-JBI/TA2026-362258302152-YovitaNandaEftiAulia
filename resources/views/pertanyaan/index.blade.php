@@ -10,7 +10,7 @@
 
     <div class="card-header periode-header">
 
-        <a href="{{ route('pertanyaan.create', $id) }}"
+        <a href="{{ route('pertanyaan.create', $periode->id) }}"
         class="btn-add">
 
             <i class="bi bi-plus-lg"></i>

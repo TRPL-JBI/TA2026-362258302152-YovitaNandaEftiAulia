@@ -10,26 +10,25 @@ class PertanyaanAmi extends Model
 
     protected $fillable = [
 
-    'pertanyaan',
+        'pertanyaan',
 
-    'indikator',
+        'indikator',
 
-    'referensi',
+        'referensi',
 
-    'id_penerapan_standar',
+        'id_penerapan_standar',
 
-    'id_user'
-];
+        'id_user'
+
+    ];
 
     public $timestamps = false;
 
-    public function penerapanStandar()
-    {
-        return $this->belongsTo(
-            PenerapanStandar::class,
-            'id_penerapan_standar'
-        );
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | USER
+    |--------------------------------------------------------------------------
+    */
 
     public function user()
     {
@@ -39,11 +38,45 @@ class PertanyaanAmi extends Model
         );
     }
 
-    public function pertanyaan()
+    /*
+    |--------------------------------------------------------------------------
+    | RELASI BARU
+    |--------------------------------------------------------------------------
+    */
+
+    public function penerapan()
+    {
+        return $this->belongsTo(
+            PenerapanStandar::class,
+            'id_penerapan_standar'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ALIAS RELASI LAMA
+    |--------------------------------------------------------------------------
+    */
+
+    public function penerapanStandar()
+    {
+        return $this->belongsTo(
+            PenerapanStandar::class,
+            'id_penerapan_standar'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | TEMUAN
+    |--------------------------------------------------------------------------
+    */
+
+    public function temuan()
     {
         return $this->hasMany(
-            PertanyaanAmi::class,
-            'id_penerapan_standar'
+            TemuanAmi::class,
+            'id_pertanyaan'
         );
     }
 }

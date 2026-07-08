@@ -3,32 +3,86 @@
 @section('content')
 
 <h3 class="breadcrumb">
-    Dashboard / Standar Mutu / Isi Standar
+
+    Dashboard /
+
+    Standar Mutu
+
+    @foreach($breadcrumb as $item)
+
+        / {{ $item->nama_standar }}
+
+    @endforeach
+
 </h3>
 
 <div class="card">
 
     <div class="card-header"
-         style="display:flex;justify-content:space-between;align-items:center;">
+         style="display:flex;
+                justify-content:space-between;
+                align-items:center;">
 
         <div>
 
-            <h4>Data Isi Standar</h4>
+            <h4>
+
+                {{ $parent ? $parent->nama_standar : 'Data Isi Standar' }}
+
+            </h4>
 
             <small>
+
                 Standar Mutu :
+
                 <b>{{ $standar->nama_standar_mutu }}</b>
+
             </small>
 
         </div>
 
-        <a href="{{ route('auditor.standarmutu.index') }}"
-           class="btn-back">
+        <div style="display:flex;align-items:center;gap:10px;">
 
-            <i class="bi bi-arrow-left"></i>
-            Kembali
+            @if($parent)
 
-        </a>
+                @if($parent->parent)
+
+                    <a href="{{ route('auditor.isi.show',$parent->parent->id) }}"
+                       class="btn-back">
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        Kembali
+
+                    </a>
+
+                @else
+
+                    <a href="{{ route('auditor.isi.index',$standar->id) }}"
+                       class="btn-back">
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        Kembali
+
+                    </a>
+
+                @endif
+
+            @else
+
+                <a href="{{ route('auditor.standarmutu.index') }}"
+                   class="btn-back">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Kembali
+
+                </a>
+
+            @endif
+
+        </div>
 
     </div>
 
@@ -38,11 +92,11 @@
 
             <tr>
 
-                <th width="70">No.</th>
+                <th width="70">No</th>
 
                 <th>Nama Isi Standar</th>
 
-                <th width="120">Aksi</th>
+                <th width="180" style="text-align:center;">Aksi</th>
 
             </tr>
 
@@ -56,32 +110,70 @@
 
                 <td>{{ $loop->iteration }}</td>
 
-                <td>{{ $item->nama_standar }}</td>
+                <td>
 
+                    {{ $item->nama_standar }}
 
-               <td>
+                    @if($item->children->count())
 
-    <div class="action-buttons">
+                        <span
+                            style="
+                            background:#E0F2FE;
+                            color:#2563EB;
+                            padding:3px 8px;
+                            border-radius:20px;
+                            font-size:11px;
+                            margin-left:8px;">
 
-        <!-- Detail -->
-        <a href="{{ route('auditor.isi.show',$item->id) }}"
-           class="btn-icon btn-detail">
+                            {{ $item->children->count() }} Child
 
-            <i class="bi bi-eye"></i>
+                        </span>
 
-        </a>
+                    @endif
 
-        <!-- Indikator -->
-        <a href="{{ route('auditor.indikator.index',$item->id) }}"
-           class="btn-icon btn-list">
+                </td>
 
-            <i class="bi bi-list-check"></i>
+                <td>
 
-        </a>
+                    <div class="action-buttons">
 
-    </div>
+                        {{-- Icon pertama --}}
+                        @if($item->children->count())
 
-</td>
+                            <a href="{{ route('auditor.isi.show',$item->id) }}"
+                               class="btn-icon"
+                               style="background:#DCFCE7;color:#16A34A;"
+                               title="Buka Sub Standar">
+
+                                <i class="bi bi-card-checklist"></i>
+
+                            </a>
+
+                        @else
+
+                            <a href="{{ route('auditor.indikator.index',$item->id) }}"
+                               class="btn-icon"
+                               style="background:#DCFCE7;color:#16A34A;"
+                               title="Lihat Indikator">
+
+                                <i class="bi bi-card-checklist"></i>
+
+                            </a>
+
+                        @endif
+
+                        {{-- Detail --}}
+                        <a href="{{ route('auditor.isi.detail',$item->id) }}"
+                           class="btn-icon btn-detail"
+                           title="Detail">
+
+                            <i class="bi bi-eye"></i>
+
+                        </a>
+
+                    </div>
+
+                </td>
 
             </tr>
 
@@ -89,8 +181,8 @@
 
             <tr>
 
-                <td colspan="4"
-                    style="text-align:center;padding:25px;">
+                <td colspan="3"
+                    style="text-align:center;padding:30px;">
 
                     Belum ada Data Isi Standar
 

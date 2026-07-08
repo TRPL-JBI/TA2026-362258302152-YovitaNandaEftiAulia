@@ -12,6 +12,7 @@ use App\Http\Controllers\TimAuditorController;
 use App\Http\Controllers\PenerapanAuditorController;
 use App\Http\Controllers\PertanyaanAuditorController;
 use App\Http\Controllers\TemuanAuditorController;
+use App\Http\Controllers\TanggapanAuditorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,6 +67,11 @@ Route::middleware([
         '/isi/{id}',
         [IsiStandarAuditorController::class, 'show']
     )->name('auditor.isi.show');
+
+    Route::get(
+        '/isi/{id}/detail',
+        [IsiStandarAuditorController::class, 'detail']
+    )->name('auditor.isi.detail');
 
     /*
     |--------------------------------------------------------------------------
@@ -195,38 +201,54 @@ Route::middleware([
     */
 
     Route::get(
-        '/temuan',
-        [TemuanAuditorController::class, 'index']
-    )->name('auditor.temuan.index');
+    '/temuan',
+    [TemuanAuditorController::class,'index']
+)->name('auditor.temuan.index');
 
-    Route::get(
-        '/temuan/create',
-        [TemuanAuditorController::class, 'create']
-    )->name('auditor.temuan.create');
+Route::get(
+    '/temuan/create',
+    [TemuanAuditorController::class,'create']
+)->name('auditor.temuan.create');
 
-    Route::post(
-        '/temuan',
-        [TemuanAuditorController::class, 'store']
-    )->name('auditor.temuan.store');
+Route::post(
+    '/temuan',
+    [TemuanAuditorController::class,'store']
+)->name('auditor.temuan.store');
 
-    Route::get(
-        '/temuan/{id}',
-        [TemuanAuditorController::class, 'show']
-    )->name('auditor.temuan.show');
+Route::get(
+    '/temuan/{id}',
+    [TemuanAuditorController::class,'show']
+)->name('auditor.temuan.show');
 
-    Route::get(
-        '/temuan/{id}/edit',
-        [TemuanAuditorController::class, 'edit']
-    )->name('auditor.temuan.edit');
+Route::get(
+    '/temuan/{id}/edit',
+    [TemuanAuditorController::class,'edit']
+)->name('auditor.temuan.edit');
 
-    Route::put(
-        '/temuan/{id}',
-        [TemuanAuditorController::class, 'update']
-    )->name('auditor.temuan.update');
+Route::put(
+    '/temuan/{id}',
+    [TemuanAuditorController::class,'update']
+)->name('auditor.temuan.update');
 
-    Route::delete(
-        '/temuan/{id}',
-        [TemuanAuditorController::class, 'destroy']
-    )->name('auditor.temuan.destroy');
+Route::delete(
+    '/temuan/{id}',
+    [TemuanAuditorController::class,'destroy']
+)->name('auditor.temuan.destroy');
+
+/*
+|--------------------------------------------------------------------------
+| TANGGAPAN AUDITEE
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/tanggapan',
+    [TanggapanAuditorController::class,'index']
+)->name('auditor.tanggapan.index');
+
+Route::get(
+    '/tanggapan/{id}',
+    [TanggapanAuditorController::class,'show']
+)->name('auditor.tanggapan.show');
 
 });

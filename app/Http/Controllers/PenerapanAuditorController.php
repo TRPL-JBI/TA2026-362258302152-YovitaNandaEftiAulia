@@ -7,17 +7,26 @@ use App\Models\PenerapanStandar;
 
 class PenerapanAuditorController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | DAFTAR PENERAPAN STANDAR
+    |--------------------------------------------------------------------------
+    */
+
     public function index($id)
     {
         $periodeAmi = PeriodeAmi::findOrFail($id);
 
         $data = PenerapanStandar::with([
+
             'user',
-            'standarMutuPeriodeAmi.standarMutu'
+
+            'standarmutuPeriode.standarMutu'
+
         ])
         ->whereHas(
-            'standarMutuPeriodeAmi',
-            function($q) use($id){
+            'standarmutuPeriode',
+            function ($q) use ($id) {
 
                 $q->where(
                     'id_periode_ami',
@@ -26,6 +35,7 @@ class PenerapanAuditorController extends Controller
 
             }
         )
+        ->orderBy('id', 'desc')
         ->get();
 
         return view(
@@ -37,13 +47,22 @@ class PenerapanAuditorController extends Controller
         );
     }
 
-    public function show($id,$penerapan)
+    /*
+    |--------------------------------------------------------------------------
+    | DETAIL PENERAPAN STANDAR
+    |--------------------------------------------------------------------------
+    */
+
+    public function show($id, $penerapan)
     {
         $periodeAmi = PeriodeAmi::findOrFail($id);
 
         $data = PenerapanStandar::with([
+
             'user',
-            'standarMutuPeriodeAmi.standarMutu'
+
+            'standarmutuPeriode.standarMutu'
+
         ])->findOrFail($penerapan);
 
         return view(

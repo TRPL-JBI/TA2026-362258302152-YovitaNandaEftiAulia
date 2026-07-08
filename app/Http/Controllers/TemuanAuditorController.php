@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\TemuanAmi;
 use App\Models\PertanyaanAmi;
-use Illuminate\Http\Request;
 
 class TemuanAuditorController extends Controller
 {
@@ -18,16 +18,19 @@ class TemuanAuditorController extends Controller
     {
         $data = TemuanAmi::with([
             'pertanyaan',
-            'pertanyaan.penerapanStandar',
-            'pertanyaan.penerapanStandar.standarMutuPeriodeAmi',
-            'pertanyaan.penerapanStandar.standarMutuPeriodeAmi.standarMutu',
-            'pertanyaan.penerapanStandar.standarMutuPeriodeAmi.periodeAmi',
-            'pertanyaan.penerapanStandar.standarMutuPeriodeAmi.periodeAmi.unitKerja'
+            'pertanyaan.penerapan',
+            'pertanyaan.penerapan.standarmutuPeriode',
+            'pertanyaan.penerapan.standarmutuPeriode.periodeAmi',
+            'pertanyaan.penerapan.standarmutuPeriode.standarMutu',
+            'pertanyaan.penerapan.standarmutuPeriode.periodeAmi.unitKerja'
         ])
-        ->orderBy('id', 'desc')
+        ->orderBy('id','desc')
         ->get();
 
-        return view('auditor.temuan.index', compact('data'));
+        return view(
+            'auditor.temuan.index',
+            compact('data')
+        );
     }
 
     /*
@@ -36,29 +39,16 @@ class TemuanAuditorController extends Controller
     |--------------------------------------------------------------------------
     */
 
-   public function create()
-{
-    $pertanyaan = PertanyaanAmi::with([
+    public function create()
+    {
+        $pertanyaan = PertanyaanAmi::orderBy('pertanyaan')
+                        ->get();
 
-        'penerapanStandar',
-
-        'penerapanStandar.standarMutuPeriodeAmi',
-
-        'penerapanStandar.standarMutuPeriodeAmi.standarMutu',
-
-        'penerapanStandar.standarMutuPeriodeAmi.periodeAmi',
-
-        'penerapanStandar.standarMutuPeriodeAmi.periodeAmi.unitKerja'
-
-    ])
-    ->orderBy('id','desc')
-    ->get();
-
-    return view(
-        'auditor.temuan.create',
-        compact('pertanyaan')
-    );
-}
+        return view(
+            'auditor.temuan.create',
+            compact('pertanyaan')
+        );
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -91,8 +81,8 @@ class TemuanAuditorController extends Controller
         return redirect()
             ->route('auditor.temuan.index')
             ->with(
-              'success',
-              'Temuan Audit berhasil ditambahkan.'
+                'success',
+                'Temuan Audit berhasil ditambahkan.'
             );
     }
 
@@ -104,18 +94,19 @@ class TemuanAuditorController extends Controller
 
     public function show($id)
     {
-        $data = TemuanAmi::with([
+        $temuan = TemuanAmi::with([
+
             'pertanyaan',
-            'pertanyaan.penerapanStandar',
-            'pertanyaan.penerapanStandar.standarMutuPeriodeAmi',
-            'pertanyaan.penerapanStandar.standarMutuPeriodeAmi.standarMutu',
-            'pertanyaan.penerapanStandar.standarMutuPeriodeAmi.periodeAmi',
-            'pertanyaan.penerapanStandar.standarMutuPeriodeAmi.periodeAmi.unitKerja'
+
+            'tanggapan',
+
+            'akarMasalah'
+
         ])->findOrFail($id);
 
         return view(
             'auditor.temuan.show',
-            compact('data')
+            compact('temuan')
         );
     }
 
@@ -126,33 +117,20 @@ class TemuanAuditorController extends Controller
     */
 
     public function edit($id)
-{
-    $data = TemuanAmi::findOrFail($id);
+    {
+        $temuan = TemuanAmi::findOrFail($id);
 
-    $pertanyaan = PertanyaanAmi::with([
+        $pertanyaan = PertanyaanAmi::orderBy('pertanyaan')
+                        ->get();
 
-        'penerapanStandar',
-
-        'penerapanStandar.standarMutuPeriodeAmi',
-
-        'penerapanStandar.standarMutuPeriodeAmi.standarMutu',
-
-        'penerapanStandar.standarMutuPeriodeAmi.periodeAmi',
-
-        'penerapanStandar.standarMutuPeriodeAmi.periodeAmi.unitKerja'
-
-    ])
-    ->orderBy('id','desc')
-    ->get();
-
-    return view(
-        'auditor.temuan.edit',
-        compact(
-            'data',
-            'pertanyaan'
-        )
-    );
-}
+        return view(
+            'auditor.temuan.edit',
+            compact(
+                'temuan',
+                'pertanyaan'
+            )
+        );
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -172,9 +150,9 @@ class TemuanAuditorController extends Controller
 
         ]);
 
-        $data = TemuanAmi::findOrFail($id);
+        $temuan = TemuanAmi::findOrFail($id);
 
-        $data->update([
+        $temuan->update([
 
             'id_pertanyaan' => $request->id_pertanyaan,
 
@@ -185,11 +163,11 @@ class TemuanAuditorController extends Controller
         ]);
 
         return redirect()
-             ->route('auditor.temuan.index')
-             ->with(
-                  'success',
-                  'Temuan Audit berhasil diperbarui.'
-           );
+            ->route('auditor.temuan.index')
+            ->with(
+                'success',
+                'Temuan Audit berhasil diperbarui.'
+            );
     }
 
     /*
@@ -200,15 +178,15 @@ class TemuanAuditorController extends Controller
 
     public function destroy($id)
     {
-        $data = TemuanAmi::findOrFail($id);
+        $temuan = TemuanAmi::findOrFail($id);
 
-        $data->delete();
+        $temuan->delete();
 
         return redirect()
-             ->route('auditor.temuan.index')
-             ->with(
-                  'success',
-                  'Temuan Audit berhasil dihapus.'
-    );
+            ->route('auditor.temuan.index')
+            ->with(
+                'success',
+                'Temuan Audit berhasil dihapus.'
+            );
     }
 }

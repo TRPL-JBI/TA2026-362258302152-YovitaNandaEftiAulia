@@ -39,4 +39,6 @@ class StandarMutuPeriodeAmi extends Model
             'id_standarmutu_periodeami'
         );
     }
+
+    
 }

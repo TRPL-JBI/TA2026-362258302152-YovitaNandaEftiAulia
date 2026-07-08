@@ -19,7 +19,9 @@
 <div class="card">
 
     <div class="card-header"
-        style="display:flex;justify-content:space-between;align-items:center;">
+         style="display:flex;
+                justify-content:space-between;
+                align-items:center;">
 
         <div>
 
@@ -39,27 +41,74 @@
 
         </div>
 
-        @if($parent)
+        <div style="display:flex;align-items:center;gap:10px;">
 
-            <a
-                href="{{ route('isi.node.create',$parent->id) }}"
-                class="btn-add">
+            {{-- BUTTON KEMBALI --}}
+            @if($parent)
 
-                + Tambah Sub Standar
+                @if($parent->parent)
 
-            </a>
+                    <a href="{{ route('isi.show',$parent->parent->id) }}"
+                       class="btn-back">
 
-        @else
+                        <i class="bi bi-arrow-left"></i>
 
-            <a
-                href="{{ route('isi.create',$standarMutu->id) }}"
-                class="btn-add">
+                        Kembali
 
-                + Tambah Isi Standar
+                    </a>
 
-            </a>
+                @else
 
-        @endif
+                    <a href="{{ route('isi.index',$standarMutu->id) }}"
+                       class="btn-back">
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        Kembali
+
+                    </a>
+
+                @endif
+
+            @else
+
+                <a href="{{ route('standarmutu.index') }}"
+                   class="btn-back">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Kembali
+
+                </a>
+
+            @endif
+
+            {{-- BUTTON TAMBAH --}}
+            @if($parent)
+
+                <a href="{{ route('isi.node.create',$parent->id) }}"
+                   class="btn-add">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                    Tambah Sub Standar
+
+                </a>
+
+            @else
+
+                <a href="{{ route('isi.create',$standarMutu->id) }}"
+                   class="btn-add">
+
+                    <i class="bi bi-plus-lg"></i>
+
+                    Tambah Isi Standar
+
+                </a>
+
+            @endif
+
+        </div>
 
     </div>
 
@@ -99,14 +148,16 @@
 
                         <span
                             style="
-                            background:#E0F2FE;
-                            color:#2563EB;
-                            padding:3px 8px;
-                            border-radius:20px;
-                            font-size:11px;
-                            margin-left:10px;">
+                                background:#E0F2FE;
+                                color:#2563EB;
+                                padding:3px 8px;
+                                border-radius:20px;
+                                font-size:11px;
+                                margin-left:10px;">
 
-                            {{ $item->children->count() }} Child
+                            {{ $item->children->count() }}
+
+                            Child
 
                         </span>
 
@@ -118,38 +169,37 @@
 
                     <div class="action-buttons">
 
-                        {{-- SELALU BUKA NODE --}}
-                        <a
-                            href="{{ route('isi.show',$item->id) }}"
-                            class="btn-icon"
-                            style="background:#DBEAFE;color:#2563EB;">
+                        {{-- Folder --}}
+                        <a href="{{ route('isi.show',$item->id) }}"
+                           class="btn-icon"
+                           style="background:#DBEAFE;color:#2563EB;"
+                           title="Buka Sub Standar">
 
                             <i class="bi bi-folder2-open"></i>
 
                         </a>
 
-                        {{-- DETAIL --}}
-                        <a
-                            href="{{ route('isi.detail',$item->id) }}"
-                            class="btn-icon btn-detail">
+                        {{-- Detail --}}
+                        <a href="{{ route('isi.detail',$item->id) }}"
+                           class="btn-icon btn-detail"
+                           title="Detail">
 
                             <i class="bi bi-eye"></i>
 
                         </a>
 
-                        {{-- EDIT --}}
-                        <a
-                            href="{{ route('isi.edit',$item->id) }}"
-                            class="btn-icon btn-edit">
+                        {{-- Edit --}}
+                        <a href="{{ route('isi.edit',$item->id) }}"
+                           class="btn-icon btn-edit"
+                           title="Edit">
 
                             <i class="bi bi-pencil"></i>
 
                         </a>
 
-                        {{-- DELETE --}}
-                        <form
-                            action="{{ route('isi.destroy',$item->id) }}"
-                            method="POST">
+                        {{-- Delete --}}
+                        <form action="{{ route('isi.destroy',$item->id) }}"
+                              method="POST">
 
                             @csrf
                             @method('DELETE')
@@ -157,7 +207,7 @@
                             <button
                                 type="submit"
                                 class="btn-icon btn-delete"
-                                onclick="return confirm('Yakin hapus data ini?')">
+                                onclick="return confirm('Yakin ingin menghapus data ini?')">
 
                                 <i class="bi bi-trash"></i>
 
@@ -175,13 +225,18 @@
 
             <tr>
 
-                <td colspan="3" style="text-align:center;padding:30px;">
+                <td colspan="3"
+                    style="text-align:center;padding:35px;">
 
                     <b>Belum ada Sub Standar</b>
 
                     <br>
 
-                    Silakan klik tombol <b>Tambah Sub Standar</b> untuk membuat struktur berikutnya.
+                    Silakan klik tombol
+
+                    <b>Tambah Sub Standar</b>
+
+                    untuk membuat struktur berikutnya.
 
                 </td>
 

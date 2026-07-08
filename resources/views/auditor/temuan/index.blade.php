@@ -2,214 +2,302 @@
 
 @section('content')
 
+<!-- ===========================================================
+    BREADCRUMB
+=========================================================== -->
+
 <h3 class="breadcrumb">
-    Dashboard / Audit Mutu Internal
+
+    Dashboard /
+
+    Audit Mutu Internal /
+
+    Temuan Audit
+
 </h3>
 
-<!-- TAB MENU -->
-<div class="tab-menu">
-
-    <a href="{{ route('auditor.temuan.index') }}"
-       class="active">
-        Temuan Audit
-    </a>
-
-    <a href="#">
-        Tanggapan Auditee
-    </a>
-
-    <a href="#">
-        Akar Masalah
-    </a>
-
-    <a href="#">
-        Rekomendasi
-    </a>
-
-    <a href="#">
-        Kesimpulan
-    </a>
-
-    <a href="#">
-        Lampiran
-    </a>
-
-</div>
+<!-- ===========================================================
+    CARD
+=========================================================== -->
 
 <div class="card">
 
     <!-- HEADER -->
-    <div class="card-header periode-header">
 
-        <div class="header-left">
+    <div class="temuan-header">
 
-            <h4>Data Temuan Audit</h4>
+        <div>
+
+            <h4>
+
+                Daftar Temuan Audit
+
+            </h4>
+
+            <small>
+
+                Data Temuan Audit Mutu Internal
+
+            </small>
 
         </div>
 
-        <div class="header-right">
+        <a
+            href="{{ route('auditor.temuan.create') }}"
+            class="btn-add">
 
-            <a href="{{ route('auditor.temuan.create') }}"
-               class="btn-add">
+            <i class="bi bi-plus-lg"></i>
 
-                <i class="bi bi-plus-lg"></i>
-                Tambah Temuan Audit
+            Tambah Temuan
 
-            </a>
-
-        </div>
+        </a>
 
     </div>
 
-    <!-- TABLE -->
+    <!-- ======================================================
+        TAB MENU
+    ======================================================= -->
 
-    <div class="table-wrapper">
+    <div class="temuan-tab">
 
-        <table class="custom-table">
+        <a
+            href="{{ route('auditor.temuan.index') }}"
+            class="active">
 
-            <thead>
+            Temuan Audit
 
-                <tr>
+        </a>
 
-                    <th width="70">No.</th>
+        <a href="{{ route('auditor.tanggapan.index') }}"
+            class="{{ request()->routeIs('auditor.tanggapan.*') ? 'active' : '' }}">
+            Tanggapan Auditee
+        </a>
 
-                    <th>Periode AMI</th>
+            Tanggapan Auditee
 
-                    <th>Unit Kerja</th>
+        </a>
 
-                    <th>Standar Mutu</th>
+        <a href="#">
 
-                    <th>Temuan</th>
+            Akar Masalah
 
-                    <th>Status</th>
+        </a>
 
-                    <th width="170">
-                        Aksi
-                    </th>
+        <a href="#">
 
-                </tr>
+            Rekomendasi
 
-            </thead>
+        </a>
 
-            <tbody>
+        <a href="#">
+
+            Kesimpulan
+
+        </a>
+
+        <a href="#">
+
+            Lampiran
+
+        </a>
+
+    </div>
+
+    <!-- ======================================================
+        TABLE
+    ======================================================= -->
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th width="70">
+
+                    No
+
+                </th>
+
+                <th>
+
+                    Pertanyaan Audit
+
+                </th>
+
+                <th>
+
+                    Temuan
+
+                </th>
+
+                <th width="120">
+
+                    Status
+
+                </th>
+
+                <th width="180">
+
+                    Aksi
+
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
 
                 @forelse($data as $item)
 
-                <tr>
+        <tr>
 
-                    <td>
+            <!-- NOMOR -->
 
-                        {{ $loop->iteration }}
+            <td>
 
-                    </td>
+                {{ $loop->iteration }}
 
-                    <td>
+            </td>
 
-                        {{ $item->pertanyaan->penerapanStandar->standarMutuPeriodeAmi->periodeAmi->tahun ?? '-' }}
+            <!-- PERTANYAAN -->
 
-                    </td>
+            <td>
 
-                    <td>
+                {{ $item->pertanyaan->pertanyaan ?? '-' }}
 
-                        {{ $item->pertanyaan->penerapanStandar->standarMutuPeriodeAmi->periodeAmi->unitKerja->nama ?? '-' }}
+            </td>
 
-                    </td>
+            <!-- TEMUAN -->
 
-                    <td>
+            <td>
 
-                        {{ $item->pertanyaan->penerapanStandar->standarMutuPeriodeAmi->standarMutu->nama_standar_mutu ?? '-' }}
+                {{ $item->temuan }}
 
-                    </td>
+            </td>
 
-                    <td>
+            <!-- STATUS -->
 
-                        {{ \Illuminate\Support\Str::limit($item->temuan,70) }}
+            <td>
 
-                    </td>
+                @if($item->status_temuan == 'open')
 
-                    <td>
+                    <span class="badge-open">
 
-                        @if($item->status_temuan=='open')
+                        Open
 
-                            <span class="badge-draft">
+                    </span>
 
-                                Open
+                @elseif($item->status_temuan == 'closed')
 
-                            </span>
+                    <span class="badge-close">
 
-                        @else
+                        Closed
 
-                            <span class="badge-berjalan">
+                    </span>
 
-                                Closed
+                @else
 
-                            </span>
+                    <span class="badge-draft">
 
-                        @endif
+                        {{ ucfirst($item->status_temuan) }}
 
-                    </td>
+                    </span>
 
-                    <td>
+                @endif
 
-                        <div class="action-buttons">
+            </td>
 
-                            <a href="{{ route('auditor.temuan.show',$item->id) }}"
-                               class="btn-icon btn-detail">
+            <!-- AKSI -->
 
-                                <i class="bi bi-eye"></i>
+            <td>
 
-                            </a>
+                <div class="action-buttons">
 
-                            <a href="{{ route('auditor.temuan.edit',$item->id) }}"
-                               class="btn-icon btn-edit">
+                    <!-- DETAIL -->
 
-                                <i class="bi bi-pencil"></i>
+                    <a
+                        href="{{ route('auditor.temuan.show',$item->id) }}"
+                        class="btn-icon btn-detail"
+                        title="Detail">
 
-                            </a>
+                        <i class="bi bi-eye"></i>
 
-                            <form action="{{ route('auditor.temuan.destroy',$item->id) }}"
-                                  method="POST"
-                                  style="display:inline;">
+                    </a>
 
-                                @csrf
-                                @method('DELETE')
+                    <!-- EDIT -->
 
-                                <button type="submit"
-                                        class="btn-icon btn-delete"
-                                        onclick="return confirm('Yakin ingin menghapus data?')">
+                    <a
+                        href="{{ route('auditor.temuan.edit',$item->id) }}"
+                        class="btn-icon btn-edit"
+                        title="Edit">
 
-                                    <i class="bi bi-trash"></i>
+                        <i class="bi bi-pencil"></i>
 
-                                </button>
+                    </a>
 
-                            </form>
+                    <!-- HAPUS -->
 
-                        </div>
+                    <form
+                        action="{{ route('auditor.temuan.destroy',$item->id) }}"
+                        method="POST"
+                        style="display:inline;">
 
-                    </td>
+                        @csrf
 
-                </tr>
+                        @method('DELETE')
 
-                @empty
+                        <button
+                            type="submit"
+                            class="btn-icon btn-delete"
+                            onclick="return confirm('Yakin ingin menghapus data ini?')">
 
-                <tr>
+                            <i class="bi bi-trash"></i>
 
-                    <td colspan="7"
-                        style="text-align:center;padding:20px;">
+                        </button>
 
-                        Belum ada Data Temuan Audit
+                    </form>
 
-                    </td>
+                </div>
 
-                </tr>
+            </td>
 
-                @endforelse
+        </tr>
 
-            </tbody>
+        @empty
 
-        </table>
+        <tr>
 
-    </div>
+            <td
+                colspan="5"
+                class="table-empty">
+
+                Belum ada data Temuan Audit.
+
+            </td>
+
+        </tr>
+
+        @endforelse
+
+        </tbody>
+
+    </table>
+
+        <!-- ======================================================
+        FOOTER
+    ======================================================= -->
+
+    @if(session('success'))
+
+        <div class="alert-success">
+
+            {{ session('success') }}
+
+        </div>
+
+    @endif
 
 </div>
 

@@ -2,17 +2,17 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>SPMI Auditor</title>
 
-    <!-- CSS -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 
-    <!-- Bootstrap Icon -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
@@ -21,10 +21,10 @@
 
 <div class="wrapper">
 
-    <!-- SIDEBAR -->
+    <!-- ================= SIDEBAR ================= -->
+
     <div class="sidebar">
 
-        <!-- LOGO -->
         <div class="logo">
 
             <img src="{{ asset('images/poliwangi.png') }}"
@@ -40,104 +40,75 @@
 
         </div>
 
-        <!-- MENU -->
         <ul>
 
-            <!-- DASHBOARD -->
-            <li class="{{ request()->routeIs('dashboard.auditor') ? 'active' : '' }}">
+    <!-- DASHBOARD -->
+    <li class="{{ request()->routeIs('dashboard.auditor') ? 'active' : '' }}">
+        <a href="{{ route('dashboard.auditor') }}">
+            <i class="bi bi-house-door"></i>
+            Dashboard
+        </a>
+    </li>
 
-                <a href="{{ route('dashboard.auditor') }}">
+    <!-- STANDAR MUTU -->
+    <li class="{{ request()->routeIs('auditor.standarmutu.*') || request()->routeIs('auditor.isi.*') || request()->routeIs('auditor.indikator.*') ? 'active' : '' }}">
+        <a href="{{ route('auditor.standarmutu.index') }}">
+            <i class="bi bi-journal-text"></i>
+            Standar Mutu
+        </a>
+    </li>
 
-                    <i class="bi bi-house-door"></i>
+    <!-- PERIODE AMI -->
+    <li class="{{ request()->routeIs('auditor.periode.*') ? 'active' : '' }}">
+        <a href="{{ route('auditor.periode.index') }}">
+            <i class="bi bi-calendar-event"></i>
+            Periode AMI
+        </a>
+    </li>
 
-                    Dashboard
+    <!-- AUDIT MUTU INTERNAL -->
+    <li class="{{ request()->routeIs('auditor.temuan.*') ? 'active' : '' }}">
+        <a href="{{ route('auditor.temuan.index') }}">
+            <i class="bi bi-clipboard-check"></i>
+            Audit Mutu Internal
+        </a>
+    </li>
 
-                </a>
+    <!-- LAPORAN AMI -->
+    <li>
+        <a href="#">
+            <i class="bi bi-file-earmark-text"></i>
+            Laporan AMI
+        </a>
+    </li>
 
-            </li>
+    <!-- LOGOUT -->
+    <li>
 
-            <!-- STANDAR MUTU -->
-            <li class="{{ request()->routeIs('auditor.standarmutu.*') ? 'active' : '' }}">
+        <form action="{{ route('logout') }}" method="POST">
 
-                <a href="{{ route('auditor.standarmutu.index') }}">
+            @csrf
 
-                    <i class="bi bi-journal-text"></i>
+            <button type="submit" class="sidebar-logout">
 
-                    Standar Mutu
+                <i class="bi bi-box-arrow-right"></i>
 
-                </a>
+                Logout
 
-            </li>
+            </button>
 
-            <!-- PERIODE AMI -->
-            <li>
+        </form>
 
-                <a href="{{ route('auditor.periode.index') }}">
+    </li>
 
-                    <i class="bi bi-calendar-event"></i>
-
-                    Periode AMI
-
-                </a>
-
-            </li>
-
-            <!-- AUDIT MUTU INTERNAL -->
-
-            <li class="{{ request()->routeIs('auditor.periode.*') ? 'active' : '' }}">
-
-                  <a href="/auditor/standar-mutu">
-
-                  <i class="bi bi-clipboard-check"></i>
-
-                   Audit Mutu Internal
-
-                  </a>
-
-            </li>
-
-            <!-- LAPORAN -->
-            <li>
-
-                <a href="#">
-
-                    <i class="bi bi-file-earmark-text"></i>
-
-                    Laporan AMI
-
-                </a>
-
-            </li>
-
-            <!-- LOGOUT -->
-            <li>
-
-                <form action="{{ route('logout') }}"
-                      method="POST">
-
-                    @csrf
-
-                    <button type="submit"
-                            class="sidebar-logout">
-
-                        <i class="bi bi-box-arrow-right"></i>
-
-                        Logout
-
-                    </button>
-
-                </form>
-
-            </li>
-
-        </ul>
+</ul>
 
     </div>
 
-    <!-- MAIN -->
+    <!-- ================= MAIN ================= -->
+
     <div class="main">
 
-        <!-- NAVBAR -->
         <div class="navbar">
 
             <div class="search-box">
@@ -150,24 +121,23 @@
 
             </div>
 
-            <!-- PROFILE -->
             <div class="profile-dropdown">
 
-                <button
-                    class="profile-icon"
-                    id="profileBtn">
+                <button class="profile-icon"
+                        id="profileBtn">
 
                     <i class="bi bi-person-circle"></i>
 
                 </button>
 
                 @php
+
                     $user = session('user');
+
                 @endphp
 
-                <div
-                    class="dropdown-menu"
-                    id="profileMenu">
+                <div class="dropdown-menu"
+                     id="profileMenu">
 
                     @if($user)
 
@@ -185,15 +155,13 @@
 
                     @endif
 
-                    <form
-                        action="{{ route('logout') }}"
-                        method="POST">
+                    <form action="{{ route('logout') }}"
+                          method="POST">
 
                         @csrf
 
-                        <button
-                            type="submit"
-                            class="btn-logout">
+                        <button type="submit"
+                                class="btn-logout">
 
                             Logout
 
@@ -207,7 +175,6 @@
 
         </div>
 
-        <!-- CONTENT -->
         <div class="content">
 
             @yield('content')
@@ -221,6 +188,7 @@
 <script>
 
 const btn = document.getElementById('profileBtn');
+
 const menu = document.getElementById('profileMenu');
 
 btn.addEventListener('click', function(e){

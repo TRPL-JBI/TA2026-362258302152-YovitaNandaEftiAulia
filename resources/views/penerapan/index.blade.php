@@ -6,6 +6,31 @@
     Dashboard / Penerapan Standar
 </h3>
 
+<div class="tab-menu">
+
+    <a href="{{ route('periode-ami.show',$periode->id) }}"
+       class="active">
+        Detail Periode AMI
+    </a>
+
+    <a href="{{ route('penerapan.index',$periode->id) }}">
+        Penerapan Standar
+    </a>
+
+    <a href="{{ route('pertanyaan.index',$periode->id) }}">
+        Pertanyaan AMI
+    </a>
+
+    <a href="{{ route('tim-ami.index',$periode->id) }}">
+        Tim AMI
+    </a>
+
+    <a href="{{ route('jadwal.index',$periode->id) }}">
+    Jadwal AMI
+    </a>
+
+</div>
+
 <div class="card">
 
     <div class="table-wrapper">

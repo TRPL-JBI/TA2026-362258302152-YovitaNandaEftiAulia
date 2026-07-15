@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+
+use App\Services\StandarTreeService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,27 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        View::composer(
+
+            [
+                'layouts.app',
+                'layouts.auditor',
+                'layouts.auditee'
+            ],
+
+            function ($view) {
+
+                $tree = app(
+                    StandarTreeService::class
+                )->getTree();
+
+                $view->with(
+                    'sidebarStandar',
+                    $tree
+                );
+
+            }
+
+        );
     }
 }

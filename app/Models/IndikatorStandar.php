@@ -25,4 +25,21 @@ class IndikatorStandar extends Model
             'id_isi_standar_mutu'
         );
     }
+
+    /*
+|--------------------------------------------------------------------------
+| PENERAPAN
+|--------------------------------------------------------------------------
+*/
+
+public function penerapan()
+{
+    return $this->hasMany(
+
+        PenerapanStandar::class,
+
+        'id_indikator'
+
+    );
+}
 }

@@ -45,165 +45,143 @@
         <ul>
 
             <!-- DASHBOARD -->
- <ul>
+            <li class="{{ request()->routeIs('dashboard.auditee') ? 'active' : '' }}">
+                <a href="{{ route('dashboard.auditee') }}">
+                    <i class="bi bi-house-door"></i>
+                    Dashboard
+                </a>
+            </li>
 
-    <!-- DASHBOARD -->
-    <li>
-        <a href="{{ route('dashboard.auditee') }}">
-            <i class="bi bi-house-door"></i>
-            Dashboard
-        </a>
-    </li>
+            <!-- STANDAR MUTU -->
 
-    <!-- STANDAR PENDIDIKAN -->
-    <li>
+            @foreach($sidebarStandar as $standar)
+                <li class="{{
+                    request()->routeIs('auditee.standar.index') &&
+                    (string) request()->route('id') === (string) $standar->id
+                        ? 'active'
+                        : ''
+                }}">
+                    <a href="{{ route('auditee.standar.index', $standar->id) }}">
+                        <i class="bi bi-journal-check"></i>
+                        <span>{{ $standar->nama_standar_mutu }}</span>
+                    </a>
+                </li>
+            @endforeach
 
-        <a href="#" class="menu-utama">
+           
+
+          <!-- AUDIT AMI -->
+<li class="sidebar-dropdown-item">
+
+    <a
+        href="#"
+        class="menu-utama
+        {{
+            request()->routeIs('auditee.audit.*')
+                ? 'active-parent'
+                : ''
+        }}"
+    >
+
+        <span>
+            <i class="bi bi-clipboard-check"></i>
+            Audit AMI
+        </span>
+
+        <i class="bi bi-chevron-down menu-arrow"></i>
+
+    </a>
+
+    <ul
+        class="menu-level-1
+        {{
+            request()->routeIs('auditee.audit.*')
+                ? 'show'
+                : ''
+        }}"
+    >
+
+        <!-- TEMUAN AUDIT -->
+        <li
+            class="{{
+                request()->routeIs('auditee.audit.temuan.*')
+                    ? 'active'
+                    : ''
+            }}"
+        >
+            <a href="{{ route('auditee.audit.temuan.index') }}">
+                <i class="bi bi-search"></i>
+
+                <span>
+                    Temuan Audit
+                </span>
+            </a>
+        </li>
+
+        <!-- TIM AUDIT -->
+        <li
+            class="{{
+                request()->routeIs('auditee.audit.tim.*')
+                    ? 'active'
+                    : ''
+            }}"
+        >
+            <a href="{{ route('auditee.audit.tim.index') }}">
+                <i class="bi bi-people"></i>
+
+                <span>
+                    Tim Audit
+                </span>
+            </a>
+        </li>
+
+        <!-- JADWAL AUDIT -->
+        <li
+            class="{{
+                request()->routeIs('auditee.audit.jadwal.*')
+                    ? 'active'
+                    : ''
+            }}"
+        >
+            <a href="{{ route('auditee.audit.jadwal.index') }}">
+                <i class="bi bi-calendar-week"></i>
+
+                <span>
+                    Jadwal Audit
+                </span>
+            </a>
+        </li>
+
+    </ul>
+
+</li>
+
+            <!-- LOGOUT -->
+            
+<li class="sidebar-logout-item">
+
+    <form
+        action="{{ route('logout') }}"
+        method="POST"
+        class="logout-form"
+        onsubmit="return confirm('Apakah Anda yakin ingin keluar dari sistem?')"
+    >
+        @csrf
+
+        <button
+            type="submit"
+            class="logout-btn"
+        >
+            <i class="bi bi-box-arrow-right"></i>
 
             <span>
-                <i class="bi bi-journal-text"></i>
-                Standar Pendidikan 2026
-            </span>
-
-            <i class="bi bi-chevron-down"></i>
-
-        </a>
-
-        <ul class="menu-level-1">
-
-            <!-- STANDAR MASUKAN -->
-            <li>
-
-                <a href="#" class="menu-anak">
-
-                    <span>
-                        Standar Masukan
-                    </span>
-
-                    <i class="bi bi-chevron-down"></i>
-
-                </a>
-
-                <ul class="menu-level-2">
-
-                    <li>
-                        <a href="#">• Standar Dosen</a>
-                    </li>
-
-                    <li>
-                        <a href="#">• Standar Mahasiswa</a>
-                    </li>
-
-                </ul>
-
-            </li>
-
-            <!-- STANDAR MASUKAN 2 -->
-            <li>
-
-                <a href="#" class="menu-anak">
-
-                    <span>
-                        Standar Masukan
-                    </span>
-
-                    <i class="bi bi-chevron-down"></i>
-
-                </a>
-
-                <ul class="menu-level-2">
-
-                    <li>
-                        <a href="#">• Standar Pembelajaran</a>
-                    </li>
-
-                    <li>
-                        <a href="#">• Standar Penilaian</a>
-                    </li>
-
-                </ul>
-
-            </li>
-
-            <!-- STANDAR LUARAN -->
-            <li>
-
-                <a href="#" class="menu-anak">
-
-                    <span>
-                        Standar Luaran
-                    </span>
-
-                    <i class="bi bi-chevron-down"></i>
-
-                </a>
-
-                <ul class="menu-level-2">
-
-                    <li>
-                        <a href="#">
-                            • Standar Kompetensi Lulusan
-                        </a>
-                    </li>
-
-                </ul>
-
-            </li>
-
-        </ul>
-
-    </li>
-
-    <!-- AUDIT AMI -->
-    <li>
-
-        <a href="#" class="menu-utama">
-
-            <span>
-                <i class="bi bi-people-fill"></i>
-                Audit AMI
-            </span>
-
-            <i class="bi bi-chevron-down"></i>
-
-        </a>
-
-        <ul class="menu-level-1">
-
-            <li><a href="#">• Temuan</a></li>
-
-            <li><a href="#">• Tanggapan</a></li>
-
-            <li><a href="#">• Rekomendasi</a></li>
-
-            <li><a href="#">• Kesimpulan</a></li>
-
-            <li><a href="#">• Lampiran</a></li>
-
-        </ul>
-
-    </li>
-
-    <!-- LOGOUT -->
-    <li>
-
-        <form action="{{ route('logout') }}" method="POST">
-
-            @csrf
-
-            <button type="submit" class="sidebar-logout">
-
-                <i class="bi bi-box-arrow-right"></i>
-
                 Logout
+            </span>
+        </button>
 
-            </button>
+    </form>
 
-        </form>
-
-    </li>
-
-</ul>
+</li>
 
         </ul>
 
@@ -263,36 +241,41 @@
 
 <script>
 
-document.querySelectorAll('.menu-utama')
-.forEach(function(item){
+// MENU UTAMA
+document.querySelectorAll('.menu-utama').forEach(function(menu){
 
-    item.addEventListener('click', function(e){
+    menu.addEventListener('click',function(e){
 
         e.preventDefault();
 
-        let submenu =
-            this.nextElementSibling;
+        const submenu = this.nextElementSibling;
 
-        submenu.classList.toggle('show');
+        if(submenu){
+
+            submenu.classList.toggle('show');
+
+        }
 
     });
 
 });
 
+// MENU ANAK (RECURSIVE)
+document.querySelectorAll('.menu-anak').forEach(function(menu){
 
-document.querySelectorAll('.menu-anak')
-.forEach(function(item){
-
-    item.addEventListener('click', function(e){
+    menu.addEventListener('click',function(e){
 
         e.preventDefault();
 
         e.stopPropagation();
 
-        let submenu =
-            this.nextElementSibling;
+        const submenu = this.nextElementSibling;
 
-        submenu.classList.toggle('show');
+        if(submenu){
+
+            submenu.classList.toggle('show');
+
+        }
 
     });
 

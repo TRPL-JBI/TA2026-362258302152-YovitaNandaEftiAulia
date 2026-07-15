@@ -73,11 +73,9 @@
             Tanggapan Auditee
         </a>
 
-            Tanggapan Auditee
 
-        </a>
-
-        <a href="#">
+        <a href="{{ route('auditor.akarmasalah.index') }}"
+             class="{{ request()->routeIs('auditor.akarmasalah.*') ? 'active' : '' }}">
 
             Akar Masalah
 

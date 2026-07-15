@@ -139,4 +139,19 @@ class IsiStandarMutu extends Model
 
         return $level;
     }
+
+    /*
+|--------------------------------------------------------------------------
+| Recursive Children + Indikator
+|--------------------------------------------------------------------------
+*/
+
+public function recursiveChildrenWithIndikator()
+{
+    return $this->children()->with([
+        'recursiveChildrenWithIndikator',
+        'indikator.penerapan',
+        'standarMutu',
+    ]);
+}
 }

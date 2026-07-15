@@ -79,4 +79,19 @@ class PertanyaanAmi extends Model
             'id_pertanyaan'
         );
     }
+
+    /*
+|--------------------------------------------------------------------------
+| REKOMENDASI
+|--------------------------------------------------------------------------
+*/
+
+public function rekomendasi()
+{
+    return $this->hasMany(
+        RekomendasiPeningkatan::class,
+        'id_penerapan_standar'
+    );
+}
+
 }

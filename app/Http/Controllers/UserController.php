@@ -52,7 +52,7 @@ class UserController extends Controller
 
             'nama' => 'required|string|max:100',
 
-            'email' => 'required|email|unique:user,email',
+            'email' => 'required|email|unique:users,email',
 
             'password' => 'required|min:6',
 
@@ -121,7 +121,7 @@ class UserController extends Controller
 
             'nama' => 'required|string|max:100',
 
-            'email' => 'required|email|unique:user,email,' . $id,
+            'email' => 'required|email|unique:users,email,' . $id,
 
             'role' => 'required',
 

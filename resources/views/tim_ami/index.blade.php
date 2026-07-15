@@ -25,7 +25,7 @@
         Tim AMI
     </a>
 
-    <a href="#">
+    <a href="{{ route('jadwal.index',$periodeAmi->id) }}">
         Jadwal AMI
     </a>
 

@@ -75,25 +75,36 @@
     </li>
 
     <!-- LAPORAN AMI -->
-    <li>
-        <a href="#">
-            <i class="bi bi-file-earmark-text"></i>
-            Laporan AMI
-        </a>
-    </li>
 
-    <!-- LOGOUT -->
+<li class="{{ request()->routeIs('auditor.laporan.*') ? 'active' : '' }}">
+
+    <a href="{{ route('auditor.laporan.index') }}">
+
+        <i class="bi bi-file-earmark-text"></i>
+
+        Laporan AMI
+
+    </a>
+
+</li>
+
+       <!-- LOGOUT -->
     <li>
 
-        <form action="{{ route('logout') }}" method="POST">
+        <form
+            action="{{ route('logout') }}"
+            method="POST"
+            class="logout-form">
 
             @csrf
 
-            <button type="submit" class="sidebar-logout">
+            <button
+                type="submit"
+                class="logout-btn">
 
                 <i class="bi bi-box-arrow-right"></i>
 
-                Logout
+                <span>Logout</span>
 
             </button>
 
@@ -164,6 +175,7 @@
                                 class="btn-logout">
 
                             Logout
+                        
 
                         </button>
 

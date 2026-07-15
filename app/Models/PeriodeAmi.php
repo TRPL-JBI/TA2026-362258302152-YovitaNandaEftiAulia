@@ -90,4 +90,32 @@ public function jadwal()
     );
 }
 
+/*
+|--------------------------------------------------------------------------
+| KESIMPULAN AUDIT
+|--------------------------------------------------------------------------
+*/
+
+public function kesimpulanAudit()
+{
+    return $this->hasMany(
+        KesimpulanAudit::class,
+        'id_periode_ami'
+    );
+}
+
+/*
+|--------------------------------------------------------------------------
+| LAMPIRAN AUDIT
+|--------------------------------------------------------------------------
+*/
+
+public function lampiran()
+{
+    return $this->hasMany(
+        LampiranAudit::class,
+        'id_periode_ami'
+    );
+}
+
 }

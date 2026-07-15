@@ -40,5 +40,22 @@ class StandarMutuPeriodeAmi extends Model
         );
     }
 
+
+    /*
+|--------------------------------------------------------------------------
+| INDIKATOR
+|--------------------------------------------------------------------------
+*/
+
+public function indikator()
+{
+    return $this->belongsTo(
+
+        IndikatorStandar::class,
+
+        'id_indikator'
+
+    );
+}
     
 }

@@ -12,30 +12,16 @@ class PenerapanStandar extends Model
 
     protected $fillable = [
         'id_standarmutu_periodeami',
+        'id_indikator',
         'deskripsi_hasil',
         'link_bukti',
-        'id_user'
+        'id_user',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | USER
-    |--------------------------------------------------------------------------
-    */
 
     public function user()
     {
-        return $this->belongsTo(
-            User::class,
-            'id_user'
-        );
+        return $this->belongsTo(User::class, 'id_user');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RELASI BARU
-    |--------------------------------------------------------------------------
-    */
 
     public function standarmutuPeriode()
     {
@@ -45,30 +31,25 @@ class PenerapanStandar extends Model
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ALIAS RELASI LAMA
-    |--------------------------------------------------------------------------
-    */
-
     public function standarMutuPeriodeAmi()
     {
-        return $this->belongsTo(
-            StandarMutuPeriodeAmi::class,
-            'id_standarmutu_periodeami'
-        );
+        return $this->standarmutuPeriode();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PERTANYAAN
-    |--------------------------------------------------------------------------
-    */
+    public function indikator()
+    {
+        return $this->belongsTo(IndikatorStandar::class, 'id_indikator');
+    }
 
     public function pertanyaan()
     {
+        return $this->hasMany(PertanyaanAmi::class, 'id_penerapan_standar');
+    }
+
+    public function rekomendasi()
+    {
         return $this->hasMany(
-            PertanyaanAmi::class,
+            RekomendasiPeningkatan::class,
             'id_penerapan_standar'
         );
     }

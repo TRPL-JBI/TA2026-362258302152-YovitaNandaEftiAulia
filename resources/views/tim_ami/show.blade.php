@@ -2,87 +2,108 @@
 
 @section('content')
 
-<h3 class="breadcrumb">
+<div class="breadcrumb">
+
     Dashboard / Periode AMI / Detail Tim AMI
-</h3>
+
+</div>
 
 <div class="card">
 
     <div class="card-header">
 
-        <h4>
+        <h2 class="card-title">
+
             Detail Tim AMI
-        </h4>
+
+        </h2>
 
     </div>
 
-    <table class="detail-table">
+    <div class="table-wrapper">
 
-        <tr>
+        <table class="detail-table">
 
-            <th width="220">
-                Nama Auditor
-            </th>
+            <tbody>
 
-            <td>
+                <tr>
 
-                {{ $tim->user->nama }}
+                    <th width="280">
 
-            </td>
+                        Nama Auditor
 
-        </tr>
+                    </th>
 
-        <tr>
+                    <td>
 
-            <th>
-                Role
-            </th>
+                        {{ $tim->user->nama }}
 
-            <td>
+                    </td>
 
-                @if($tim->role == 'ketua auditor')
+                </tr>
 
-                    Ketua Auditor
+                <tr>
 
-                @elseif($tim->role == 'auditor')
+                    <th>
 
-                    Auditor
+                        Role
 
-                @else
+                    </th>
 
-                    Auditee
+                    <td>
 
-                @endif
+                        @if($tim->role == 'ketua auditor')
 
-            </td>
+                            Ketua Auditor
 
-        </tr>
+                        @elseif($tim->role == 'auditor')
 
-        <tr>
+                            Auditor
 
-            <th>
-                Periode AMI
-            </th>
+                        @else
 
-            <td>
+                            Auditee
 
-                {{ $tim->periode->tahun }}
+                        @endif
 
-            </td>
+                    </td>
 
-        </tr>
+                </tr>
 
-    </table>
+                <tr>
 
-    <br>
+                    <th>
 
-    <a
-        href="{{ route('tim-ami.index', $tim->id_periode_ami) }}"
-        class="btn-add">
+                        Periode AMI
 
-        Kembali
+                    </th>
 
-    </a>
+                    <td>
+
+                        {{ $tim->periode->tahun }}
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="form-footer">
+
+        <a href="{{ route('tim-ami.index',$tim->id_periode_ami) }}"
+           class="btn-secondary">
+
+            <i class="bi bi-arrow-left"></i>
+
+            Kembali
+
+        </a>
+
+    </div>
 
 </div>
 

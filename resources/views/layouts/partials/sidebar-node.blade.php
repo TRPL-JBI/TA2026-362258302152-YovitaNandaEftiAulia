@@ -1,4 +1,4 @@
-<li>
+﻿<li>
 
     @if($node->children->count())
 
@@ -33,7 +33,7 @@
 
         <a href="{{ route('auditee.standar.index',$node->id) }}">
 
-            • {{ $node->nama_standar }}
+            â€¢ {{ $node->nama_standar }}
 
         </a>
 

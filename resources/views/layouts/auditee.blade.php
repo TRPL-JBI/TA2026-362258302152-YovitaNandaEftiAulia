@@ -1,31 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="id">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPMI Auditee</title>
 
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <title>
+        SPMI Auditee
+    </title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {{-- CSS utama --}}
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/style.css') }}"
+    >
+
+    {{-- CSS dropdown profil --}}
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/profile-dropdown.css') }}"
+    >
+
+    {{-- CSS khusus halaman --}}
+    @stack('styles')
+
+    {{-- Bootstrap Icons --}}
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
+
 </head>
 
 <body>
 
 <div class="wrapper">
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
+    {{-- =====================================================
+         SIDEBAR
+    ====================================================== --}}
 
-        <!-- LOGO -->
+    <aside class="sidebar">
+
+        {{-- Logo --}}
         <div class="logo">
 
-            <img src="{{ asset('images/poliwangi.png') }}"
-                 alt="Logo"
-                 class="logo-img">
+            <img
+                src="{{ asset('images/poliwangi.png') }}"
+                alt="Logo Politeknik Negeri Banyuwangi"
+                class="logo-img"
+            >
 
             <div class="logo-text">
 
@@ -41,247 +71,410 @@
 
         </div>
 
-        <!-- MENU -->
+        {{-- Menu --}}
         <ul>
 
-            <!-- DASHBOARD -->
-            <li class="{{ request()->routeIs('dashboard.auditee') ? 'active' : '' }}">
+            {{-- Dashboard --}}
+            <li
+                class="{{
+                    request()->routeIs('dashboard.auditee')
+                    ? 'active'
+                    : ''
+                }}"
+            >
+
                 <a href="{{ route('dashboard.auditee') }}">
+
                     <i class="bi bi-house-door"></i>
-                    Dashboard
+
+                    <span>
+                        Dashboard
+                    </span>
+
                 </a>
+
             </li>
 
-            <!-- STANDAR MUTU -->
-
+            {{-- Standar Mutu --}}
             @foreach($sidebarStandar as $standar)
-                <li class="{{
-                    request()->routeIs('auditee.standar.index') &&
-                    (string) request()->route('id') === (string) $standar->id
+
+                <li
+                    class="{{
+                        request()->routeIs('auditee.standar.index')
+                        && (string) request()->route('id')
+                            === (string) $standar->id
                         ? 'active'
                         : ''
-                }}">
-                    <a href="{{ route('auditee.standar.index', $standar->id) }}">
+                    }}"
+                >
+
+                    <a
+                        href="{{ route(
+                            'auditee.standar.index',
+                            $standar->id
+                        ) }}"
+                    >
+
                         <i class="bi bi-journal-check"></i>
-                        <span>{{ $standar->nama_standar_mutu }}</span>
+
+                        <span>
+                            {{ $standar->nama_standar_mutu }}
+                        </span>
+
                     </a>
+
                 </li>
+
             @endforeach
 
-           
+            {{-- Audit AMI --}}
+            <li class="sidebar-dropdown-item">
 
-          <!-- AUDIT AMI -->
-<li class="sidebar-dropdown-item">
+                <a
+                    href="#"
+                    class="menu-utama
+                    {{
+                        request()->routeIs('auditee.audit.*')
+                        ? 'active-parent'
+                        : ''
+                    }}"
+                >
 
-    <a
-        href="#"
-        class="menu-utama
-        {{
-            request()->routeIs('auditee.audit.*')
-                ? 'active-parent'
-                : ''
-        }}"
-    >
+                    <span>
 
-        <span>
-            <i class="bi bi-clipboard-check"></i>
-            Audit AMI
-        </span>
+                        <i class="bi bi-clipboard-check"></i>
 
-        <i class="bi bi-chevron-down menu-arrow"></i>
+                        Audit AMI
 
-    </a>
+                    </span>
 
-    <ul
-        class="menu-level-1
-        {{
-            request()->routeIs('auditee.audit.*')
-                ? 'show'
-                : ''
-        }}"
-    >
+                    <i class="bi bi-chevron-down menu-arrow"></i>
 
-        <!-- TEMUAN AUDIT -->
-        <li
-            class="{{
-                request()->routeIs('auditee.audit.temuan.*')
-                    ? 'active'
-                    : ''
-            }}"
-        >
-            <a href="{{ route('auditee.audit.temuan.index') }}">
-                <i class="bi bi-search"></i>
+                </a>
 
-                <span>
-                    Temuan Audit
-                </span>
-            </a>
-        </li>
+                <ul
+                    class="menu-level-1
+                    {{
+                        request()->routeIs('auditee.audit.*')
+                        ? 'show'
+                        : ''
+                    }}"
+                >
 
-        <!-- TIM AUDIT -->
-        <li
-            class="{{
-                request()->routeIs('auditee.audit.tim.*')
-                    ? 'active'
-                    : ''
-            }}"
-        >
-            <a href="{{ route('auditee.audit.tim.index') }}">
-                <i class="bi bi-people"></i>
+                    {{-- Temuan Audit --}}
+                    <li
+                        class="{{
+                            request()->routeIs(
+                                'auditee.audit.temuan.*'
+                            )
+                            ? 'active'
+                            : ''
+                        }}"
+                    >
 
-                <span>
-                    Tim Audit
-                </span>
-            </a>
-        </li>
+                        <a
+                            href="{{ route(
+                                'auditee.audit.temuan.index'
+                            ) }}"
+                        >
 
-        <!-- JADWAL AUDIT -->
-        <li
-            class="{{
-                request()->routeIs('auditee.audit.jadwal.*')
-                    ? 'active'
-                    : ''
-            }}"
-        >
-            <a href="{{ route('auditee.audit.jadwal.index') }}">
-                <i class="bi bi-calendar-week"></i>
+                            <i class="bi bi-search"></i>
 
-                <span>
-                    Jadwal Audit
-                </span>
-            </a>
-        </li>
+                            <span>
+                                Temuan Audit
+                            </span>
 
-    </ul>
+                        </a>
 
-</li>
+                    </li>
 
-            <!-- LOGOUT -->
-            
-<li class="sidebar-logout-item">
+                    {{-- Tim Audit --}}
+                    <li
+                        class="{{
+                            request()->routeIs(
+                                'auditee.audit.tim.*'
+                            )
+                            ? 'active'
+                            : ''
+                        }}"
+                    >
 
-    <form
-        action="{{ route('logout') }}"
-        method="POST"
-        class="logout-form"
-        onsubmit="return confirm('Apakah Anda yakin ingin keluar dari sistem?')"
-    >
-        @csrf
+                        <a
+                            href="{{ route(
+                                'auditee.audit.tim.index'
+                            ) }}"
+                        >
 
-        <button
-            type="submit"
-            class="logout-btn"
-        >
-            <i class="bi bi-box-arrow-right"></i>
+                            <i class="bi bi-people"></i>
 
-            <span>
-                Logout
-            </span>
-        </button>
+                            <span>
+                                Tim Audit
+                            </span>
 
-    </form>
+                        </a>
 
-</li>
+                    </li>
+
+                    {{-- Jadwal Audit --}}
+                    <li
+                        class="{{
+                            request()->routeIs(
+                                'auditee.audit.jadwal.*'
+                            )
+                            ? 'active'
+                            : ''
+                        }}"
+                    >
+
+                        <a
+                            href="{{ route(
+                                'auditee.audit.jadwal.index'
+                            ) }}"
+                        >
+
+                            <i class="bi bi-calendar-week"></i>
+
+                            <span>
+                                Jadwal Audit
+                            </span>
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </li>
+
+            {{-- Logout --}}
+            <li class="sidebar-logout-item">
+
+                <form
+                    action="{{ route('logout') }}"
+                    method="POST"
+                    class="logout-form"
+                    onsubmit="
+                        return confirm(
+                            'Apakah Anda yakin ingin keluar dari sistem?'
+                        );
+                    "
+                >
+
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="logout-btn"
+                    >
+
+                        <i class="bi bi-box-arrow-right"></i>
+
+                        <span>
+                            Logout
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </li>
 
         </ul>
 
-    </div>
+    </aside>
 
-    <!-- MAIN -->
-    <div class="main">
+    {{-- =====================================================
+         MAIN
+    ====================================================== --}}
 
-        <!-- NAVBAR -->
+    <main class="main">
+
+        {{-- Navbar --}}
         <div class="navbar">
 
+            {{-- Search --}}
             <div class="search-box">
 
                 <i class="bi bi-search"></i>
 
-                <input type="text"
-                       placeholder="Search...">
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    aria-label="Search"
+                >
 
             </div>
 
-            <div class="profile-dropdown">
-
-                <button class="profile-icon"
-                        id="profileBtn">
-
-                    <i class="bi bi-person-circle"></i>
-
-                </button>
-
-                <div class="dropdown-menu"
-                     id="profileMenu">
-
-                    <p class="user-name">
-                        {{ session('user')['nama'] ?? '-' }}
-                    </p>
-
-                    <p class="user-role">
-                        Auditee
-                    </p>
-
-                </div>
-
-            </div>
+            {{-- Dropdown profil baru --}}
+            <x-profile-dropdown />
 
         </div>
 
-        <!-- CONTENT -->
+        {{-- Content --}}
         <div class="content">
 
             @yield('content')
 
         </div>
 
-    </div>
+    </main>
 
 </div>
 
 <script>
 
-// MENU UTAMA
-document.querySelectorAll('.menu-utama').forEach(function(menu){
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
 
-    menu.addEventListener('click',function(e){
+        /*
+        |--------------------------------------------------------------------------
+        | DROPDOWN MENU AUDIT AMI
+        |--------------------------------------------------------------------------
+        */
 
-        e.preventDefault();
+        document
+            .querySelectorAll('.menu-utama')
+            .forEach(function (menu) {
 
-        const submenu = this.nextElementSibling;
+                menu.addEventListener(
+                    'click',
+                    function (event) {
 
-        if(submenu){
+                        event.preventDefault();
 
-            submenu.classList.toggle('show');
+                        const submenu =
+                            this.nextElementSibling;
 
+                        if (!submenu) {
+                            return;
+                        }
+
+                        submenu.classList.toggle('show');
+
+                        this.classList.toggle(
+                            'is-open',
+                            submenu.classList.contains('show')
+                        );
+                    }
+                );
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | MENU ANAK REKURSIF
+        |--------------------------------------------------------------------------
+        */
+
+        document
+            .querySelectorAll('.menu-anak')
+            .forEach(function (menu) {
+
+                menu.addEventListener(
+                    'click',
+                    function (event) {
+
+                        event.preventDefault();
+
+                        event.stopPropagation();
+
+                        const submenu =
+                            this.nextElementSibling;
+
+                        if (!submenu) {
+                            return;
+                        }
+
+                        submenu.classList.toggle('show');
+                    }
+                );
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROFILE DROPDOWN
+        |--------------------------------------------------------------------------
+        */
+
+        const profileButton =
+            document.getElementById('profileBtn');
+
+        const profileMenu =
+            document.getElementById('profileMenu');
+
+        if (profileButton && profileMenu) {
+
+            profileButton.addEventListener(
+                'click',
+                function (event) {
+
+                    event.stopPropagation();
+
+                    const isOpen =
+                        profileMenu.classList.contains(
+                            'is-open'
+                        );
+
+                    profileMenu.classList.toggle(
+                        'is-open',
+                        !isOpen
+                    );
+
+                    profileButton.setAttribute(
+                        'aria-expanded',
+                        String(!isOpen)
+                    );
+                }
+            );
+
+            profileMenu.addEventListener(
+                'click',
+                function (event) {
+
+                    event.stopPropagation();
+                }
+            );
+
+            document.addEventListener(
+                'click',
+                function () {
+
+                    profileMenu.classList.remove(
+                        'is-open'
+                    );
+
+                    profileButton.setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
+                }
+            );
+
+            document.addEventListener(
+                'keydown',
+                function (event) {
+
+                    if (event.key !== 'Escape') {
+                        return;
+                    }
+
+                    profileMenu.classList.remove(
+                        'is-open'
+                    );
+
+                    profileButton.setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
+                }
+            );
         }
 
-    });
-
-});
-
-// MENU ANAK (RECURSIVE)
-document.querySelectorAll('.menu-anak').forEach(function(menu){
-
-    menu.addEventListener('click',function(e){
-
-        e.preventDefault();
-
-        e.stopPropagation();
-
-        const submenu = this.nextElementSibling;
-
-        if(submenu){
-
-            submenu.classList.toggle('show');
-
-        }
-
-    });
-
-});
+    }
+);
 
 </script>
 
 </body>
+
 </html>

@@ -1,19 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="id">
 
 <head>
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>SPMI Auditor</title>
+    <title>
+        SPMI Auditor
+    </title>
 
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    {{-- CSS utama --}}
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/style.css') }}"
+    >
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    {{-- CSS dropdown profil --}}
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/profile-dropdown.css') }}"
+    >
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {{-- CSS khusus halaman --}}
+    @stack('styles')
+
+    {{-- Bootstrap Icons --}}
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
 
 </head>
 
@@ -21,208 +42,327 @@
 
 <div class="wrapper">
 
-    <!-- ================= SIDEBAR ================= -->
+    {{-- =====================================================
+         SIDEBAR
+    ====================================================== --}}
 
-    <div class="sidebar">
+    <aside class="sidebar">
 
+        {{-- Logo --}}
         <div class="logo">
 
-            <img src="{{ asset('images/poliwangi.png') }}"
-                 class="logo-img">
+            <img
+                src="{{ asset('images/poliwangi.png') }}"
+                alt="Logo Politeknik Negeri Banyuwangi"
+                class="logo-img"
+            >
 
             <div class="logo-text">
 
-                <strong>Sistem Informasi SPMI</strong>
+                <strong>
+                    Sistem Informasi SPMI
+                </strong>
 
-                <small>Politeknik Negeri Banyuwangi</small>
+                <small>
+                    Politeknik Negeri Banyuwangi
+                </small>
 
             </div>
 
         </div>
 
+        {{-- Menu --}}
         <ul>
 
-    <!-- DASHBOARD -->
-    <li class="{{ request()->routeIs('dashboard.auditor') ? 'active' : '' }}">
-        <a href="{{ route('dashboard.auditor') }}">
-            <i class="bi bi-house-door"></i>
-            Dashboard
-        </a>
-    </li>
+            {{-- Dashboard --}}
+            <li
+                class="{{
+                    request()->routeIs('dashboard.auditor')
+                    ? 'active'
+                    : ''
+                }}"
+            >
 
-    <!-- STANDAR MUTU -->
-    <li class="{{ request()->routeIs('auditor.standarmutu.*') || request()->routeIs('auditor.isi.*') || request()->routeIs('auditor.indikator.*') ? 'active' : '' }}">
-        <a href="{{ route('auditor.standarmutu.index') }}">
-            <i class="bi bi-journal-text"></i>
-            Standar Mutu
-        </a>
-    </li>
+                <a href="{{ route('dashboard.auditor') }}">
 
-    <!-- PERIODE AMI -->
-    <li class="{{ request()->routeIs('auditor.periode.*') ? 'active' : '' }}">
-        <a href="{{ route('auditor.periode.index') }}">
-            <i class="bi bi-calendar-event"></i>
-            Periode AMI
-        </a>
-    </li>
+                    <i class="bi bi-house-door"></i>
 
-    <!-- AUDIT MUTU INTERNAL -->
-    <li class="{{ request()->routeIs('auditor.temuan.*') ? 'active' : '' }}">
-        <a href="{{ route('auditor.temuan.index') }}">
-            <i class="bi bi-clipboard-check"></i>
-            Audit Mutu Internal
-        </a>
-    </li>
+                    <span>
+                        Dashboard
+                    </span>
 
-    <!-- LAPORAN AMI -->
+                </a>
 
-<li class="{{ request()->routeIs('auditor.laporan.*') ? 'active' : '' }}">
+            </li>
 
-    <a href="{{ route('auditor.laporan.index') }}">
+            {{-- Standar Mutu --}}
+            <li
+                class="{{
+                    request()->routeIs('auditor.standarmutu.*')
+                    || request()->routeIs('auditor.isi.*')
+                    || request()->routeIs('auditor.indikator.*')
+                    ? 'active'
+                    : ''
+                }}"
+            >
 
-        <i class="bi bi-file-earmark-text"></i>
+                <a href="{{ route('auditor.standarmutu.index') }}">
 
-        Laporan AMI
+                    <i class="bi bi-journal-text"></i>
 
-    </a>
+                    <span>
+                        Standar Mutu
+                    </span>
 
-</li>
+                </a>
 
-       <!-- LOGOUT -->
-    <li>
+            </li>
 
-        <form
-            action="{{ route('logout') }}"
-            method="POST"
-            class="logout-form">
+            {{-- Periode AMI --}}
+            <li
+                class="{{
+                    request()->routeIs('auditor.periode.*')
+                    ? 'active'
+                    : ''
+                }}"
+            >
 
-            @csrf
+                <a href="{{ route('auditor.periode.index') }}">
 
-            <button
-                type="submit"
-                class="logout-btn">
+                    <i class="bi bi-calendar-event"></i>
 
-                <i class="bi bi-box-arrow-right"></i>
+                    <span>
+                        Periode AMI
+                    </span>
 
-                <span>Logout</span>
+                </a>
 
-            </button>
+            </li>
 
-        </form>
+            {{-- Audit Mutu Internal --}}
+            <li
+                class="{{
+                    request()->routeIs('auditor.temuan.*')
+                    ? 'active'
+                    : ''
+                }}"
+            >
 
-    </li>
+                <a href="{{ route('auditor.temuan.index') }}">
 
-</ul>
+                    <i class="bi bi-clipboard-check"></i>
 
-    </div>
+                    <span>
+                        Audit Mutu Internal
+                    </span>
 
-    <!-- ================= MAIN ================= -->
+                </a>
 
-    <div class="main">
+            </li>
 
+            {{-- Laporan AMI --}}
+            <li
+                class="{{
+                    request()->routeIs('auditor.laporan.*')
+                    ? 'active'
+                    : ''
+                }}"
+            >
+
+                <a href="{{ route('auditor.laporan.index') }}">
+
+                    <i class="bi bi-file-earmark-text"></i>
+
+                    <span>
+                        Laporan AMI
+                    </span>
+
+                </a>
+
+            </li>
+
+            {{-- Logout --}}
+            <li>
+
+                <form
+                    action="{{ route('logout') }}"
+                    method="POST"
+                    class="logout-form"
+                    onsubmit="
+                        return confirm(
+                            'Apakah Anda yakin ingin keluar dari sistem?'
+                        );
+                    "
+                >
+
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="logout-btn"
+                    >
+
+                        <i class="bi bi-box-arrow-right"></i>
+
+                        <span>
+                            Logout
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </li>
+
+        </ul>
+
+    </aside>
+
+    {{-- =====================================================
+         MAIN
+    ====================================================== --}}
+
+    <main class="main">
+
+        {{-- Navbar --}}
         <div class="navbar">
 
+            {{-- Search --}}
             <div class="search-box">
 
                 <i class="bi bi-search"></i>
 
                 <input
                     type="text"
-                    placeholder="Search...">
+                    placeholder="Search..."
+                    aria-label="Search"
+                >
 
             </div>
 
-            <div class="profile-dropdown">
-
-                <button class="profile-icon"
-                        id="profileBtn">
-
-                    <i class="bi bi-person-circle"></i>
-
-                </button>
-
-                @php
-
-                    $user = session('user');
-
-                @endphp
-
-                <div class="dropdown-menu"
-                     id="profileMenu">
-
-                    @if($user)
-
-                        <p class="user-name">
-
-                            {{ is_array($user) ? $user['nama'] : $user->nama }}
-
-                        </p>
-
-                        <p class="user-role">
-
-                            Auditor Kepala
-
-                        </p>
-
-                    @endif
-
-                    <form action="{{ route('logout') }}"
-                          method="POST">
-
-                        @csrf
-
-                        <button type="submit"
-                                class="btn-logout">
-
-                            Logout
-                        
-
-                        </button>
-
-                    </form>
-
-                </div>
-
-            </div>
+            {{-- Dropdown profil baru --}}
+            <x-profile-dropdown />
 
         </div>
 
+        {{-- Content --}}
         <div class="content">
 
             @yield('content')
 
         </div>
 
-    </div>
+    </main>
 
 </div>
 
 <script>
 
-const btn = document.getElementById('profileBtn');
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
 
-const menu = document.getElementById('profileMenu');
+        const profileButton =
+            document.getElementById('profileBtn');
 
-btn.addEventListener('click', function(e){
+        const profileMenu =
+            document.getElementById('profileMenu');
 
-    e.stopPropagation();
+        if (!profileButton || !profileMenu) {
+            return;
+        }
 
-    menu.style.display =
-        menu.style.display === 'block'
-        ? 'none'
-        : 'block';
+        /*
+        |--------------------------------------------------------------------------
+        | BUKA / TUTUP PROFILE
+        |--------------------------------------------------------------------------
+        */
 
-});
+        profileButton.addEventListener(
+            'click',
+            function (event) {
 
-document.addEventListener('click', function(e){
+                event.stopPropagation();
 
-    if(!e.target.closest('.profile-dropdown')){
+                const isOpen =
+                    profileMenu.classList.contains(
+                        'is-open'
+                    );
 
-        menu.style.display = 'none';
+                profileMenu.classList.toggle(
+                    'is-open',
+                    !isOpen
+                );
+
+                profileButton.setAttribute(
+                    'aria-expanded',
+                    String(!isOpen)
+                );
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEGAH MENU TERTUTUP SAAT DIKLIK
+        |--------------------------------------------------------------------------
+        */
+
+        profileMenu.addEventListener(
+            'click',
+            function (event) {
+
+                event.stopPropagation();
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | TUTUP SAAT KLIK DI LUAR
+        |--------------------------------------------------------------------------
+        */
+
+        document.addEventListener(
+            'click',
+            function () {
+
+                profileMenu.classList.remove(
+                    'is-open'
+                );
+
+                profileButton.setAttribute(
+                    'aria-expanded',
+                    'false'
+                );
+            }
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | TUTUP SAAT TEKAN ESC
+        |--------------------------------------------------------------------------
+        */
+
+        document.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (event.key !== 'Escape') {
+                    return;
+                }
+
+                profileMenu.classList.remove(
+                    'is-open'
+                );
+
+                profileButton.setAttribute(
+                    'aria-expanded',
+                    'false'
+                );
+            }
+        );
 
     }
-
-});
+);
 
 </script>
 

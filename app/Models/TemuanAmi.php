@@ -3,44 +3,59 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TemuanAmi extends Model
 {
+    /**
+     * Nama tabel database.
+     */
     protected $table = 'temuan_ami';
 
+    /**
+     * Tabel tidak menggunakan created_at dan updated_at.
+     */
     public $timestamps = false;
 
+    /**
+     * Kolom yang dapat diisi.
+     */
     protected $fillable = [
-
-        'id_pertanyaan',
-
+        'id_penerapan_standar',
         'temuan',
-
-        'status_temuan'
-
+        'status_temuan',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relasi ke Pertanyaan
-    |--------------------------------------------------------------------------
-    */
-
-    public function pertanyaan()
+    /**
+     * Relasi utama ke Penerapan Standar.
+     *
+     * Nama "penerapan" dipakai oleh controller dan Blade.
+     */
+    public function penerapan(): BelongsTo
     {
         return $this->belongsTo(
-            PertanyaanAmi::class,
-            'id_pertanyaan'
+            PenerapanStandar::class,
+            'id_penerapan_standar'
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relasi ke Tanggapan Auditee
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Alias agar kode yang memakai nama penerapanStandar
+     * tetap dapat berjalan.
+     */
+    public function penerapanStandar(): BelongsTo
+    {
+        return $this->belongsTo(
+            PenerapanStandar::class,
+            'id_penerapan_standar'
+        );
+    }
 
-    public function tanggapan()
+    /**
+     * Tanggapan Auditee terhadap temuan.
+     */
+    public function tanggapan(): HasMany
     {
         return $this->hasMany(
             TanggapanAuditee::class,
@@ -48,18 +63,14 @@ class TemuanAmi extends Model
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relasi ke Akar Masalah
-    |--------------------------------------------------------------------------
-    */
-
-    public function akarMasalah()
+    /**
+     * Akar masalah dari temuan.
+     */
+    public function akarMasalah(): HasMany
     {
         return $this->hasMany(
             AkarMasalah::class,
-            'id_temuan'
+            'id_temuan_ami'
         );
     }
-
 }

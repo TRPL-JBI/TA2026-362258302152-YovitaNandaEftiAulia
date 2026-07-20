@@ -7,11 +7,11 @@ use App\Http\Controllers\StandarMutuController;
 use App\Http\Controllers\IsiStandarMutuController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PeriodeAmiController;
-use App\Http\Controllers\PertanyaanAmiController;
 use App\Http\Controllers\PenerapanStandarController;
 use App\Http\Controllers\TimAmiController;
 use App\Http\Controllers\IndikatorStandarController;
 use App\Http\Controllers\JadwalAmiController;
+use App\Http\Controllers\LaporanAdminController;
 
 Route::middleware([
     'auth.session',
@@ -19,15 +19,6 @@ Route::middleware([
 ])->group(function(){
 
     // semua CRUD Admin
-    /*
-    |--------------------------------------------------------------------------
-    | REDIRECT
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/', function () {
-        return redirect()->route('dashboard');
-    });
 
     /*
     |--------------------------------------------------------------------------
@@ -157,29 +148,23 @@ Route::delete(
 
     Route::resource('periode-ami', PeriodeAmiController::class);
 
-    /*
-    |--------------------------------------------------------------------------
-    | PERTANYAAN AMI
-    |--------------------------------------------------------------------------
-    */
 
-    Route::get('/periode-ami/{id}/pertanyaan', [PertanyaanAmiController::class,'index'])->name('pertanyaan.index');
-    Route::get('/periode-ami/{id}/pertanyaan/create', [PertanyaanAmiController::class,'create'])->name('pertanyaan.create');
-    Route::post('/periode-ami/pertanyaan/store', [PertanyaanAmiController::class,'store'])->name('pertanyaan.store');
+   /*
+|--------------------------------------------------------------------------
+| PENERAPAN STANDAR - READ ONLY
+|--------------------------------------------------------------------------
+*/
 
-    Route::get('/pertanyaan/{id}/edit', [PertanyaanAmiController::class,'edit'])->name('pertanyaan.edit');
-    Route::put('/pertanyaan/{id}', [PertanyaanAmiController::class,'update'])->name('pertanyaan.update');
-    Route::delete('/pertanyaan/{id}', [PertanyaanAmiController::class,'destroy'])->name('pertanyaan.destroy');
+Route::get(
+    '/periode-ami/{id}/penerapan-standar',
+    [PenerapanStandarController::class, 'index']
+)->name('penerapan.index');
 
-    /*
-    |--------------------------------------------------------------------------
-    | PENERAPAN STANDAR
-    |--------------------------------------------------------------------------
-    */
+Route::get(
+    '/periode-ami/{id}/penerapan-standar/{penerapan}',
+    [PenerapanStandarController::class, 'show']
+)->name('penerapan.show');
 
-    Route::get('/periode-ami/{id}/penerapan-standar', [PenerapanStandarController::class,'index'])->name('penerapan.index');
-
-    Route::get('/periode-ami/{id}/penerapan-standar/{penerapan}', [PenerapanStandarController::class,'show'])->name('penerapan.show');
 
     /*
     |--------------------------------------------------------------------------
@@ -212,5 +197,21 @@ Route::delete(
 
     Route::put('/jadwal/{id}', [JadwalAmiController::class,'update'])->name('jadwal.update');
     Route::delete('/jadwal/{id}', [JadwalAmiController::class,'destroy'])->name('jadwal.destroy');
+
+    /*
+|--------------------------------------------------------------------------
+| LAPORAN AMI ADMIN - VIEW ONLY
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/laporan-ami',
+    [LaporanAdminController::class, 'index']
+)->name('laporan.index');
+
+Route::get(
+    '/laporan-ami/{id}/pdf',
+    [LaporanAdminController::class, 'pdf']
+)->name('laporan.pdf');
 
 });

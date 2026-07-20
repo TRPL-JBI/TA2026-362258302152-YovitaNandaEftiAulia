@@ -1,192 +1,356 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="id">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPMI</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <!-- Bootstrap Icon -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <title>
+        Sistem Informasi SPMI
+    </title>
 
-    <!-- Chart JS -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {{-- CSS utama --}}
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/style.css') }}"
+    >
+
+    {{-- CSS dropdown profil --}}
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/profile-dropdown.css') }}"
+    >
+
+    {{-- CSS khusus halaman --}}
+    @stack('styles')
+
+    {{-- Bootstrap Icons --}}
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
+
 </head>
 
 <body>
 
 <div class="wrapper">
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
+    {{-- =====================================================
+         SIDEBAR
+    ====================================================== --}}
 
-        <!-- LOGO -->
+    <aside class="sidebar">
+
+        {{-- Logo --}}
         <div class="logo">
-            <img src="{{ asset('images/poliwangi.png') }}" alt="Logo" class="logo-img">
+
+            <img
+                src="{{ asset('images/poliwangi.png') }}"
+                alt="Logo Politeknik Negeri Banyuwangi"
+                class="logo-img"
+            >
 
             <div class="logo-text">
-                <strong>Sistem Informasi SPMI</strong>
-                <small>Politeknik Negeri Banyuwangi</small>
+
+                <strong>
+                    Sistem Informasi SPMI
+                </strong>
+
+                <small>
+                    Politeknik Negeri Banyuwangi
+                </small>
+
             </div>
+
         </div>
 
-        <!-- MENU -->
+        {{-- Menu --}}
         <ul>
 
-            <!-- DASHBOARD -->
-            <li class="{{ request()->is('dashboard') ? 'active' : '' }}">
+            {{-- Dashboard --}}
+            <li
+                class="{{
+                    request()->routeIs('dashboard')
+                    ? 'active'
+                    : ''
+                }}"
+            >
+
                 <a href="{{ route('dashboard') }}">
+
                     <i class="bi bi-house-door"></i>
-                    Dashboard
+
+                    <span>
+                        Dashboard
+                    </span>
+
                 </a>
+
             </li>
 
-            <!-- STANDAR MUTU -->
-            <li class="{{ request()->is('standarmutu*') ? 'active' : '' }}">
+            {{-- Standar Mutu --}}
+            <li
+                class="{{
+                    request()->routeIs('standarmutu.*')
+                    || request()->routeIs('isi-standar.*')
+                    || request()->routeIs('indikator.*')
+                    ? 'active'
+                    : ''
+                }}"
+            >
+
                 <a href="{{ route('standarmutu.index') }}">
+
                     <i class="bi bi-journal-text"></i>
-                    Standar Mutu
+
+                    <span>
+                        Standar Mutu
+                    </span>
+
                 </a>
+
             </li>
 
-            <!-- PERIODE AMI -->
-            <li>
+            {{-- Periode AMI --}}
+            <li
+                class="{{
+                    request()->routeIs('periode-ami.*')
+                    || request()->routeIs('penerapan.*')
+                    || request()->routeIs('tim-ami.*')
+                    || request()->routeIs('jadwal.*')
+                    ? 'active'
+                    : ''
+                }}"
+            >
+
                 <a href="{{ route('periode-ami.index') }}">
+
                     <i class="bi bi-calendar-event"></i>
-                    Periode AMI
+
+                    <span>
+                        Periode AMI
+                    </span>
+
                 </a>
+
             </li>
 
-            <!-- UNIT KERJA -->
-            <li class="{{ request()->is('unit-kerja*') ? 'active' : '' }}">
+            {{-- Unit Kerja --}}
+            <li
+                class="{{
+                    request()->routeIs('unit-kerja.*')
+                    ? 'active'
+                    : ''
+                }}"
+            >
+
                 <a href="{{ route('unit-kerja.index') }}">
+
                     <i class="bi bi-building"></i>
-                    Unit Kerja
+
+                    <span>
+                        Unit Kerja
+                    </span>
+
                 </a>
+
             </li>
 
-            <!-- USER -->
-            <li class="{{ request()->is('user*') ? 'active' : '' }}">
+            {{-- User --}}
+            <li
+                class="{{
+                    request()->routeIs('user.*')
+                    ? 'active'
+                    : ''
+                }}"
+            >
+
                 <a href="{{ route('user.index') }}">
+
                     <i class="bi bi-people"></i>
-                    User
+
+                    <span>
+                        User
+                    </span>
+
                 </a>
+
             </li>
 
-            <!-- LAPORAN -->
-            <li>
-                <a href="#">
+            {{-- Laporan AMI --}}
+            <li
+                class="{{
+                    request()->routeIs('laporan.*')
+                    ? 'active'
+                    : ''
+                }}"
+            >
+
+                <a href="{{ route('laporan.index') }}">
+
                     <i class="bi bi-file-earmark-text"></i>
-                    Laporan AMI
+
+                    <span>
+                        Laporan AMI
+                    </span>
+
                 </a>
+
             </li>
 
-            <!-- LOGOUT -->
+            {{-- Logout sidebar --}}
             <li>
-                <a href="#">
-                    <i class="bi bi-box-arrow-right"></i>
-                    Logout
-                </a>
+
+                <form
+                    action="{{ route('logout') }}"
+                    method="POST"
+                    class="logout-form"
+                >
+
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="logout-btn"
+                    >
+
+                        <i class="bi bi-box-arrow-right"></i>
+
+                        <span>
+                            Logout
+                        </span>
+
+                    </button>
+
+                </form>
+
             </li>
 
         </ul>
 
-    </div>
+    </aside>
 
-    <!-- MAIN -->
-    <div class="main">
+    {{-- =====================================================
+         MAIN
+    ====================================================== --}}
 
-        <!-- NAVBAR -->
+    <main class="main">
+
+        {{-- Navbar --}}
         <div class="navbar">
 
-            <!-- SEARCH -->
+            {{-- Search --}}
             <div class="search-box">
+
                 <i class="bi bi-search"></i>
 
-                <input type="text" placeholder="Search...">
-            </div>
-
-            <!-- PROFILE -->
-            <div class="profile-dropdown">
-
-                <button class="profile-icon" id="profileBtn">
-                    <i class="bi bi-person-circle"></i>
-                </button>
-
-                @php
-                    $user = session('user');
-                @endphp
-
-                <div class="dropdown-menu" id="profileMenu">
-
-                    @if($user)
-
-                        <p class="user-name">
-                            {{ is_array($user) ? $user['nama'] : $user->nama }}
-                        </p>
-
-                        <p class="user-role">
-                            Role:
-                            {{ is_array($user) ? $user['status'] : $user->status }}
-                        </p>
-
-                    @else
-
-                        <p>Guest</p>
-
-                    @endif
-
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-
-                        <button type="submit" class="btn-logout">
-                            Logout
-                        </button>
-                    </form>
-
-                </div>
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    aria-label="Search"
+                >
 
             </div>
+
+            {{-- Dropdown profil baru --}}
+            <x-profile-dropdown />
 
         </div>
 
-        <!-- CONTENT -->
+        {{-- Content --}}
         <div class="content">
+
             @yield('content')
+
         </div>
 
-    </div>
+    </main>
 
 </div>
 
-<!-- DROPDOWN JS -->
 <script>
 
-const btn = document.getElementById('profileBtn');
-const menu = document.getElementById('profileMenu');
+document.addEventListener('DOMContentLoaded', function () {
 
-btn.addEventListener('click', function(e) {
+    const profileButton =
+        document.getElementById('profileBtn');
 
-    e.stopPropagation();
+    const profileMenu =
+        document.getElementById('profileMenu');
 
-    menu.style.display =
-        menu.style.display === 'block'
-        ? 'none'
-        : 'block';
-});
-
-document.addEventListener('click', function(e) {
-
-    if (!e.target.closest('.profile-dropdown')) {
-        menu.style.display = 'none';
+    if (!profileButton || !profileMenu) {
+        return;
     }
+
+    profileButton.addEventListener(
+        'click',
+        function (event) {
+
+            event.stopPropagation();
+
+            const isOpen =
+                profileMenu.classList.contains('is-open');
+
+            profileMenu.classList.toggle(
+                'is-open',
+                !isOpen
+            );
+
+            profileButton.setAttribute(
+                'aria-expanded',
+                String(!isOpen)
+            );
+        }
+    );
+
+    profileMenu.addEventListener(
+        'click',
+        function (event) {
+
+            event.stopPropagation();
+        }
+    );
+
+    document.addEventListener(
+        'click',
+        function () {
+
+            profileMenu.classList.remove('is-open');
+
+            profileButton.setAttribute(
+                'aria-expanded',
+                'false'
+            );
+        }
+    );
+
+    document.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (event.key === 'Escape') {
+
+                profileMenu.classList.remove('is-open');
+
+                profileButton.setAttribute(
+                    'aria-expanded',
+                    'false'
+                );
+            }
+        }
+    );
 
 });
 
 </script>
 
 </body>
+
 </html>

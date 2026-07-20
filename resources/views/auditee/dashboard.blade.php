@@ -1,203 +1,524 @@
-@extends('layouts.auditee')
+﻿@extends('layouts.auditee')
+
+@push('styles')
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/dashboard-role.css') }}"
+    >
+@endpush
 
 @section('content')
 
-<h3 class="breadcrumb">
-    Dashboard Auditee
-</h3>
+@php
+    $sessionUser = session('user');
 
-<div class="welcome-card">
+    $namaUser = is_array($sessionUser)
+        ? ($sessionUser['nama'] ?? 'Auditee')
+        : ($sessionUser->nama ?? 'Auditee');
+@endphp
 
-    <h4>
-        Selamat datang di Sistem Informasi Penjaminan Mutu Internal Poliwangi.
-    </h4>
+<div class="role-dashboard">
 
-    <p>
-    Halo,
-    {{ session('user')['nama'] ?? '-' }}
-    </p>
+    {{-- =====================================================
+         SELAMAT DATANG
+    ====================================================== --}}
 
-    <p>
-        Anda berhasil masuk sebagai Auditee
-    </p>
+    <div class="dashboard-welcome">
 
-</div>
+        <div>
 
+            <span class="dashboard-eyebrow">
+                DASHBOARD AUDITEE
+            </span>
 
-<div class="dashboard-stats">
+            <h2>
+                Selamat Datang, {{ $namaUser }}
+            </h2>
 
-    <div class="stat-card blue">
+            <p>
+                Pantau hasil penerapan standar, bukti pendukung,
+                temuan audit, dan tanggapan yang masih perlu
+                diselesaikan.
+            </p>
 
-        <h5>Total Standar</h5>
+        </div>
 
-        <span>
-            {{ $totalStandar }}
-        </span>
+        <div class="dashboard-welcome-icon">
 
-    </div>
+            <i class="bi bi-person-check"></i>
 
-    <div class="stat-card green">
-
-        <h5>Periode AMI Aktif</h5>
-
-        <span>
-            {{ $periodeAktif }}
-        </span>
+        </div>
 
     </div>
 
-    <div class="stat-card red">
+    {{-- =====================================================
+         KARTU STATISTIK
+    ====================================================== --}}
 
-        <h5>Jumlah Temuan</h5>
+    <div class="dashboard-stat-grid">
 
-        <span>
-            {{ $jumlahTemuan }}
-        </span>
+        <div class="dashboard-stat-card">
+
+            <div class="dashboard-stat-icon stat-blue">
+
+                <i class="bi bi-clipboard-check"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    Penerapan Saya
+                </span>
+
+                <strong>
+                    {{ $penerapanSaya ?? 0 }}
+                </strong>
+
+                <small>
+                    Data yang telah dikirim
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="dashboard-stat-card">
+
+            <div class="dashboard-stat-icon stat-purple">
+
+                <i class="bi bi-file-earmark-check"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    Bukti Tersedia
+                </span>
+
+                <strong>
+                    {{ $buktiSaya ?? 0 }}
+                </strong>
+
+                <small>
+                    Bukti pendukung
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="dashboard-stat-card">
+
+            <div class="dashboard-stat-icon stat-orange">
+
+                <i class="bi bi-exclamation-circle"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    Temuan Open
+                </span>
+
+                <strong>
+                    {{ $temuanOpen ?? 0 }}
+                </strong>
+
+                <small>
+                    Perlu ditanggapi
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="dashboard-stat-card">
+
+            <div class="dashboard-stat-icon stat-green">
+
+                <i class="bi bi-chat-square-check"></i>
+
+            </div>
+
+            <div>
+
+                <span>
+                    Tanggapan Saya
+                </span>
+
+                <strong>
+                    {{ $jumlahTanggapan ?? 0 }}
+                </strong>
+
+                <small>
+                    Tanggapan tersimpan
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {{-- =====================================================
+         PROGRES PENYELESAIAN TEMUAN
+    ====================================================== --}}
+
+    <section class="dashboard-progress-card">
+
+        <div class="dashboard-section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    PROGRES TINDAK LANJUT
+                </span>
+
+                <h3>
+                    Penyelesaian Temuan Audit
+                </h3>
+
+                <p>
+                    Persentase dihitung dari jumlah temuan yang
+                    sudah berstatus closed.
+                </p>
+
+            </div>
+
+            <strong class="dashboard-progress-value">
+
+                {{
+                    number_format(
+                        $persentasePenyelesaian ?? 0,
+                        2,
+                        ',',
+                        '.'
+                    )
+                }}%
+
+            </strong>
+
+        </div>
+
+        <div class="dashboard-progress-track">
+
+            <div
+                class="dashboard-progress-fill"
+                style="width: {{
+                    min(
+                        100,
+                        max(
+                            0,
+                            $persentasePenyelesaian ?? 0
+                        )
+                    )
+                }}%;"
+            ></div>
+
+        </div>
+
+        <div class="dashboard-progress-detail">
+
+            <span>
+
+                <i class="bi bi-exclamation-circle"></i>
+
+                {{ $temuanOpen ?? 0 }} Open
+
+            </span>
+
+            <span>
+
+                <i class="bi bi-check-circle"></i>
+
+                {{ $temuanClosed ?? 0 }} Closed
+
+            </span>
+
+            <span>
+
+                <i class="bi bi-clock-history"></i>
+
+                {{ $temuanBelumDitanggapi ?? 0 }}
+                belum ditanggapi
+
+            </span>
+
+        </div>
+
+    </section>
+
+    {{-- =====================================================
+         KONTEN UTAMA
+    ====================================================== --}}
+
+    <div class="dashboard-content-grid">
+
+        {{-- =================================================
+             TEMUAN AUDIT SAYA
+        ================================================== --}}
+
+        <section class="dashboard-panel">
+
+            <div class="dashboard-panel-header">
+
+                <div>
+
+                    <span class="section-label">
+                        PRIORITAS TINDAK LANJUT
+                    </span>
+
+                    <h3>
+                        Temuan Audit Saya
+                    </h3>
+
+                </div>
+
+                <a
+                    href="{{ route('auditee.temuan.index') }}"
+                    class="dashboard-panel-link"
+                >
+
+                    Lihat Temuan
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+            <div class="dashboard-task-list">
+
+                @forelse($daftarTemuan ?? collect() as $item)
+
+                    @php
+                        $statusTemuan = strtolower(
+                            trim(
+                                (string) (
+                                    $item->status_temuan
+                                    ?? ''
+                                )
+                            )
+                        );
+
+                        $jumlahTanggapanItem =
+                            (int) (
+                                $item->jumlah_tanggapan
+                                ?? 0
+                            );
+                    @endphp
+
+                    <div class="dashboard-task-item">
+
+                        <div class="dashboard-task-content">
+
+                            <strong>
+                                {{ $item->indikator ?? '-' }}
+                            </strong>
+
+                            <p>
+                                {{ $item->temuan ?? '-' }}
+                            </p>
+
+                            <span>
+
+                                <i class="bi bi-chat-left-text"></i>
+
+                                {{ $jumlahTanggapanItem }}
+                                tanggapan
+
+                            </span>
+
+                        </div>
+
+                        <div class="dashboard-task-meta">
+
+                            @if($statusTemuan === 'closed')
+
+                                <span class="dashboard-status status-closed">
+
+                                    <i class="bi bi-check-circle-fill"></i>
+
+                                    Closed
+
+                                </span>
+
+                            @else
+
+                                <span class="dashboard-status status-open">
+
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+
+                                    Open
+
+                                </span>
+
+                            @endif
+
+                            @if(
+                                $statusTemuan === 'open'
+                                && $jumlahTanggapanItem === 0
+                            )
+
+                                <a
+                                    href="{{ route(
+                                        'auditee.tanggapan.create',
+                                        $item->id
+                                    ) }}"
+                                    class="dashboard-small-button"
+                                >
+
+                                    Beri Tanggapan
+
+                                </a>
+
+                            @else
+
+                                <a
+                                    href="{{ route(
+                                        'auditee.temuan.show',
+                                        $item->id
+                                    ) }}"
+                                    class="dashboard-small-button secondary"
+                                >
+
+                                    Lihat
+
+                                </a>
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                @empty
+
+                    <div class="dashboard-empty-box">
+
+                        <i class="bi bi-check-circle"></i>
+
+                        <strong>
+                            Belum ada temuan audit
+                        </strong>
+
+                        <span>
+                            Tidak ada temuan yang perlu ditindaklanjuti.
+                        </span>
+
+                    </div>
+
+                @endforelse
+
+            </div>
+
+        </section>
+
+        {{-- =================================================
+             PERIODE AMI BERJALAN
+        ================================================== --}}
+
+        <section class="dashboard-panel">
+
+            <div class="dashboard-panel-header">
+
+                <div>
+
+                    <span class="section-label">
+                        PERIODE AKTIF
+                    </span>
+
+                    <h3>
+                        Periode AMI Berjalan
+                    </h3>
+
+                </div>
+
+            </div>
+
+            <div class="dashboard-period-list">
+
+                @forelse($periodeBerjalan ?? collect() as $item)
+
+                    <div class="dashboard-period-item">
+
+                        <div class="dashboard-period-icon">
+
+                            <i class="bi bi-calendar-check"></i>
+
+                        </div>
+
+                        <div class="dashboard-period-content">
+
+                            <strong>
+
+                                {{
+                                    $item->standarMutu->nama_standar_mutu
+                                    ?? $item->standarMutu->nama
+                                    ?? '-'
+                                }}
+
+                            </strong>
+
+                            <span>
+
+                                {{
+                                    $item->unitKerja->nama
+                                    ?? $item->unitKerja->nama_unit_kerja
+                                    ?? '-'
+                                }}
+
+                            </span>
+
+                            <small>
+
+                                {{ $item->tanggal_buka_ami ?? '-' }}
+
+                                sampai
+
+                                {{ $item->tanggal_tutup_ami ?? '-' }}
+
+                            </small>
+
+                        </div>
+
+                        <span class="dashboard-status status-running">
+
+                            <i class="bi bi-play-circle-fill"></i>
+
+                            Berjalan
+
+                        </span>
+
+                    </div>
+
+                @empty
+
+                    <div class="dashboard-empty-box">
+
+                        <i class="bi bi-calendar-x"></i>
+
+                        <strong>
+                            Tidak ada periode aktif
+                        </strong>
+
+                        <span>
+                            Saat ini belum ada periode AMI yang berjalan.
+                        </span>
+
+                    </div>
+
+                @endforelse
+
+            </div>
+
+        </section>
 
     </div>
 
 </div>
-
-
-<div class="dashboard-row">
-
-    <div class="chart-card">
-
-        <h4>
-            Statistik AMI Tahun {{ date('Y') }}
-        </h4>
-
-        <canvas id="amiChart"></canvas>
-
-    </div>
-
-</div>
-
-
-<div class="table-card">
-
-    <h4>
-        Periode AMI Berjalan
-    </h4>
-
-    <table class="custom-table">
-
-        <thead>
-
-        <tr>
-
-            <th>No.</th>
-            <th>Tahun AMI</th>
-            <th>Standar Mutu</th>
-            <th>Unit</th>
-            <th>Tanggal</th>
-
-        </tr>
-
-        </thead>
-
-        <tbody>
-
-        @forelse($periodeBerjalan as $item)
-
-        <tr>
-
-            <td>
-                {{ $loop->iteration }}
-            </td>
-
-            <td>
-                {{ $item->tahun }}
-            </td>
-
-            <td>
-                {{ $item->standarMutu->nama_standar_mutu }}
-            </td>
-
-            <td>
-                {{ $item->unitKerja->nama }}
-            </td>
-
-            <td>
-                {{ $item->tanggal_buka_ami }}
-                -
-                {{ $item->tanggal_tutup_ami }}
-            </td>
-
-        </tr>
-
-        @empty
-
-        <tr>
-
-            <td colspan="5">
-                Tidak ada periode berjalan
-            </td>
-
-        </tr>
-
-        @endforelse
-
-        </tbody>
-
-        <script>
-
-document.querySelectorAll('.dropdown-btn')
-.forEach(function(btn){
-
-    btn.addEventListener('click', function(e){
-
-        e.preventDefault();
-
-        let submenu =
-            this.nextElementSibling;
-
-        if(submenu.style.display === 'block'){
-
-            submenu.style.display = 'none';
-
-        }else{
-
-            submenu.style.display = 'block';
-
-        }
-
-    });
-
-});
-
-</script>
-
-    </table>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-
-new Chart(
-    document.getElementById('amiChart'),
-    {
-        type: 'bar',
-
-        data: {
-
-            labels: [
-                'Sesuai',
-                'Observasi',
-                'Tidak Sesuai'
-            ],
-
-            datasets: [{
-
-                data: [18,13,8]
-
-            }]
-        }
-    }
-);
-
-</script>
 
 @endsection

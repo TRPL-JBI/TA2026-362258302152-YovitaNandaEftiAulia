@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 
@@ -16,10 +16,6 @@
 
     <a href="{{ route('penerapan.index',$periode->id) }}">
         Penerapan Standar
-    </a>
-
-    <a href="{{ route('pertanyaan.index',$periode->id) }}">
-        Pertanyaan AMI
     </a>
 
     <a href="{{ route('tim-ami.index',$periode->id) }}">

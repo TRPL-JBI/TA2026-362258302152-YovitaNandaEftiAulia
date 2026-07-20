@@ -1,4 +1,4 @@
-@extends('layouts.auditor')
+﻿@extends('layouts.auditor')
 
 @php
 use Illuminate\Support\Str;

@@ -1,1549 +1,902 @@
-<!DOCTYPE html>
-<html lang="id">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <title>
-
-        Laporan Audit Mutu Internal
-
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="{{ asset('css/style.css') }}">
-
-    <link
-        rel="stylesheet"
-        href="{{ asset('css/laporan.css') }}">
-
-</head>
-
-<body class="laporan-body">
-
-<div class="laporan-container">
-
-<!-- ===========================================================
-    COVER
-=========================================================== -->
-
-<section class="cover">
-
-    <img
-        src="{{ asset('images/poliwangi.png') }}"
-        class="cover-logo">
-
-    <h4>
-
-        POLITEKNIK NEGERI BANYUWANGI
-
-    </h4>
-
-    <h1>
-
-        LAPORAN AUDIT MUTU INTERNAL
-
-    </h1>
-
-    <h2>
-
-        STANDAR PENDIDIKAN
-
-    </h2>
-
-    <div class="cover-periode">
-
-        PERIODE AMI {{ $periode->tahun }}
-
-    </div>
-
-    <br>
-
-    <table class="laporan-table" style="width:420px;margin:auto;">
-
-        <tr>
-
-            <td>Nomor Dokumen</td>
-
-            <td>:</td>
-
-            <td>
-
-                AMI/{{ $periode->tahun }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td>Status Audit</td>
-
-            <td>:</td>
-
-            <td>
-
-                {{ ucfirst($periode->status) }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td>Tanggal Cetak</td>
-
-            <td>:</td>
-
-            <td>
-
-                {{ now()->format('d F Y') }}
-
-            </td>
-
-        </tr>
-
-    </table>
-
-</section>
-
-<!-- ===========================================================
-    IDENTITAS AUDIT
-=========================================================== -->
-
-<section class="laporan-card">
-
-    <h3>
-
-        IDENTITAS AUDIT
-
-    </h3>
-
-    <table class="laporan-table">
-
-        <tr>
-
-            <td width="230">
-
-                Periode Audit
-
-            </td>
-
-            <td width="20">
-
-                :
-
-            </td>
-
-            <td>
-
-                {{ $periode->tahun }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td>
-
-                Standar Mutu
-
-            </td>
-
-            <td>
-
-                :
-
-            </td>
-
-            <td>
-
-                {{ $periode->standarMutu->nama_standar_mutu ?? '-' }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td>
-
-                Unit Kerja
-
-            </td>
-
-            <td>
-
-                :
-
-            </td>
-
-            <td>
-
-                {{ $periode->unitKerja->nama ?? '-' }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td>
-
-                Tujuan Audit
-
-            </td>
-
-            <td>
-
-                :
-
-            </td>
-
-            <td>
-
-                {{ $periode->tujuan_audit }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td>
-
-                Lingkup Audit
-
-            </td>
-
-            <td>
-
-                :
-
-            </td>
-
-            <td>
-
-                {{ $periode->lingkup_audit }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td>
-
-                Waktu Audit
-
-            </td>
-
-            <td>
-
-                :
-
-            </td>
-
-            <td>
-
-                {{ $periode->waktu_audit }}
-
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td>
-
-                Status Audit
-
-            </td>
-
-            <td>
-
-                :
-
-            </td>
-
-            <td>
-
-                <strong>
-
-                    {{ ucfirst($periode->status) }}
-
-                </strong>
-
-            </td>
-
-        </tr>
-
-    </table>
-
-</section>
-
-<!-- ===========================================================
-    TIM AUDITOR
-=========================================================== -->
-
-<section class="laporan-card">
-
-    <h3>
-
-        TIM AUDITOR
-
-    </h3>
-
-    <table class="laporan-table">
-
-        <thead>
-
-            <tr>
-
-                <th width="70">
-
-                    No
-
-                </th>
-
-                <th>
-
-                    Nama Auditor
-
-                </th>
-
-                <th>
-
-                    Jabatan
-
-                </th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-        @foreach($periode->tim as $tim)
-
-            <tr>
-
-                <td>
-
-                    {{ $loop->iteration }}
-
-                </td>
-
-                <td>
-
-                    {{ $tim->user->nama ?? '-' }}
-
-                </td>
-
-                <td>
-
-                    {{ $tim->role }}
-
-                </td>
-
-            </tr>
-
-        @endforeach
-
-        </tbody>
-
-    </table>
-
-</section>
-
-<!-- ===========================================================
-    RINGKASAN AUDIT
-=========================================================== -->
-
-<section class="laporan-card">
-
-    <h3>
-
-        RINGKASAN AUDIT
-
-    </h3>
-
-    <div class="summary-grid">
-
-    <div class="summary-card">
-
-        <h2>{{ $jumlahStandar }}</h2>
-
-        <span>Standar</span>
-
-    </div>
-
-    <div class="summary-card">
-
-        <h2>{{ $jumlahPenerapan }}</h2>
-
-        <span>Penerapan</span>
-
-    </div>
-
-    <div class="summary-card">
-
-        <h2>{{ $jumlahPertanyaan }}</h2>
-
-        <span>Pertanyaan</span>
-
-    </div>
-
-    <div class="summary-card">
-
-        <h2>{{ $jumlahTemuan }}</h2>
-
-        <span>Temuan</span>
-
-    </div>
-
-    <div class="summary-card">
-
-        <h2>{{ $jumlahTanggapan }}</h2>
-
-        <span>Tanggapan</span>
-
-    </div>
-
-    <div class="summary-card">
-
-        <h2>{{ $jumlahAkarMasalah }}</h2>
-
-        <span>Akar Masalah</span>
-
-    </div>
-
-    <div class="summary-card">
-
-        <h2>{{ $jumlahRekomendasi }}</h2>
-
-        <span>Rekomendasi</span>
-
-    </div>
-
-    <div class="summary-card">
-
-        <h2>{{ $jumlahLampiran }}</h2>
-
-        <span>Lampiran</span>
-
-    </div>
-
+﻿@extends('layouts.auditor')
+
+@section('content')
+
+@php
+    $namaUnitKerja =
+        $periode->unitKerja->nama
+        ?? $periode->unitKerja->nama_unit_kerja
+        ?? '-';
+
+    $namaStandar =
+        $periode->standarMutu->nama_standar_mutu
+        ?? $periode->standarMutu->nama
+        ?? '-';
+
+    $statusPeriode = strtolower(
+        trim($periode->status ?? '')
+    );
+@endphp
+
+<div class="breadcrumb">
+    Dashboard / Laporan AMI / Detail
 </div>
 
-</section>
+<div class="card">
 
-<!-- ===========================================================
-    PENDAHULUAN
-=========================================================== -->
+    <div class="card-header periode-header">
 
-<section class="laporan-card">
+        <div class="header-left">
 
-    <h3>
+            <h2 class="card-title">
+                Laporan Audit Mutu Internal
+            </h2>
 
-        PENDAHULUAN
-
-    </h3>
-
-    <p style="text-align:justify;line-height:1.8;">
-
-        Audit Mutu Internal (AMI) merupakan salah satu kegiatan dalam
-        Sistem Penjaminan Mutu Internal (SPMI) yang bertujuan untuk
-        memastikan bahwa pelaksanaan standar pendidikan telah sesuai
-        dengan ketentuan yang berlaku serta menjadi dasar dalam
-        peningkatan mutu secara berkelanjutan.
-
-    </p>
-
-    <p style="text-align:justify;line-height:1.8;">
-
-        Laporan ini disusun berdasarkan hasil audit pada periode
-
-        <strong>{{ $periode->tahun }}</strong>
-
-        sebagai bentuk dokumentasi pelaksanaan audit terhadap unit kerja
-        yang diaudit.
-
-    </p>
-
-</section>
-
-<!-- ===========================================================
-    TUJUAN AUDIT
-=========================================================== -->
-
-<section class="laporan-card">
-
-    <h3>
-
-        TUJUAN AUDIT
-
-    </h3>
-
-    <p>
-
-        {{ $periode->tujuan_audit }}
-
-    </p>
-
-</section>
-
-<!-- ===========================================================
-    LINGKUP AUDIT
-=========================================================== -->
-
-<section class="laporan-card">
-
-    <h3>
-
-        LINGKUP AUDIT
-
-    </h3>
-
-    <p>
-
-        {{ $periode->lingkup_audit }}
-
-    </p>
-
-</section>
-
-<!-- ===========================================================
-    JADWAL AUDIT
-=========================================================== -->
-
-<section class="laporan-card">
-
-    <h3>
-
-        JADWAL AUDIT
-
-    </h3>
-
-    <table class="laporan-table">
-
-        <thead>
-
-            <tr>
-
-                <th width="70">
-
-                    No
-
-                </th>
-
-                <th>
-
-                    Kegiatan
-
-                </th>
-
-                <th width="220">
-
-                    Waktu
-
-                </th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-        @forelse($periode->jadwal as $jadwal)
-
-        <tr>
-
-            <td>
-
-                {{ $loop->iteration }}
-
-            </td>
-
-            <td>
-
-                {{ $jadwal->kegiatan }}
-
-            </td>
-
-            <td>
-
-                {{ $jadwal->waktu }}
-
-            </td>
-
-        </tr>
-
-        @empty
-
-        <tr>
-
-            <td colspan="3">
-
-                Belum ada jadwal audit.
-
-            </td>
-
-        </tr>
-
-        @endforelse
-
-        </tbody>
-
-    </table>
-
-</section>
-
-<!-- ===========================================================
-    PENERAPAN STANDAR
-=========================================================== -->
-
-<section class="laporan-card">
-
-    <h3>
-
-        PENERAPAN STANDAR
-
-    </h3>
-
-    @forelse($periode->standarMutuPeriode as $standar)
-
-        <div class="laporan-subcard">
-
-            <h4>
-
-                {{ $standar->standarMutu->nama_standar_mutu }}
-
-            </h4>
-
-            @forelse($standar->penerapanStandar as $penerapan)
-
-                <table class="laporan-table">
-
-                    <tr>
-
-                        <td width="220">
-
-                            Auditor
-
-                        </td>
-
-                        <td width="20">
-
-                            :
-
-                        </td>
-
-                        <td>
-
-                            {{ $penerapan->user->nama ?? '-' }}
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                        <td>
-
-                            Deskripsi Hasil
-
-                        </td>
-
-                        <td>
-
-                            :
-
-                        </td>
-
-                        <td>
-
-                            {{ $penerapan->deskripsi_hasil }}
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-
-                      @if($penerapan->link_bukti)
-
-                        <a
-                            href="{{ $penerapan->link_bukti }}"
-                            target="_blank"
-                            class="btn-link">
-
-                            Lihat Bukti
-
-                        </a>
-
-                        @else
-
-                        -
-
-                        @endif
-
-                        <td>
-
-                            :
-
-                        </td>
-
-                        <td>
-
-                            <a
-                                href="{{ $penerapan->link_bukti }}"
-                                target="_blank">
-
-                                {{ $penerapan->link_bukti }}
-
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-                </table>
-
-                <br>
-
-            @empty
-
-                <p>
-
-                    Belum ada data penerapan.
-
-                </p>
-
-            @endforelse
+            <p>
+                Laporan hasil pelaksanaan Audit Mutu Internal
+                tahun {{ $periode->tahun }}.
+            </p>
 
         </div>
 
-    @empty
+        <a
+            href="{{ route('auditor.laporan.index') }}"
+            class="btn-secondary"
+        >
+            <i class="bi bi-arrow-left"></i>
+            Kembali
+        </a>
+
+    </div>
+
+    {{-- IDENTITAS AUDIT --}}
+    <div style="padding: 24px;">
+
+        <h3 style="margin: 0 0 15px;">
+            Identitas Audit
+        </h3>
+
+        <table class="detail-table">
+
+            <tbody>
+
+                <tr>
+                    <th width="240">Tahun AMI</th>
+                    <td>{{ $periode->tahun ?? '-' }}</td>
+                </tr>
+
+                <tr>
+                    <th>Standar Mutu</th>
+                    <td>{{ $namaStandar }}</td>
+                </tr>
+
+                <tr>
+                    <th>Unit Kerja</th>
+                    <td>{{ $namaUnitKerja }}</td>
+                </tr>
+
+                <tr>
+                    <th>Tujuan Audit</th>
+                    <td>
+                        {{
+                            $periode->tujuan_audit
+                            ?? $periode->tujuan
+                            ?? '-'
+                        }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Lingkup Audit</th>
+                    <td>
+                        {{
+                            $periode->lingkup_audit
+                            ?? $periode->lingkup
+                            ?? '-'
+                        }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Tanggal Pelaksanaan</th>
+                    <td>
+                        {{
+                            $periode->tanggal_buka_ami
+                            ?? $periode->tanggal_mulai
+                            ?? '-'
+                        }}
+
+                        sampai
+
+                        {{
+                            $periode->tanggal_tutup_ami
+                            ?? $periode->tanggal_selesai
+                            ?? '-'
+                        }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Waktu Audit</th>
+                    <td>
+                        {{
+                            $periode->waktu_audit
+                            ?? $periode->waktu
+                            ?? '-'
+                        }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>Status</th>
+                    <td>
+
+                        @if($statusPeriode === 'berjalan')
+
+                            <span class="badge-open">
+                                Berjalan
+                            </span>
+
+                        @elseif(
+                            in_array(
+                                $statusPeriode,
+                                ['selesai', 'ditutup'],
+                                true
+                            )
+                        )
 
-        <p>
+                            <span class="badge-close">
+                                {{ ucfirst($statusPeriode) }}
+                            </span>
 
-            Tidak ada data standar.
+                        @else
 
-        </p>
+                            {{ ucfirst($statusPeriode ?: '-') }}
 
-    @endforelse
+                        @endif
 
-</section>
-<!-- ===========================================================
-    PERTANYAAN AUDIT
-=========================================================== -->
+                    </td>
+                </tr>
 
-<section class="laporan-card">
+            </tbody>
 
-    <h3>
+        </table>
 
-        PERTANYAAN AUDIT
+    </div>
 
-    </h3>
+    {{-- RINGKASAN --}}
+    <div style="padding: 0 24px 24px;">
 
-    @php
-        $noPertanyaan = 1;
-    @endphp
+        <h3 style="margin: 0 0 15px;">
+            Ringkasan Audit
+        </h3>
 
-    @foreach($periode->standarMutuPeriode as $standar)
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(4, minmax(0, 1fr));
+            gap:15px;
+        ">
 
-        @foreach($standar->penerapanStandar as $penerapan)
-
-            @foreach($penerapan->pertanyaan as $pertanyaan)
-
-                <div class="laporan-subcard">
-
-                    <table class="laporan-table">
-
-                        <tr>
-
-                            <td width="60">
-
-                                No
-
-                            </td>
-
-                            <td width="20">
-
-                                :
-
-                            </td>
-
-                            <td>
-
-                                {{ $noPertanyaan++ }}
-
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>
-
-                                Standar
-
-                            </td>
-
-                            <td>
-
-                                :
-
-                            </td>
-
-                            <td>
-
-                                {{ $standar->standarMutu->nama_standar_mutu }}
-
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>
-
-                                Pertanyaan
-
-                            </td>
-
-                            <td>
-
-                                :
-
-                            </td>
-
-                            <td>
-
-                                {{ $pertanyaan->pertanyaan }}
-
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>
-
-                                Indikator
-
-                            </td>
-
-                            <td>
-
-                                :
-
-                            </td>
-
-                            <td>
-
-                                {{ $pertanyaan->indikator }}
-
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>
-
-                                Referensi
-
-                            </td>
-
-                            <td>
-
-                                :
-
-                            </td>
-
-                            <td>
-
-                                {{ $pertanyaan->referensi }}
-
-                            </td>
-
-                        </tr>
-
-                    </table>
-
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahStandar }}
                 </div>
+                <div>Standar</div>
+            </div>
 
-                <br>
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahPenerapan }}
+                </div>
+                <div>Penerapan</div>
+            </div>
 
-            @endforeach
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahBukti }}
+                </div>
+                <div>Bukti Pendukung</div>
+            </div>
 
-        @endforeach
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahTemuan }}
+                </div>
+                <div>Temuan</div>
+            </div>
 
-    @endforeach
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahTemuanTerbuka }}
+                </div>
+                <div>Temuan Open</div>
+            </div>
 
-</section>
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahTemuanDitutup }}
+                </div>
+                <div>Temuan Closed</div>
+            </div>
 
-<!-- ===========================================================
-    TEMUAN AUDIT
-=========================================================== -->
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahTanggapan }}
+                </div>
+                <div>Tanggapan</div>
+            </div>
 
-<section class="laporan-card">
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahAkarMasalah }}
+                </div>
+                <div>Akar Masalah</div>
+            </div>
 
-    <h3>
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahRekomendasi }}
+                </div>
+                <div>Rekomendasi</div>
+            </div>
 
-        TEMUAN AUDIT
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahKesimpulan }}
+                </div>
+                <div>Kesimpulan</div>
+            </div>
 
-    </h3>
+            <div class="card" style="padding:18px;">
+                <div style="font-size:28px;font-weight:700;">
+                    {{ $jumlahLampiran }}
+                </div>
+                <div>Lampiran</div>
+            </div>
 
-    <table class="laporan-table">
+        </div>
 
-        <thead>
+    </div>
 
-            <tr>
+    {{-- TIM AUDIT --}}
+    <div style="padding: 0 24px 24px;">
 
-                <th width="60">
+        <h3 style="margin: 0 0 15px;">
+            Tim Audit
+        </h3>
 
-                    No
+        <div class="table-wrapper">
 
-                </th>
+            <table class="custom-table">
 
-                <th>
-
-                    Pertanyaan
-
-                </th>
-
-                <th>
-
-                    Temuan
-
-                </th>
-
-                <th width="140">
-
-                    Status
-
-                </th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-        @php
-            $noTemuan = 1;
-        @endphp
-
-        @foreach($periode->standarMutuPeriode as $standar)
-
-            @foreach($standar->penerapanStandar as $penerapan)
-
-                @foreach($penerapan->pertanyaan as $pertanyaan)
-
-                    @foreach($pertanyaan->temuan as $temuan)
-
+                <thead>
                     <tr>
-
-                        <td>
-
-                            {{ $noTemuan++ }}
-
-                        </td>
-
-                        <td>
-
-                            {{ $pertanyaan->pertanyaan }}
-
-                        </td>
-
-                        <td>
-
-                            {{ $temuan->temuan }}
-
-                        </td>
-
-                        <td>
-
-                            @if(strtolower($temuan->status_temuan)=='sesuai')
-
-    <span class="badge-success">
-
-        Sesuai
-
-    </span>
-
-@elseif(strtolower($temuan->status_temuan)=='observasi')
-
-    <span class="badge-warning">
-
-        Observasi
-
-    </span>
-
-@else
-
-    <span class="badge-danger">
-
-        Tidak Sesuai
-
-    </span>
-
-@endif
-
-                        </td>
-
+                        <th width="65">No.</th>
+                        <th>Nama Auditor</th>
+                        <th>Email</th>
+                        <th>Peran</th>
                     </tr>
+                </thead>
 
-                    @endforeach
+                <tbody>
 
-                @endforeach
+                    @forelse($periode->tim as $tim)
 
-            @endforeach
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
 
-        @endforeach
+                            <td>
+                                {{
+                                    $tim->user->nama
+                                    ?? $tim->user->name
+                                    ?? '-'
+                                }}
+                            </td>
 
-        </tbody>
+                            <td>
+                                {{ $tim->user->email ?? '-' }}
+                            </td>
 
-    </table>
+                            <td>
+                                {{
+                                    $tim->peran
+                                    ?? $tim->role
+                                    ?? '-'
+                                }}
+                            </td>
+                        </tr>
 
-</section>
+                    @empty
 
-<!-- ===========================================================
-    TANGGAPAN AUDITEE
-=========================================================== -->
+                        <tr>
+                            <td colspan="4" style="text-align:center;">
+                                Tim audit belum tersedia.
+                            </td>
+                        </tr>
 
-<section class="laporan-card">
+                    @endforelse
 
-    <h3>
+                </tbody>
 
-        TANGGAPAN AUDITEE
+            </table>
 
-    </h3>
+        </div>
 
-    @php
-        $noTanggapan = 1;
-    @endphp
+    </div>
 
-    @foreach($periode->standarMutuPeriode as $standar)
+    {{-- JADWAL --}}
+    <div style="padding: 0 24px 24px;">
 
-        @foreach($standar->penerapanStandar as $penerapan)
+        <h3 style="margin: 0 0 15px;">
+            Jadwal Audit
+        </h3>
 
-            @foreach($penerapan->pertanyaan as $pertanyaan)
+        <div class="table-wrapper">
 
-                @foreach($pertanyaan->temuan as $temuan)
+            <table class="custom-table">
 
-                    @foreach($temuan->tanggapan as $tanggapan)
+                <thead>
+                    <tr>
+                        <th width="65">No.</th>
+                        <th>Kegiatan</th>
+                        <th>Tanggal</th>
+                        <th>Waktu</th>
+                    </tr>
+                </thead>
 
-                    <div class="laporan-subcard">
+                <tbody>
 
-                        <table class="laporan-table">
+                    @forelse($periode->jadwal as $jadwal)
 
-                            <tr>
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
 
-                                <td width="60">
+                            <td>
+                                {{
+                                    $jadwal->kegiatan
+                                    ?? $jadwal->agenda
+                                    ?? '-'
+                                }}
+                            </td>
 
-                                    No
+                            <td>
+                                {{ $jadwal->tanggal ?? '-' }}
+                            </td>
 
-                                </td>
+                            <td>
+                                {{ $jadwal->waktu ?? '-' }}
+                            </td>
+                        </tr>
 
-                                <td width="20">
+                    @empty
 
-                                    :
+                        <tr>
+                            <td colspan="4" style="text-align:center;">
+                                Jadwal audit belum tersedia.
+                            </td>
+                        </tr>
 
-                                </td>
+                    @endforelse
 
-                                <td>
+                </tbody>
 
-                                    {{ $noTanggapan++ }}
+            </table>
 
-                                </td>
+        </div>
 
-                            </tr>
+    </div>
 
-                            <tr>
+    {{-- PENERAPAN DAN TEMUAN --}}
+    <div style="padding: 0 24px 24px;">
 
-                                <td>
+        <h3 style="margin: 0 0 15px;">
+            Penerapan Standar dan Temuan Audit
+        </h3>
 
-                                    Auditor
+        @forelse(
+            $periode->standarMutuPeriode
+            as $standarPeriode
+        )
 
-                                </td>
+            <div
+                class="card"
+                style="margin-bottom:20px;padding:20px;"
+            >
 
-                                <td>
+                <h4 style="margin:0 0 15px;">
 
-                                    :
+                    {{
+                        $standarPeriode
+                            ->standarMutu
+                            ->nama_standar_mutu
+                        ?? $namaStandar
+                    }}
 
-                                </td>
+                </h4>
 
-                                <td>
+                @forelse(
+                    $standarPeriode->penerapanStandar
+                    as $penerapan
+                )
 
-                                    {{ $tanggapan->user->nama ?? '-' }}
+                    <div style="
+                        margin-bottom:20px;
+                        padding:18px;
+                        border:1px solid #e4e7ec;
+                        border-radius:12px;
+                    ">
 
-                                </td>
+                        <table class="detail-table">
 
-                            </tr>
+                            <tbody>
 
-                            <tr>
+                                <tr>
+                                    <th width="220">
+                                        Penerapan Standar
+                                    </th>
 
-                                <td>
+                                    <td>
+                                        {{
+                                            $penerapan
+                                                ->indikator
+                                                ->deskripsi
+                                            ?? $penerapan
+                                                ->indikator
+                                                ->indikator
+                                            ?? '-'
+                                        }}
+                                    </td>
+                                </tr>
 
-                                    Tanggapan
+                                <tr>
+                                    <th>
+                                        Hasil Penerapan
+                                    </th>
 
-                                </td>
+                                    <td>
+                                        {!! nl2br(e(
+                                            $penerapan
+                                                ->deskripsi_hasil
+                                            ?? '-'
+                                        )) !!}
+                                    </td>
+                                </tr>
 
-                                <td>
+                                <tr>
+                                    <th>
+                                        Auditee
+                                    </th>
 
-                                    :
+                                    <td>
+                                        {{
+                                            $penerapan
+                                                ->user
+                                                ->nama
+                                            ?? $penerapan
+                                                ->user
+                                                ->name
+                                            ?? '-'
+                                        }}
+                                    </td>
+                                </tr>
 
-                                </td>
+                                <tr>
+                                    <th>
+                                        Bukti Pendukung
+                                    </th>
 
-                                <td>
+                                    <td>
 
-                                    {{ $tanggapan->tanggapan }}
+                                        @if(
+                                            filled(
+                                                $penerapan->link_bukti
+                                            )
+                                        )
 
-                                </td>
+                                            <a
+                                                href="{{ $penerapan->link_bukti }}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="btn-detail"
+                                            >
+                                                <i class="bi bi-box-arrow-up-right"></i>
+                                                Lihat Bukti
+                                            </a>
 
-                            </tr>
+                                        @else
+
+                                            Belum ada bukti.
+
+                                        @endif
+
+                                    </td>
+                                </tr>
+
+                            </tbody>
 
                         </table>
 
+                        <h4 style="margin:20px 0 12px;">
+                            Temuan Auditor
+                        </h4>
+
+                        @forelse($penerapan->temuan as $temuan)
+
+                            @php
+                                $statusTemuan = strtolower(
+                                    trim(
+                                        $temuan->status_temuan
+                                        ?? ''
+                                    )
+                                );
+                            @endphp
+
+                            <div style="
+                                margin-bottom:15px;
+                                padding:16px;
+                                border:1px solid #d0d5dd;
+                                border-radius:10px;
+                            ">
+
+                                <table class="detail-table">
+
+                                    <tbody>
+
+                                        <tr>
+                                            <th width="220">
+                                                Temuan
+                                            </th>
+
+                                            <td>
+                                                {!! nl2br(e(
+                                                    $temuan->temuan
+                                                    ?? '-'
+                                                )) !!}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Status</th>
+
+                                            <td>
+
+                                                @if(
+                                                    $statusTemuan
+                                                    === 'open'
+                                                )
+
+                                                    <span class="badge-open">
+                                                        Open
+                                                    </span>
+
+                                                @elseif(
+                                                    $statusTemuan
+                                                    === 'closed'
+                                                )
+
+                                                    <span class="badge-close">
+                                                        Closed
+                                                    </span>
+
+                                                @else
+
+                                                    {{
+                                                        ucfirst(
+                                                            $statusTemuan
+                                                            ?: '-'
+                                                        )
+                                                    }}
+
+                                                @endif
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>
+                                                Tanggapan Auditee
+                                            </th>
+
+                                            <td>
+
+                                                @forelse(
+                                                    $temuan->tanggapan
+                                                    as $tanggapan
+                                                )
+
+                                                    <div style="margin-bottom:8px;">
+
+                                                        <strong>
+                                                            {{ $loop->iteration }}.
+                                                        </strong>
+
+                                                        {!! nl2br(e(
+                                                            $tanggapan
+                                                                ->tanggapan
+                                                            ?? '-'
+                                                        )) !!}
+
+                                                    </div>
+
+                                                @empty
+
+                                                    Belum ada tanggapan.
+
+                                                @endforelse
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>
+                                                Akar Masalah
+                                            </th>
+
+                                            <td>
+
+                                                @forelse(
+                                                    $temuan->akarMasalah
+                                                    as $akar
+                                                )
+
+                                                    <div style="margin-bottom:8px;">
+
+                                                        <strong>
+                                                            {{ $loop->iteration }}.
+                                                        </strong>
+
+                                                        {!! nl2br(e(
+                                                            $akar
+                                                                ->akar_masalah
+                                                            ?? '-'
+                                                        )) !!}
+
+                                                    </div>
+
+                                                @empty
+
+                                                    Belum ada akar masalah.
+
+                                                @endforelse
+
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        @empty
+
+                            <div style="
+                                padding:15px;
+                                background:#f9fafb;
+                                border-radius:8px;
+                                text-align:center;
+                            ">
+                                Belum ada temuan untuk penerapan ini.
+                            </div>
+
+                        @endforelse
+
+                        <h4 style="margin:20px 0 12px;">
+                            Rekomendasi Peningkatan
+                        </h4>
+
+                        @forelse(
+                            $penerapan->rekomendasi
+                            as $rekomendasi
+                        )
+
+                            <div style="
+                                margin-bottom:10px;
+                                padding:14px;
+                                border:1px solid #e4e7ec;
+                                border-radius:8px;
+                            ">
+
+                                @if(filled($rekomendasi->aspek))
+
+                                    <div style="margin-bottom:8px;">
+                                        <strong>Aspek:</strong>
+
+                                        {{ $rekomendasi->aspek }}
+                                    </div>
+
+                                @endif
+
+                                @if(filled($rekomendasi->kelebihan))
+
+                                    <div style="margin-bottom:8px;">
+                                        <strong>Kelebihan:</strong>
+
+                                        {{ $rekomendasi->kelebihan }}
+                                    </div>
+
+                                @endif
+
+                                <div>
+                                    <strong>Rekomendasi:</strong>
+
+                                    {{
+                                        $rekomendasi->rekomendasi
+                                        ?? '-'
+                                    }}
+                                </div>
+
+                            </div>
+
+                        @empty
+
+                            <div>
+                                Belum ada rekomendasi.
+                            </div>
+
+                        @endforelse
+
                     </div>
 
-                    <br>
+                @empty
 
-                    @endforeach
+                    <div style="
+                        padding:20px;
+                        text-align:center;
+                        background:#f9fafb;
+                        border-radius:10px;
+                    ">
+                        Belum ada penerapan standar.
+                    </div>
 
-                @endforeach
+                @endforelse
 
-            @endforeach
+            </div>
 
-        @endforeach
+        @empty
 
-    @endforeach
+            <div style="
+                padding:20px;
+                text-align:center;
+                background:#f9fafb;
+                border-radius:10px;
+            ">
+                Standar mutu belum dihubungkan dengan periode ini.
+            </div>
 
-</section>
+        @endforelse
 
-<!-- ===========================================================
-    AKAR MASALAH
-=========================================================== -->
+    </div>
 
-<section class="laporan-card">
+    {{-- KESIMPULAN --}}
+    <div style="padding: 0 24px 24px;">
 
-    <h3>
+        <h3 style="margin: 0 0 15px;">
+            Kesimpulan Audit
+        </h3>
 
-        AKAR MASALAH
+        @forelse(
+            $periode->kesimpulanAudit
+            as $kesimpulan
+        )
 
-    </h3>
+            <div style="
+                margin-bottom:12px;
+                padding:16px;
+                border:1px solid #e4e7ec;
+                border-radius:10px;
+            ">
 
-    <table class="laporan-table">
+                <strong>
+                    Kesimpulan {{ $loop->iteration }}
+                </strong>
 
-        <thead>
+                <div style="margin-top:8px;">
+                    {!! nl2br(e(
+                        $kesimpulan->kesimpulan
+                        ?? '-'
+                    )) !!}
+                </div>
 
-            <tr>
+            </div>
 
-                <th width="60">
+        @empty
 
-                    No
+            <div style="
+                padding:20px;
+                text-align:center;
+                background:#f9fafb;
+                border-radius:10px;
+            ">
+                Kesimpulan audit belum tersedia.
+            </div>
 
-                </th>
+        @endforelse
 
-                <th>
+    </div>
 
-                    Temuan Audit
+    {{-- LAMPIRAN --}}
+    <div style="padding: 0 24px 30px;">
 
-                </th>
+        <h3 style="margin: 0 0 15px;">
+            Lampiran Audit
+        </h3>
 
-                <th>
+        <div class="table-wrapper">
 
-                    Akar Masalah
+            <table class="custom-table">
 
-                </th>
+                <thead>
+                    <tr>
+                        <th width="65">No.</th>
+                        <th>Link Lampiran</th>
+                        <th>Pengunggah</th>
+                        <th width="130">Aksi</th>
+                    </tr>
+                </thead>
 
-            </tr>
+                <tbody>
 
-        </thead>
-
-        <tbody>
-
-        @php
-            $noAkar = 1;
-        @endphp
-
-        @foreach($periode->standarMutuPeriode as $standar)
-
-            @foreach($standar->penerapanStandar as $penerapan)
-
-                @foreach($penerapan->pertanyaan as $pertanyaan)
-
-                    @foreach($pertanyaan->temuan as $temuan)
-
-                        @foreach($temuan->akarMasalah as $akar)
+                    @forelse($periode->lampiran as $lampiran)
 
                         <tr>
 
+                            <td>{{ $loop->iteration }}</td>
+
+                            <td style="word-break:break-all;">
+                                {{ $lampiran->link_file ?? '-' }}
+                            </td>
+
                             <td>
-
-                                {{ $noAkar++ }}
-
+                                {{
+                                    $lampiran->user->nama
+                                    ?? $lampiran->user->name
+                                    ?? '-'
+                                }}
                             </td>
 
                             <td>
 
-                                {{ $temuan->temuan }}
+                                @if(filled($lampiran->link_file))
 
-                            </td>
+                                    <a
+                                        href="{{ $lampiran->link_file }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="btn-detail"
+                                    >
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                        Buka
+                                    </a>
 
-                            <td>
+                                @else
 
-                                {{ $akar->akar_masalah }}
+                                    -
+
+                                @endif
 
                             </td>
 
                         </tr>
 
-                        @endforeach
+                    @empty
 
-                    @endforeach
+                        <tr>
+                            <td colspan="4" style="text-align:center;">
+                                Lampiran belum tersedia.
+                            </td>
+                        </tr>
 
-                @endforeach
+                    @endforelse
 
-            @endforeach
+                </tbody>
 
-        @endforeach
+            </table>
 
-        </tbody>
-
-    </table>
-
-</section>
-
-<!-- ===========================================================
-    REKOMENDASI
-=========================================================== -->
-
-<section class="laporan-card">
-
-    <h3>
-
-        REKOMENDASI PENINGKATAN
-
-    </h3>
-
-    <table class="laporan-table">
-
-        <thead>
-
-            <tr>
-
-                <th>No</th>
-
-                <th>Aspek</th>
-
-                <th>Kelebihan</th>
-
-                <th>Rekomendasi</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-        @php
-            $noRekom = 1;
-        @endphp
-
-        @foreach($periode->standarMutuPeriode as $standar)
-
-            @foreach($standar->penerapanStandar as $penerapan)
-
-                @foreach($penerapan->rekomendasi as $rekom)
-
-                <tr>
-
-                    <td>
-
-                        {{ $noRekom++ }}
-
-                    </td>
-
-                    <td>
-
-                        {{ $rekom->aspek }}
-
-                    </td>
-
-                    <td>
-
-                        {{ $rekom->kelebihan }}
-
-                    </td>
-
-                    <td>
-
-                        {{ $rekom->rekomendasi }}
-
-                    </td>
-
-                </tr>
-
-                @endforeach
-
-            @endforeach
-
-        @endforeach
-
-        </tbody>
-
-    </table>
-
-</section>
-
-<!-- ===========================================================
-    KESIMPULAN
-=========================================================== -->
-
-<section class="laporan-card">
-
-    <h3>
-
-        KESIMPULAN AUDIT
-
-    </h3>
-
-    @forelse($periode->kesimpulanAudit as $kesimpulan)
-
-        <div class="kesimpulan-box">
-
-    <i class="bi bi-check-circle-fill"></i>
-
-    <div>
-
-        {{ $kesimpulan->kesimpulan }}
+        </div>
 
     </div>
 
 </div>
-    @empty
 
-        <p>
-
-            Belum ada kesimpulan audit.
-
-        </p>
-
-    @endforelse
-
-</section>
-
-<!-- ===========================================================
-    LAMPIRAN
-=========================================================== -->
-
-<section class="laporan-card">
-
-    <h3>
-
-        LAMPIRAN
-
-    </h3>
-
-    <table class="laporan-table">
-
-        <thead>
-
-            <tr>
-
-                <th width="60">
-
-                    No
-
-                </th>
-
-                <th>
-
-                    Link Lampiran
-
-                </th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-        @forelse($periode->lampiran as $lampiran)
-
-        <tr>
-
-            <td>
-
-                {{ $loop->iteration }}
-
-            </td>
-
-            <td>
-
-                @if($lampiran->link_file)
-
-                    <a
-                        href="{{ $lampiran->link_file }}"
-                        target="_blank"
-                        class="btn-link">
-
-                        Download Lampiran
-
-                    </a>
-
-                @else
-
--
-
-@endif
-
-            </td>
-
-        </tr>
-
-        @empty
-
-        <tr>
-
-            <td colspan="2">
-
-                Belum ada lampiran.
-
-            </td>
-
-        </tr>
-
-        @endforelse
-
-        </tbody>
-
-    </table>
-
-</section>
-
-<!-- ===========================================================
-    PENGESAHAN
-=========================================================== -->
-
-<section class="laporan-card">
-
-<h3>
-
-PENGESAHAN
-
-</h3>
-
-<br><br>
-
-<table style="width:100%;text-align:center;">
-
-<tr>
-
-<td>
-
-Mengetahui,
-
-<br>
-
-Ketua PPMPP
-
-</td>
-
-<td>
-
-Auditor Ketua
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="height:120px;"></td>
-
-<td></td>
-
-</tr>
-
-<tr>
-
-<td>
-
-_____________________
-
-</td>
-
-<td>
-
-_____________________
-
-</td>
-
-</tr>
-
-</table>
-
-</section>
-
-<!-- ===========================================================
-    BUTTON
-=========================================================== -->
-
-<div style="text-align:center;margin:40px 0;">
-
-    <div class="button-group">
-
-<a
-
-href="{{ route('auditor.laporan.index') }}"
-
-class="btn-secondary">
-
-<i class="bi bi-arrow-left"></i>
-
-Kembali
-
-</a>
-
-<button
-
-class="btn-print"
-
-onclick="window.print()">
-
-<i class="bi bi-printer"></i>
-
-Cetak
-
-</button>
-
-<a
-
-href="#"
-
-class="btn-primary">
-
-<i class="bi bi-file-earmark-pdf"></i>
-
-Download PDF
-
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-</body>
-
-</html>
+@endsection

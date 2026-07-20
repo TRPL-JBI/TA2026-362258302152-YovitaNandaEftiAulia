@@ -3,13 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PenerapanStandar extends Model
 {
+    /**
+     * Nama tabel database.
+     */
     protected $table = 'penerapan_standar';
 
+    /**
+     * Tabel tidak menggunakan created_at dan updated_at.
+     */
     public $timestamps = false;
 
+    /**
+     * Kolom yang dapat diisi.
+     */
     protected $fillable = [
         'id_standarmutu_periodeami',
         'id_indikator',
@@ -18,12 +29,32 @@ class PenerapanStandar extends Model
         'id_user',
     ];
 
-    public function user()
+    /**
+     * Auditee yang mengisi penerapan standar.
+     */
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(
+            User::class,
+            'id_user'
+        );
     }
 
-    public function standarmutuPeriode()
+    /**
+     * Indikator yang diterapkan oleh Auditee.
+     */
+    public function indikator(): BelongsTo
+    {
+        return $this->belongsTo(
+            IndikatorStandar::class,
+            'id_indikator'
+        );
+    }
+
+    /**
+     * Hubungan penerapan dengan standar mutu pada periode AMI.
+     */
+    public function standarmutuPeriode(): BelongsTo
     {
         return $this->belongsTo(
             StandarMutuPeriodeAmi::class,
@@ -31,22 +62,33 @@ class PenerapanStandar extends Model
         );
     }
 
-    public function standarMutuPeriodeAmi()
+    /**
+     * Alias relasi agar kode lama yang masih menggunakan
+     * standarMutuPeriodeAmi tetap dapat berjalan.
+     */
+    public function standarMutuPeriodeAmi(): BelongsTo
     {
-        return $this->standarmutuPeriode();
+        return $this->belongsTo(
+            StandarMutuPeriodeAmi::class,
+            'id_standarmutu_periodeami'
+        );
     }
 
-    public function indikator()
+    /**
+     * Temuan yang dibuat Auditor berdasarkan penerapan ini.
+     */
+    public function temuan(): HasMany
     {
-        return $this->belongsTo(IndikatorStandar::class, 'id_indikator');
+        return $this->hasMany(
+            TemuanAmi::class,
+            'id_penerapan_standar'
+        );
     }
 
-    public function pertanyaan()
-    {
-        return $this->hasMany(PertanyaanAmi::class, 'id_penerapan_standar');
-    }
-
-    public function rekomendasi()
+    /**
+     * Rekomendasi peningkatan untuk penerapan standar.
+     */
+    public function rekomendasi(): HasMany
     {
         return $this->hasMany(
             RekomendasiPeningkatan::class,

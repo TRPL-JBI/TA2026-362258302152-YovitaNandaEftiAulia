@@ -1,0 +1,12 @@
+/*
+ * CSS LANDING PAGE SPMI
+ *
+ * File ini hanya menjadi manifest pemanggil.
+ * Urutan import WAJIB dipertahankan agar cascade dan tampilan tidak berubah.
+ */
+
+@import url('./landing/01-reset-header-navigation.css');
+@import url('./landing/02-hero.css');
+@import url('./landing/03-sections-about-features-workflow.css');
+@import url('./landing/04-role-cta-footer.css');
+@import url('./landing/05-animation-responsive.css');

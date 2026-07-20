@@ -1,4 +1,4 @@
-@extends('layouts.auditor')
+﻿@extends('layouts.auditor')
 
 @section('content')
 
@@ -16,7 +16,7 @@
 
             <p class="detail-subtitle">
 
-                Informasi lengkap Indikator Standar
+                Informasi lengkap Penerapan Standar
 
             </p>
 

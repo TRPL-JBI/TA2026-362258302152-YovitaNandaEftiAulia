@@ -1,4 +1,4 @@
-@extends('layouts.auditor')
+﻿@extends('layouts.auditor')
 
 @section('content')
 
@@ -124,15 +124,26 @@
 
                 </option>
 
-                @foreach($periode as $item)
+              @foreach($periode as $item)
 
-                    <option value="{{ $item->id }}">
+    <option
+        value="{{ $item->id }}"
+        @selected(
+            old('id_periode_ami') == $item->id
+        )
+    >
+        {{ $item->tahun }}
 
-                        {{ $item->tahun }}
+        â€”
 
-                    </option>
+        {{
+            $item->unitKerja->nama
+            ?? $item->unitKerja->nama_unit_kerja
+            ?? '-'
+        }}
+    </option>
 
-                @endforeach
+@endforeach
 
             </select>
 
@@ -152,8 +163,10 @@
                 type="url"
                 name="link_file"
                 class="form-control"
+                value="{{ old('link_file') }}"
                 placeholder="https://drive.google.com/..."
-                required>
+                required
+            >
 
         </div>
 

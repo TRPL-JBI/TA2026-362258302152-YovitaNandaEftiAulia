@@ -4,24 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Models\PeriodeAmi;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class LaporanAuditorController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | DAFTAR LAPORAN
+    | DAFTAR LAPORAN AMI
     |--------------------------------------------------------------------------
     */
 
     public function index()
     {
+        $idAuditor = $this->getLoginUserId();
+
         $data = PeriodeAmi::with([
             'standarMutu',
             'unitKerja',
+            'tim.user',
+            'jadwal',
+            'standarMutuPeriode.penerapanStandar.temuan',
         ])
+            ->whereHas(
+                'tim',
+                function (Builder $query) use ($idAuditor) {
+                    $query->where('id_user', $idAuditor);
+                }
+            )
             ->orderByDesc('tahun')
             ->orderByDesc('id')
             ->get();
@@ -34,83 +45,267 @@ class LaporanAuditorController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | TAMPILKAN LAPORAN LANGSUNG SEBAGAI PDF
+    | BUKA LAPORAN LANGSUNG SEBAGAI PDF
     |--------------------------------------------------------------------------
     */
 
-    public function show(Request $request, $id)
+    public function show($id)
     {
-        Carbon::setLocale('id');
+        $periode = $this->getAccessiblePeriod((int) $id);
 
-        $periode = $this->getLaporanData($id);
+        /*
+        |--------------------------------------------------------------------------
+        | KUMPULAN PENERAPAN
+        |--------------------------------------------------------------------------
+        */
 
-        $statistik = $this->hitungStatistik($periode);
+        $penerapanList = $periode
+            ->standarMutuPeriode
+            ->flatMap(function ($standarPeriode) {
+                return $standarPeriode->penerapanStandar;
+            })
+            ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | KUMPULAN TEMUAN
+        |--------------------------------------------------------------------------
+        */
+
+        $temuanList = $penerapanList
+            ->flatMap(function ($penerapan) {
+                return $penerapan->temuan;
+            })
+            ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | KUMPULAN TANGGAPAN
+        |--------------------------------------------------------------------------
+        */
+
+        $tanggapanList = $temuanList
+            ->flatMap(function ($temuan) {
+                return $temuan->tanggapan;
+            })
+            ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | KUMPULAN AKAR MASALAH
+        |--------------------------------------------------------------------------
+        */
+
+        $akarMasalahList = $temuanList
+            ->flatMap(function ($temuan) {
+                return $temuan->akarMasalah;
+            })
+            ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | KUMPULAN REKOMENDASI
+        |--------------------------------------------------------------------------
+        */
+
+        $rekomendasiList = $penerapanList
+            ->flatMap(function ($penerapan) {
+                return $penerapan->rekomendasi;
+            })
+            ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA TIM AUDITOR
+        |--------------------------------------------------------------------------
+        */
+
+        $ketuaAuditor = $periode
+            ->tim
+            ->first(function ($anggota) {
+                $role = strtolower(
+                    trim((string) $anggota->role)
+                );
+
+                return str_contains($role, 'ketua');
+            });
+
+        $anggotaAuditor = $periode
+            ->tim
+            ->filter(function ($anggota) use ($ketuaAuditor) {
+                if (!$ketuaAuditor) {
+                    return true;
+                }
+
+                return $anggota->id !== $ketuaAuditor->id;
+            })
+            ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA AUDITEE
+        |--------------------------------------------------------------------------
+        |
+        | Auditee diambil dari user yang mengisi penerapan standar.
+        |
+        */
+
+        $auditeeList = $penerapanList
+            ->pluck('user')
+            ->filter()
+            ->unique('id')
+            ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | STATISTIK LAPORAN
+        |--------------------------------------------------------------------------
+        */
+
+        $jumlahStandar = $periode
+            ->standarMutuPeriode
+            ->pluck('id_standar_mutu')
+            ->filter()
+            ->unique()
+            ->count();
+
+        $jumlahPenerapan = $penerapanList->count();
+
+        $jumlahIndikator = $penerapanList
+            ->pluck('id_indikator')
+            ->filter()
+            ->unique()
+            ->count();
+
+        $jumlahBukti = $penerapanList
+            ->filter(function ($penerapan) {
+                return filled($penerapan->link_bukti);
+            })
+            ->count();
+
+        $jumlahTemuan = $temuanList->count();
+
+        $jumlahTemuanOpen = $temuanList
+            ->filter(function ($temuan) {
+                return strtolower(
+                    trim((string) $temuan->status_temuan)
+                ) === 'open';
+            })
+            ->count();
+
+        $jumlahTemuanClosed = $temuanList
+            ->filter(function ($temuan) {
+                return strtolower(
+                    trim((string) $temuan->status_temuan)
+                ) === 'closed';
+            })
+            ->count();
+
+        $persentasePenyelesaian = $jumlahTemuan > 0
+            ? round(
+                ($jumlahTemuanClosed / $jumlahTemuan) * 100,
+                2
+            )
+            : 0;
+
+        $statistik = [
+            'jumlah_standar' => $jumlahStandar,
+            'jumlah_indikator' => $jumlahIndikator,
+            'jumlah_penerapan' => $jumlahPenerapan,
+            'jumlah_bukti' => $jumlahBukti,
+            'jumlah_temuan' => $jumlahTemuan,
+            'jumlah_temuan_open' => $jumlahTemuanOpen,
+            'jumlah_temuan_closed' => $jumlahTemuanClosed,
+            'jumlah_tanggapan' => $tanggapanList->count(),
+            'jumlah_akar_masalah' => $akarMasalahList->count(),
+            'jumlah_rekomendasi' => $rekomendasiList->count(),
+            'jumlah_kesimpulan' =>
+                $periode->kesimpulanAudit->count(),
+            'jumlah_lampiran' =>
+                $periode->lampiran->count(),
+            'persentase_penyelesaian' =>
+                $persentasePenyelesaian,
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOGO DALAM FORMAT BASE64
+        |--------------------------------------------------------------------------
+        |
+        | Base64 digunakan supaya logo tetap muncul ketika PDF dibuat.
+        |
+        */
 
         $logoBase64 = $this->getLogoBase64();
 
-        $namaUnit = $periode->unitKerja->nama
-            ?? $periode->unitKerja->nama_unit_kerja
-            ?? 'Unit Kerja';
+        $nomorDokumen = sprintf(
+            'AMI/%s/%04d',
+            preg_replace(
+                '/[^0-9A-Za-z\-]/',
+                '',
+                (string) $periode->tahun
+            ),
+            $periode->id
+        );
 
-        $namaFile = 'Laporan-AMI-'
-            . Str::slug($namaUnit)
-            . '-'
-            . $periode->tahun
-            . '.pdf';
-
-        $pdf = Pdf::loadView(
-            'auditor.laporan.pdf',
-            array_merge(
-                [
-                    'periode' => $periode,
-                    'logoBase64' => $logoBase64,
-                    'tanggalCetak' => now()
-                        ->translatedFormat('d F Y'),
-                ],
-                $statistik
+        $namaFile = sprintf(
+            'Laporan-AMI-%s-%s.pdf',
+            Str::slug(
+                $periode->unitKerja->nama
+                    ?? 'unit-kerja'
+            ),
+            Str::slug(
+                (string) $periode->tahun
             )
         );
 
-        /*
-         * Ukuran A4 portrait.
-         * Halaman tabel yang lebar tetap disusun agar muat di A4.
-         */
-        $pdf->setPaper('a4', 'portrait');
+        $pdf = Pdf::loadView(
+            'auditor.laporan.pdf',
+            compact(
+                'periode',
+                'penerapanList',
+                'temuanList',
+                'tanggapanList',
+                'akarMasalahList',
+                'rekomendasiList',
+                'ketuaAuditor',
+                'anggotaAuditor',
+                'auditeeList',
+                'statistik',
+                'logoBase64',
+                'nomorDokumen'
+            )
+        );
 
-        /*
-         * Opsi DomPDF.
-         */
+        $pdf->setPaper('A4', 'portrait');
+
         $pdf->setOptions([
-            'isRemoteEnabled' => true,
-            'isHtml5ParserEnabled' => true,
             'defaultFont' => 'DejaVu Sans',
-            'dpi' => 120,
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => false,
         ]);
 
         /*
-         * ?download=1 akan mengunduh PDF.
-         * Tanpa query tersebut, PDF dibuka langsung di browser.
+         * stream() membuka PDF langsung pada browser.
          */
-        if ($request->boolean('download')) {
-            return $pdf->download($namaFile);
-        }
-
         return $pdf->stream($namaFile);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | MENGAMBIL SELURUH DATA LAPORAN
+    | AMBIL PERIODE YANG BOLEH DIAKSES AUDITOR
     |--------------------------------------------------------------------------
     */
 
-    private function getLaporanData($id): PeriodeAmi
-    {
-        return PeriodeAmi::with([
+    private function getAccessiblePeriod(
+        int $id
+    ): PeriodeAmi {
+        $idAuditor = $this->getLoginUserId();
 
+        return PeriodeAmi::with([
             /*
             |--------------------------------------------------------------------------
-            | IDENTITAS AUDIT
+            | IDENTITAS
             |--------------------------------------------------------------------------
             */
 
@@ -120,40 +315,31 @@ class LaporanAuditorController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | TIM AUDIT
+            | TIM DAN JADWAL
             |--------------------------------------------------------------------------
             */
 
             'tim.user',
-
-            /*
-            |--------------------------------------------------------------------------
-            | JADWAL AUDIT
-            |--------------------------------------------------------------------------
-            */
-
             'jadwal',
 
             /*
             |--------------------------------------------------------------------------
-            | STANDAR MUTU DAN PENERAPAN
+            | STANDAR PERIODE
             |--------------------------------------------------------------------------
             */
 
             'standarMutuPeriode',
             'standarMutuPeriode.standarMutu',
 
-            'standarMutuPeriode.penerapanStandar',
-            'standarMutuPeriode.penerapanStandar.user',
-
             /*
             |--------------------------------------------------------------------------
-            | PERTANYAAN AUDIT
+            | PENERAPAN
             |--------------------------------------------------------------------------
             */
 
-            'standarMutuPeriode.penerapanStandar.pertanyaan',
-            'standarMutuPeriode.penerapanStandar.pertanyaan.user',
+            'standarMutuPeriode.penerapanStandar',
+            'standarMutuPeriode.penerapanStandar.user',
+            'standarMutuPeriode.penerapanStandar.indikator',
 
             /*
             |--------------------------------------------------------------------------
@@ -161,25 +347,19 @@ class LaporanAuditorController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            'standarMutuPeriode.penerapanStandar.pertanyaan.temuan',
+            'standarMutuPeriode.penerapanStandar.temuan',
 
             /*
             |--------------------------------------------------------------------------
-            | TANGGAPAN AUDITEE
+            | TANGGAPAN DAN AKAR MASALAH
             |--------------------------------------------------------------------------
             */
 
-            'standarMutuPeriode.penerapanStandar.pertanyaan.temuan.tanggapan',
-            'standarMutuPeriode.penerapanStandar.pertanyaan.temuan.tanggapan.user',
+            'standarMutuPeriode.penerapanStandar.temuan.tanggapan',
+            'standarMutuPeriode.penerapanStandar.temuan.tanggapan.user',
 
-            /*
-            |--------------------------------------------------------------------------
-            | AKAR MASALAH
-            |--------------------------------------------------------------------------
-            */
-
-            'standarMutuPeriode.penerapanStandar.pertanyaan.temuan.akarMasalah',
-            'standarMutuPeriode.penerapanStandar.pertanyaan.temuan.akarMasalah.user',
+            'standarMutuPeriode.penerapanStandar.temuan.akarMasalah',
+            'standarMutuPeriode.penerapanStandar.temuan.akarMasalah.user',
 
             /*
             |--------------------------------------------------------------------------
@@ -192,139 +372,91 @@ class LaporanAuditorController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | KESIMPULAN
+            | KESIMPULAN DAN LAMPIRAN
             |--------------------------------------------------------------------------
             */
 
             'kesimpulanAudit',
             'kesimpulanAudit.user',
 
-            /*
-            |--------------------------------------------------------------------------
-            | LAMPIRAN
-            |--------------------------------------------------------------------------
-            */
-
             'lampiran',
             'lampiran.user',
-
-        ])->findOrFail($id);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | HITUNG STATISTIK LAPORAN
-    |--------------------------------------------------------------------------
-    */
-
-    private function hitungStatistik(PeriodeAmi $periode): array
-    {
-        $jumlahStandar = 0;
-        $jumlahPenerapan = 0;
-        $jumlahPertanyaan = 0;
-        $jumlahTemuan = 0;
-        $jumlahTemuanTerbuka = 0;
-        $jumlahTemuanDitutup = 0;
-        $jumlahTanggapan = 0;
-        $jumlahAkarMasalah = 0;
-        $jumlahRekomendasi = 0;
-
-        foreach ($periode->standarMutuPeriode as $standarPeriode) {
-            $jumlahStandar++;
-
-            foreach ($standarPeriode->penerapanStandar as $penerapan) {
-                $jumlahPenerapan++;
-
-                $jumlahRekomendasi +=
-                    $penerapan->rekomendasi->count();
-
-                foreach ($penerapan->pertanyaan as $pertanyaan) {
-                    $jumlahPertanyaan++;
-
-                    foreach ($pertanyaan->temuan as $temuan) {
-                        $jumlahTemuan++;
-
-                        $statusTemuan = strtolower(
-                            trim($temuan->status_temuan ?? '')
-                        );
-
-                        if (
-                            in_array(
-                                $statusTemuan,
-                                [
-                                    'ditutup',
-                                    'tertutup',
-                                    'selesai',
-                                    'closed',
-                                    'close',
-                                ],
-                                true
-                            )
-                        ) {
-                            $jumlahTemuanDitutup++;
-                        } else {
-                            $jumlahTemuanTerbuka++;
-                        }
-
-                        $jumlahTanggapan +=
-                            $temuan->tanggapan->count();
-
-                        $jumlahAkarMasalah +=
-                            $temuan->akarMasalah->count();
-                    }
+        ])
+            ->whereHas(
+                'tim',
+                function (Builder $query) use ($idAuditor) {
+                    $query->where('id_user', $idAuditor);
                 }
-            }
-        }
-
-        return [
-            'jumlahStandar' => $jumlahStandar,
-            'jumlahPenerapan' => $jumlahPenerapan,
-            'jumlahPertanyaan' => $jumlahPertanyaan,
-            'jumlahTemuan' => $jumlahTemuan,
-            'jumlahTemuanTerbuka' => $jumlahTemuanTerbuka,
-            'jumlahTemuanDitutup' => $jumlahTemuanDitutup,
-            'jumlahTanggapan' => $jumlahTanggapan,
-            'jumlahAkarMasalah' => $jumlahAkarMasalah,
-            'jumlahRekomendasi' => $jumlahRekomendasi,
-            'jumlahKesimpulan' =>
-                $periode->kesimpulanAudit->count(),
-            'jumlahLampiran' =>
-                $periode->lampiran->count(),
-        ];
+            )
+            ->findOrFail($id);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | KONVERSI LOGO MENJADI BASE64
+    | LOGO BASE64
     |--------------------------------------------------------------------------
-    |
-    | Cara ini membuat logo selalu tampil pada PDF, termasuk saat aplikasi
-    | dijalankan melalui localhost.
-    |
     */
 
     private function getLogoBase64(): ?string
     {
-        $logoPath = public_path('images/poliwangi.png');
+        $path = public_path(
+            'images/poliwangi.png'
+        );
 
-        if (!file_exists($logoPath)) {
+        if (!is_file($path)) {
             return null;
         }
 
         $extension = strtolower(
-            pathinfo($logoPath, PATHINFO_EXTENSION)
+            pathinfo($path, PATHINFO_EXTENSION)
         );
 
         $mime = match ($extension) {
             'jpg', 'jpeg' => 'image/jpeg',
             'gif' => 'image/gif',
-            'svg' => 'image/svg+xml',
+            'webp' => 'image/webp',
             default => 'image/png',
         };
 
-        return 'data:'
-            . $mime
-            . ';base64,'
-            . base64_encode(file_get_contents($logoPath));
+        $content = file_get_contents($path);
+
+        if ($content === false) {
+            return null;
+        }
+
+        return sprintf(
+            'data:%s;base64,%s',
+            $mime,
+            base64_encode($content)
+        );
     }
-};
+
+    /*
+    |--------------------------------------------------------------------------
+    | ID USER LOGIN
+    |--------------------------------------------------------------------------
+    */
+
+    private function getLoginUserId(): int
+    {
+        $user = session('user');
+
+        abort_if(
+            !$user,
+            401,
+            'Sesi pengguna tidak ditemukan. Silakan login kembali.'
+        );
+
+        $idUser = is_array($user)
+            ? ($user['id'] ?? null)
+            : ($user->id ?? null);
+
+        abort_if(
+            !$idUser,
+            401,
+            'ID pengguna pada sesi tidak ditemukan.'
+        );
+
+        return (int) $idUser;
+    }
+}

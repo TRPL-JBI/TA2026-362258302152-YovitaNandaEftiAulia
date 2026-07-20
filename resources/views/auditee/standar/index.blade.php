@@ -1,4 +1,4 @@
-@extends('layouts.auditee')
+﻿@extends('layouts.auditee')
 
 @section('content')
 
@@ -162,7 +162,7 @@
                         <td class="cell-content">
 
                             <div class="standard-level-box">
-                                {{ $row['level'][0] ?? '—' }}
+                                {{ $row['level'][0] ?? 'â€”' }}
                             </div>
 
                         </td>
@@ -171,7 +171,7 @@
                         <td class="cell-content">
 
                             <div class="standard-level-box">
-                                {{ $row['level'][1] ?? '—' }}
+                                {{ $row['level'][1] ?? 'â€”' }}
                             </div>
 
                         </td>
@@ -180,7 +180,7 @@
                         <td class="cell-content">
 
                             <div class="standard-level-box">
-                                {{ $row['level'][2] ?? '—' }}
+                                {{ $row['level'][2] ?? 'â€”' }}
                             </div>
 
                         </td>
@@ -268,7 +268,7 @@
                                 @empty
 
                                     <span class="quality-empty-value">
-                                        —
+                                        â€”
                                     </span>
 
                                 @endforelse
@@ -414,7 +414,7 @@
                                 @empty
 
                                     <span class="quality-empty-value">
-                                        —
+                                        â€”
                                     </span>
 
                                 @endforelse

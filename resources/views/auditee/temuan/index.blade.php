@@ -1,4 +1,4 @@
-@extends('layouts.auditee')
+﻿@extends('layouts.auditee')
 
 @section('content')
 
@@ -76,9 +76,19 @@
 
                     <td>
 
-                        {{ $item->pertanyaan->pertanyaan }}
+                        {{
+                                $item->penerapan->indikator->deskripsi
+                                ?? '-'
+                        }}
 
                     </td>
+
+                        <td>
+                            {{
+                                $item->penerapan->deskripsi_hasil
+                                ?? '-'
+                            }}
+                        </td>
 
                     <td>
 

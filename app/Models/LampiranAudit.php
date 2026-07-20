@@ -13,14 +13,8 @@ class LampiranAudit extends Model
     protected $fillable = [
         'id_periode_ami',
         'link_file',
-        'id_user'
+        'id_user',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | PERIODE AMI
-    |--------------------------------------------------------------------------
-    */
 
     public function periodeAmi()
     {
@@ -29,12 +23,6 @@ class LampiranAudit extends Model
             'id_periode_ami'
         );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | USER
-    |--------------------------------------------------------------------------
-    */
 
     public function user()
     {

@@ -1,51 +1,117 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    /**
+     * Menampilkan halaman login.
+     */
     public function showLogin()
     {
+        $loginUser = session('user');
+
+        if ($loginUser) {
+            $role = is_array($loginUser)
+                ? ($loginUser['role'] ?? null)
+                : ($loginUser->role ?? null);
+
+            return match ($role) {
+                'admin' => redirect()->route('dashboard'),
+                'auditee' => redirect()->route('dashboard.auditee'),
+                'auditor' => redirect()->route('dashboard.auditor'),
+                default => view('auth.login'),
+            };
+        }
+
         return view('auth.login');
     }
 
+    /**
+     * Memproses login.
+     */
     public function login(Request $request)
-{
-    $user = DB::table('users')
-        ->where('nama', $request->username)
-        ->where('status', 'aktif')
-        ->first();
+    {
+        $validated = $request->validate(
+            [
+                'username' => [
+                    'required',
+                    'string',
+                    'max:150',
+                ],
+                'password' => [
+                    'required',
+                    'string',
+                ],
+            ],
+            [
+                'username.required' => 'Username atau email wajib diisi.',
+                'password.required' => 'Password wajib diisi.',
+            ]
+        );
 
-    if ($user && Hash::check($request->password, $user->password)) {
+        $username = trim($validated['username']);
 
-        Session::put('user', $user);
+        $user = DB::table('users')
+            ->where('status', 'aktif')
+            ->where(function ($query) use ($username) {
+                $query
+                    ->where('nama', $username)
+                    ->orWhere('email', $username);
+            })
+            ->first();
 
-        if ($user->role == 'admin') {
-            return redirect()->route('dashboard');
+        if (
+            !$user ||
+            !Hash::check($validated['password'], $user->password)
+        ) {
+            return back()
+                ->withInput($request->only('username'))
+                ->with('error', 'Username atau password salah.');
         }
 
-        if ($user->role == 'auditee') {
-            return redirect()->route('dashboard.auditee');
-        }
+        // Mencegah session fixation.
+        $request->session()->regenerate();
 
-        if ($user->role == 'auditor') {
-            return redirect()->route('dashboard.auditor');
-        }
+        $request->session()->put('user', $user);
 
+        return match ($user->role) {
+            'admin' => redirect()->route('dashboard'),
+            'auditee' => redirect()->route('dashboard.auditee'),
+            'auditor' => redirect()->route('dashboard.auditor'),
+            default => $this->logoutInvalidRole($request),
+        };
     }
 
-    return back()->with(
-        'error',
-        'Username atau password salah'
-    );
-}
-    public function logout()
+    /**
+     * Memproses logout.
+     */
+    public function logout(Request $request)
     {
-        Session::forget('user');
-        return redirect()->route('login');
+        $request->session()->forget('user');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()
+            ->route('landing')
+            ->with('success', 'Anda berhasil logout.');
+    }
+
+    /**
+     * Menangani role yang tidak valid.
+     */
+    private function logoutInvalidRole(Request $request)
+    {
+        $request->session()->forget('user');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()
+            ->route('login')
+            ->with('error', 'Role pengguna tidak valid.');
     }
 }

@@ -2,320 +2,274 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LampiranAudit;
 use App\Models\PeriodeAmi;
+use Illuminate\Http\Request;
 
-class LaporanAuditorController extends Controller
+class LampiranAuditorController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | DAFTAR LAPORAN
+    | DAFTAR LAMPIRAN
     |--------------------------------------------------------------------------
     */
 
     public function index()
     {
-        $data = PeriodeAmi::with([
-
-            'standarMutu',
-
-            'unitKerja',
-
-            'tim'
-
+        $data = LampiranAudit::with([
+            'periodeAmi',
+            'user',
         ])
-        ->orderBy('tahun','desc')
-        ->get();
+            ->orderByDesc('id')
+            ->get();
 
         return view(
-            'auditor.laporan.index',
+            'auditor.lampiran.index',
             compact('data')
         );
     }
 
     /*
     |--------------------------------------------------------------------------
-    | DETAIL LAPORAN
+    | FORM TAMBAH LAMPIRAN
+    |--------------------------------------------------------------------------
+    */
+
+    public function create()
+    {
+        $periode = PeriodeAmi::with([
+            'standarMutu',
+            'unitKerja',
+        ])
+            ->orderByDesc('tahun')
+            ->orderByDesc('id')
+            ->get();
+
+        return view(
+            'auditor.lampiran.create',
+            compact('periode')
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SIMPAN LAMPIRAN
+    |--------------------------------------------------------------------------
+    */
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate(
+            [
+                'id_periode_ami' => [
+                    'required',
+                    'integer',
+                    'exists:periode_ami,id',
+                ],
+
+                'link_file' => [
+                    'required',
+                    'url',
+                    'max:2048',
+                ],
+            ],
+            [
+                'id_periode_ami.required' =>
+                    'Periode AMI wajib dipilih.',
+
+                'id_periode_ami.exists' =>
+                    'Periode AMI yang dipilih tidak ditemukan.',
+
+                'link_file.required' =>
+                    'Link lampiran wajib diisi.',
+
+                'link_file.url' =>
+                    'Link lampiran harus berupa URL yang valid.',
+
+                'link_file.max' =>
+                    'Link lampiran maksimal 2048 karakter.',
+            ]
+        );
+
+        $idUser = $this->getLoginUserId();
+
+        LampiranAudit::create([
+            'id_periode_ami' =>
+                $validated['id_periode_ami'],
+
+            'link_file' =>
+                $validated['link_file'],
+
+            'id_user' =>
+                $idUser,
+        ]);
+
+        return redirect()
+            ->route('auditor.lampiran.index')
+            ->with(
+                'success',
+                'Lampiran audit berhasil ditambahkan.'
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | DETAIL LAMPIRAN
     |--------------------------------------------------------------------------
     */
 
     public function show($id)
     {
-        $periode = PeriodeAmi::with([
-
-            /*
-            |------------------------------------------------------
-            | IDENTITAS
-            |------------------------------------------------------
-            */
-
-            'standarMutu',
-
-            'unitKerja',
-
-            'tim.user',
-
-            'jadwal',
-
-            /*
-            |------------------------------------------------------
-            | STANDAR
-            |------------------------------------------------------
-            */
-
-            'standarMutuPeriode',
-
-            'standarMutuPeriode.standarMutu',
-
-            /*
-            |------------------------------------------------------
-            | PENERAPAN
-            |------------------------------------------------------
-            */
-
-            'standarMutuPeriode.penerapanStandar',
-
-            'standarMutuPeriode.penerapanStandar.user',
-
-            /*
-            |------------------------------------------------------
-            | PERTANYAAN
-            |------------------------------------------------------
-            */
-
-            'standarMutuPeriode.penerapanStandar.pertanyaan',
-
-            'standarMutuPeriode.penerapanStandar.pertanyaan.user',
-
-            /*
-            |------------------------------------------------------
-            | TEMUAN
-            |------------------------------------------------------
-            */
-
-            'standarMutuPeriode.penerapanStandar.pertanyaan.temuan',
-
-            /*
-            |------------------------------------------------------
-            | TANGGAPAN
-            |------------------------------------------------------
-            */
-
-            'standarMutuPeriode.penerapanStandar.pertanyaan.temuan.tanggapan',
-
-            'standarMutuPeriode.penerapanStandar.pertanyaan.temuan.tanggapan.user',
-
-            /*
-            |------------------------------------------------------
-            | AKAR MASALAH
-            |------------------------------------------------------
-            */
-
-            'standarMutuPeriode.penerapanStandar.pertanyaan.temuan.akarMasalah',
-
-            'standarMutuPeriode.penerapanStandar.pertanyaan.temuan.akarMasalah.user',
-
-            /*
-            |------------------------------------------------------
-            | REKOMENDASI
-            |------------------------------------------------------
-            */
-
-            'standarMutuPeriode.penerapanStandar.rekomendasi',
-
-            'standarMutuPeriode.penerapanStandar.rekomendasi.user',
-
-            /*
-            |------------------------------------------------------
-            | KESIMPULAN
-            |------------------------------------------------------
-            */
-
-            'kesimpulanAudit',
-
-            'kesimpulanAudit.user',
-
-            /*
-            |------------------------------------------------------
-            | LAMPIRAN
-            |------------------------------------------------------
-            */
-
-            'lampiran',
-
-            'lampiran.user'
-
+        $data = LampiranAudit::with([
+            'periodeAmi',
+            'periodeAmi.standarMutu',
+            'periodeAmi.unitKerja',
+            'user',
         ])->findOrFail($id);
 
-                /*
-        |--------------------------------------------------------------------------
-        | RINGKASAN AUDIT
-        |--------------------------------------------------------------------------
-        */
+        return view(
+            'auditor.lampiran.show',
+            compact('data')
+        );
+    }
 
-        $jumlahStandar = $periode
-            ->standarMutuPeriode
-            ->count();
+    /*
+    |--------------------------------------------------------------------------
+    | FORM EDIT LAMPIRAN
+    |--------------------------------------------------------------------------
+    */
 
-        $jumlahPenerapan = $periode
-            ->standarMutuPeriode
-            ->sum(function ($standar) {
+    public function edit($id)
+    {
+        $data = LampiranAudit::findOrFail($id);
 
-                return $standar
-                    ->penerapanStandar
-                    ->count();
-
-            });
-
-        $jumlahPertanyaan = $periode
-            ->standarMutuPeriode
-            ->sum(function ($standar) {
-
-                return $standar
-                    ->penerapanStandar
-                    ->sum(function ($penerapan) {
-
-                        return $penerapan
-                            ->pertanyaan
-                            ->count();
-
-                    });
-
-            });
-
-        $jumlahTemuan = $periode
-            ->standarMutuPeriode
-            ->sum(function ($standar) {
-
-                return $standar
-                    ->penerapanStandar
-                    ->sum(function ($penerapan) {
-
-                        return $penerapan
-                            ->pertanyaan
-                            ->sum(function ($pertanyaan) {
-
-                                return $pertanyaan
-                                    ->temuan
-                                    ->count();
-
-                            });
-
-                    });
-
-            });
-
-        $jumlahTanggapan = $periode
-            ->standarMutuPeriode
-            ->sum(function ($standar) {
-
-                return $standar
-                    ->penerapanStandar
-                    ->sum(function ($penerapan) {
-
-                        return $penerapan
-                            ->pertanyaan
-                            ->sum(function ($pertanyaan) {
-
-                                return $pertanyaan
-                                    ->temuan
-                                    ->sum(function ($temuan) {
-
-                                        return $temuan
-                                            ->tanggapan
-                                            ->count();
-
-                                    });
-
-                            });
-
-                    });
-
-            });
-
-        $jumlahAkarMasalah = $periode
-            ->standarMutuPeriode
-            ->sum(function ($standar) {
-
-                return $standar
-                    ->penerapanStandar
-                    ->sum(function ($penerapan) {
-
-                        return $penerapan
-                            ->pertanyaan
-                            ->sum(function ($pertanyaan) {
-
-                                return $pertanyaan
-                                    ->temuan
-                                    ->sum(function ($temuan) {
-
-                                        return $temuan
-                                            ->akarMasalah
-                                            ->count();
-
-                                    });
-
-                            });
-
-                    });
-
-            });
-
-        $jumlahRekomendasi = $periode
-            ->standarMutuPeriode
-            ->sum(function ($standar) {
-
-                return $standar
-                    ->penerapanStandar
-                    ->sum(function ($penerapan) {
-
-                        return $penerapan
-                            ->rekomendasi
-                            ->count();
-
-                    });
-
-            });
-
-        $jumlahKesimpulan = $periode
-            ->kesimpulanAudit
-            ->count();
-
-        $jumlahLampiran = $periode
-            ->lampiran
-            ->count();
-
-        /*
-        |--------------------------------------------------------------------------
-        | RETURN VIEW
-        |--------------------------------------------------------------------------
-        */
+        $periode = PeriodeAmi::with([
+            'standarMutu',
+            'unitKerja',
+        ])
+            ->orderByDesc('tahun')
+            ->orderByDesc('id')
+            ->get();
 
         return view(
-            'auditor.laporan.show',
+            'auditor.lampiran.edit',
             compact(
-
-                'periode',
-
-                'jumlahStandar',
-
-                'jumlahPenerapan',
-
-                'jumlahPertanyaan',
-
-                'jumlahTemuan',
-
-                'jumlahTanggapan',
-
-                'jumlahAkarMasalah',
-
-                'jumlahRekomendasi',
-
-                'jumlahKesimpulan',
-
-                'jumlahLampiran'
-
+                'data',
+                'periode'
             )
         );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE LAMPIRAN
+    |--------------------------------------------------------------------------
+    */
+
+    public function update(Request $request, $id)
+    {
+        $data = LampiranAudit::findOrFail($id);
+
+        $validated = $request->validate(
+            [
+                'id_periode_ami' => [
+                    'required',
+                    'integer',
+                    'exists:periode_ami,id',
+                ],
+
+                'link_file' => [
+                    'required',
+                    'url',
+                    'max:2048',
+                ],
+            ],
+            [
+                'id_periode_ami.required' =>
+                    'Periode AMI wajib dipilih.',
+
+                'id_periode_ami.exists' =>
+                    'Periode AMI yang dipilih tidak ditemukan.',
+
+                'link_file.required' =>
+                    'Link lampiran wajib diisi.',
+
+                'link_file.url' =>
+                    'Link lampiran harus berupa URL yang valid.',
+
+                'link_file.max' =>
+                    'Link lampiran maksimal 2048 karakter.',
+            ]
+        );
+
+        $data->update([
+            'id_periode_ami' =>
+                $validated['id_periode_ami'],
+
+            'link_file' =>
+                $validated['link_file'],
+        ]);
+
+        return redirect()
+            ->route('auditor.lampiran.index')
+            ->with(
+                'success',
+                'Lampiran audit berhasil diperbarui.'
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HAPUS LAMPIRAN
+    |--------------------------------------------------------------------------
+    */
+
+    public function destroy($id)
+    {
+        $data = LampiranAudit::findOrFail($id);
+
+        $data->delete();
+
+        return redirect()
+            ->route('auditor.lampiran.index')
+            ->with(
+                'success',
+                'Lampiran audit berhasil dihapus.'
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL ID USER LOGIN
+    |--------------------------------------------------------------------------
+    */
+
+    private function getLoginUserId(): int
+    {
+        $user = session('user');
+
+        abort_if(
+            !$user,
+            401,
+            'Sesi pengguna tidak ditemukan. Silakan login kembali.'
+        );
+
+        if (is_array($user)) {
+            abort_if(
+                empty($user['id']),
+                401,
+                'ID pengguna pada sesi tidak ditemukan.'
+            );
+
+            return (int) $user['id'];
+        }
+
+        abort_if(
+            empty($user->id),
+            401,
+            'ID pengguna pada sesi tidak ditemukan.'
+        );
+
+        return (int) $user->id;
+    }
 }

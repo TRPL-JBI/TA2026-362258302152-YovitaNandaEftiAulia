@@ -1,205 +1,310 @@
-@extends('layouts.auditee')
+﻿@extends('layouts.auditee')
 
 @section('content')
 
-@php
-    $penerapan =
-        $temuan->pertanyaan->penerapan ?? null;
-
-    $standarPeriode =
-        $penerapan->standarmutuPeriode ?? null;
-
-    $periode =
-        $standarPeriode->periodeAmi ?? null;
-@endphp
-
 <div class="breadcrumb">
-    Dashboard / Audit AMI / Temuan Audit / Detail
+    Dashboard / Temuan Audit / Detail Temuan
 </div>
 
-<div class="card auditee-detail-card">
+<div class="card">
 
-    <div class="auditee-master-header">
+    <div class="card-header">
 
-        <div>
-            <h2>
-                Detail Temuan Audit
-            </h2>
+        <h2 class="card-title">
+            Detail Temuan Audit
+        </h2>
 
-            <p>
-                Informasi temuan auditor untuk unit kerja Anda.
-            </p>
+    </div>
+
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
         </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <table class="detail-table">
+
+        <tbody>
+
+            <tr>
+                <th width="220">
+                    Periode AMI
+                </th>
+
+                <td>
+                    {{
+                        $temuan->penerapan
+                            ->standarmutuPeriode
+                            ->periodeAmi
+                            ->tahun
+                        ?? '-'
+                    }}
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    Unit Kerja
+                </th>
+
+                <td>
+                    {{
+                        $temuan->penerapan
+                            ->standarmutuPeriode
+                            ->periodeAmi
+                            ->unitKerja
+                            ->nama_unit_kerja
+                        ?? $temuan->penerapan
+                            ->standarmutuPeriode
+                            ->periodeAmi
+                            ->unitKerja
+                            ->nama
+                        ?? '-'
+                    }}
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    Standar Mutu
+                </th>
+
+                <td>
+                    {{
+                        $temuan->penerapan
+                            ->standarmutuPeriode
+                            ->standarMutu
+                            ->nama_standar_mutu
+                        ?? '-'
+                    }}
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    Indikator Standar
+                </th>
+
+                <td>
+                    {{
+                        $temuan->penerapan
+                            ->indikator
+                            ->deskripsi
+                        ?? '-'
+                    }}
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    Hasil Penerapan
+                </th>
+
+                <td>
+                    {!! nl2br(e(
+                        $temuan->penerapan
+                            ->deskripsi_hasil
+                        ?? '-'
+                    )) !!}
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    Bukti Pendukung
+                </th>
+
+                <td>
+
+                    @if(!empty(
+                        $temuan->penerapan->link_bukti
+                    ))
+
+                        <a
+                            href="{{ $temuan->penerapan->link_bukti }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn-detail"
+                        >
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            Lihat Bukti
+                        </a>
+
+                    @else
+
+                        Belum ada bukti pendukung.
+
+                    @endif
+
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    Temuan Auditor
+                </th>
+
+                <td>
+                    {!! nl2br(e(
+                        $temuan->temuan
+                        ?? '-'
+                    )) !!}
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    Status Temuan
+                </th>
+
+                <td>
+
+                    @php
+                        $status = strtolower(
+                            trim($temuan->status_temuan ?? '')
+                        );
+                    @endphp
+
+                    @if($status === 'open')
+
+                        <span class="badge-open">
+                            Open
+                        </span>
+
+                    @elseif($status === 'closed')
+
+                        <span class="badge-close">
+                            Closed
+                        </span>
+
+                    @else
+
+                        {{ ucfirst($status ?: '-') }}
+
+                    @endif
+
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    Tanggapan Auditee
+                </th>
+
+                <td>
+
+                    @forelse($temuan->tanggapan as $tanggapan)
+
+                        <div style="margin-bottom: 12px;">
+
+                            <strong>
+                                Tanggapan {{ $loop->iteration }}
+                            </strong>
+
+                            <div style="margin-top: 5px;">
+                                {!! nl2br(e(
+                                    $tanggapan->tanggapan
+                                    ?? '-'
+                                )) !!}
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        Belum ada tanggapan.
+
+                    @endforelse
+
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    Akar Masalah
+                </th>
+
+                <td>
+
+                    @forelse($temuan->akarMasalah as $akar)
+
+                        <div style="margin-bottom: 12px;">
+
+                            <strong>
+                                Akar Masalah {{ $loop->iteration }}
+                            </strong>
+
+                            <div style="margin-top: 5px;">
+                                {!! nl2br(e(
+                                    $akar->akar_masalah
+                                    ?? '-'
+                                )) !!}
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        Belum ada akar masalah.
+
+                    @endforelse
+
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+    <div class="form-footer">
 
         <a
-            href="{{ route('auditee.audit.temuan.index') }}"
-            class="auditee-back-button"
+            href="{{ route('auditee.temuan.index') }}"
+            class="btn-secondary"
         >
             <i class="bi bi-arrow-left"></i>
             Kembali
         </a>
 
-    </div>
+        @php
+            $tanggapanPertama = $temuan
+                ->tanggapan
+                ->first();
+        @endphp
 
-    <div class="auditee-detail-grid">
+        @if(!$tanggapanPertama)
 
-        <div class="auditee-detail-item">
+            <a
+                href="{{ route(
+                    'auditee.tanggapan.create',
+                    $temuan->id
+                ) }}"
+                class="btn-save"
+            >
+                <i class="bi bi-chat-dots"></i>
+                Beri Tanggapan
+            </a>
 
-            <span class="auditee-detail-label">
-                Tahun AMI
-            </span>
+        @else
 
-            <strong>
-                {{ $periode->tahun ?? '-' }}
-            </strong>
+            <a
+                href="{{ route(
+                    'auditee.tanggapan.edit',
+                    $tanggapanPertama->id
+                ) }}"
+                class="btn-save"
+            >
+                <i class="bi bi-pencil"></i>
+                Edit Tanggapan
+            </a>
 
-        </div>
-
-        <div class="auditee-detail-item">
-
-            <span class="auditee-detail-label">
-                Unit Kerja
-            </span>
-
-            <strong>
-                {{ $periode->unitKerja->nama ?? '-' }}
-            </strong>
-
-        </div>
-
-        <div class="auditee-detail-item detail-full">
-
-            <span class="auditee-detail-label">
-                Standar Mutu
-            </span>
-
-            <strong>
-                {{
-                    $standarPeriode
-                        ->standarMutu
-                        ->nama_standar_mutu
-                    ?? '-'
-                }}
-            </strong>
-
-        </div>
-
-        <div class="auditee-detail-item detail-full">
-
-            <span class="auditee-detail-label">
-                Indikator
-            </span>
-
-            <div class="auditee-detail-text">
-                {{
-                    $penerapan->indikator->deskripsi
-                    ?? $penerapan->indikator->indikator
-                    ?? '-'
-                }}
-            </div>
-
-        </div>
-
-        <div class="auditee-detail-item detail-full">
-
-            <span class="auditee-detail-label">
-                Pertanyaan Audit
-            </span>
-
-            <div class="auditee-detail-text">
-                {{
-                    $temuan->pertanyaan->pertanyaan
-                    ?? '-'
-                }}
-            </div>
-
-        </div>
-
-        <div class="auditee-detail-item detail-full">
-
-            <span class="auditee-detail-label">
-                Temuan Auditor
-            </span>
-
-            <div class="auditee-detail-text">
-                {{ $temuan->temuan ?? '-' }}
-            </div>
-
-        </div>
-
-        <div class="auditee-detail-item">
-
-            <span class="auditee-detail-label">
-                Status Temuan
-            </span>
-
-            <strong>
-                {{
-                    ucfirst(
-                        $temuan->status_temuan ?? '-'
-                    )
-                }}
-            </strong>
-
-        </div>
-
-        <div class="auditee-detail-item">
-
-            <span class="auditee-detail-label">
-                Auditor
-            </span>
-
-            <strong>
-                {{
-                    $temuan->pertanyaan->user->nama
-                    ?? '-'
-                }}
-            </strong>
-
-        </div>
-
-        <div class="auditee-detail-item detail-full">
-
-            <span class="auditee-detail-label">
-                Hasil Penerapan Auditee
-            </span>
-
-            <div class="auditee-detail-text">
-                {{
-                    $penerapan->deskripsi_hasil
-                    ?? '-'
-                }}
-            </div>
-
-        </div>
-
-        <div class="auditee-detail-item detail-full">
-
-            <span class="auditee-detail-label">
-                Bukti Pendukung
-            </span>
-
-            @if(!empty($penerapan->link_bukti))
-
-                <a
-                    href="{{ $penerapan->link_bukti }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="auditee-evidence-button"
-                >
-                    <i class="bi bi-box-arrow-up-right"></i>
-                    Lihat Bukti Pendukung
-                </a>
-
-            @else
-
-                <span class="auditee-empty-value">
-                    Belum ada bukti pendukung.
-                </span>
-
-            @endif
-
-        </div>
+        @endif
 
     </div>
 

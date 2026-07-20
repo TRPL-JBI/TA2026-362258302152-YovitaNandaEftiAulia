@@ -1,0 +1,399 @@
+/*
+ * 01-reset-header-navigation.css
+ * Variabel, reset, header, brand, navigasi desktop, dan menu mobile.
+ * Dipisahkan dari landing.css tanpa mengubah urutan selector.
+ */
+
+:root {
+    --navy-950: #071d35;
+    --navy-900: #0b2f59;
+    --navy-800: #103f76;
+    --blue-700: #185aa3;
+    --blue-600: #2474c5;
+    --blue-100: #dbeafe;
+    --blue-50: #eff6ff;
+    --cyan-400: #38bdf8;
+    --green-500: #16a66a;
+
+    --ink-950: #0f172a;
+    --ink-800: #1e293b;
+    --ink-700: #334155;
+    --ink-600: #475569;
+    --ink-500: #64748b;
+    --ink-400: #94a3b8;
+
+    --line: #e2e8f0;
+    --surface: #ffffff;
+    --surface-soft: #f7f9fc;
+
+    --shadow-small:
+        0 10px 30px rgba(15, 42, 75, 0.08);
+
+    --shadow-large:
+        0 30px 70px rgba(7, 29, 53, 0.18);
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+
+    background: var(--surface);
+    color: var(--ink-700);
+
+    font-family: "Manrope", sans-serif;
+    line-height: 1.6;
+
+    -webkit-font-smoothing: antialiased;
+}
+
+body.menu-open {
+    overflow: hidden;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+a {
+    color: inherit;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.landing-container {
+    width: min(
+        1180px,
+        calc(100% - 48px)
+    );
+
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.section {
+    padding: 112px 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.landing-header {
+    position: fixed;
+    z-index: 1000;
+
+    top: 0;
+    right: 0;
+    left: 0;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.12);
+
+    background:
+        rgba(7, 29, 53, 0.14);
+
+    backdrop-filter: blur(14px);
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.landing-header.scrolled {
+    border-color:
+        rgba(226, 232, 240, 0.9);
+
+    background:
+        rgba(255, 255, 255, 0.95);
+
+    box-shadow:
+        0 10px 35px rgba(15, 42, 75, 0.08);
+}
+
+.navbar-inner {
+    display: flex;
+
+    min-height: 84px;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 28px;
+}
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.brand {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    color: #ffffff;
+
+    text-decoration: none;
+}
+
+.landing-header.scrolled .brand {
+    color: var(--navy-950);
+}
+
+.brand-logo-wrapper {
+    display: grid;
+
+    width: 52px;
+    height: 52px;
+
+    place-items: center;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.24);
+
+    border-radius: 16px;
+
+    background:
+        rgba(255, 255, 255, 0.94);
+
+    box-shadow:
+        0 8px 22px rgba(7, 29, 53, 0.12);
+}
+
+.brand-logo {
+    width: 42px;
+    height: 42px;
+
+    object-fit: contain;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+
+    line-height: 1.2;
+}
+
+.brand-text strong {
+    font-size: 15px;
+    font-weight: 800;
+
+    letter-spacing: -0.2px;
+}
+
+.brand-text small {
+    margin-top: 5px;
+
+    color:
+        rgba(255, 255, 255, 0.72);
+
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.landing-header.scrolled .brand-text small {
+    color: var(--ink-500);
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.landing-navigation {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.nav-link {
+    position: relative;
+
+    padding: 12px 12px;
+
+    color:
+        rgba(255, 255, 255, 0.78);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+.nav-link::after {
+    position: absolute;
+
+    right: 12px;
+    bottom: 4px;
+    left: 12px;
+
+    height: 2px;
+
+    border-radius: 999px;
+
+    background: var(--cyan-400);
+
+    content: "";
+
+    transform: scaleX(0);
+
+    transition:
+        transform 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #ffffff;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    transform: scaleX(1);
+}
+
+.landing-header.scrolled .nav-link {
+    color: var(--ink-600);
+}
+
+.landing-header.scrolled .nav-link:hover,
+.landing-header.scrolled .nav-link.active {
+    color: var(--blue-700);
+}
+
+.navbar-login-button {
+    display: inline-flex;
+
+    min-height: 45px;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    margin-left: 10px;
+    padding: 0 18px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.25);
+
+    border-radius: 13px;
+
+    background:
+        rgba(255, 255, 255, 0.13);
+
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.navbar-login-button:hover {
+    background:
+        rgba(255, 255, 255, 0.22);
+
+    transform: translateY(-1px);
+}
+
+.landing-header.scrolled .navbar-login-button {
+    border-color: var(--blue-700);
+
+    background: var(--blue-700);
+
+    box-shadow:
+        0 10px 22px rgba(24, 90, 163, 0.2);
+}
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+.mobile-menu-button {
+    display: none;
+
+    width: 46px;
+    height: 46px;
+
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    gap: 5px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.2);
+
+    border-radius: 13px;
+
+    background:
+        rgba(255, 255, 255, 0.12);
+
+    cursor: pointer;
+}
+
+.mobile-menu-button span {
+    width: 20px;
+    height: 2px;
+
+    border-radius: 99px;
+
+    background: #ffffff;
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.landing-header.scrolled .mobile-menu-button {
+    border-color: var(--line);
+
+    background: var(--surface-soft);
+}
+
+.landing-header.scrolled .mobile-menu-button span {
+    background: var(--navy-900);
+}
+
+.mobile-menu-button.active span:nth-child(1) {
+    transform:
+        translateY(7px)
+        rotate(45deg);
+}
+
+.mobile-menu-button.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-button.active span:nth-child(3) {
+    transform:
+        translateY(-7px)
+        rotate(-45deg);
+}
+

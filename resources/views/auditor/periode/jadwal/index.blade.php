@@ -1,4 +1,4 @@
-@extends('layouts.auditor')
+﻿@extends('layouts.auditor')
 
 @section('content')
 
@@ -15,10 +15,6 @@
 
     <a href="{{ route('auditor.penerapan.index',$periodeAmi->id) }}">
         Penerapan Standar
-    </a>
-
-    <a href="{{ route('auditor.pertanyaan.index',$periodeAmi->id) }}">
-        Pertanyaan AMI
     </a>
 
     <a href="{{ route('auditor.tim.index',$periodeAmi->id) }}">

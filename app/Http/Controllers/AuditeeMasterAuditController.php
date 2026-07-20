@@ -9,74 +9,31 @@ use App\Models\TimAmi;
 class AuditeeMasterAuditController extends Controller
 {
     /**
-     * Mengambil ID user yang sedang login.
+     * Menampilkan daftar temuan audit Auditee.
+     *
+     * Method ini dipakai oleh route:
+     * AuditeeMasterAuditController::temuanIndex
      */
-    private function getLoginUserId(): ?int
-    {
-        $user = session('user');
-
-        if (is_array($user)) {
-            return isset($user['id'])
-                ? (int) $user['id']
-                : null;
-        }
-
-        return isset($user->id)
-            ? (int) $user->id
-            : null;
-    }
-
-    /**
-     * Mengambil ID unit kerja Auditee yang sedang login.
-     */
-    private function getLoginUnitId(): ?int
-    {
-        $user = session('user');
-
-        if (is_array($user)) {
-            return isset($user['id_unit_kerja'])
-                ? (int) $user['id_unit_kerja']
-                : null;
-        }
-
-        return isset($user->id_unit_kerja)
-            ? (int) $user->id_unit_kerja
-            : null;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | TEMUAN AUDIT
-    |--------------------------------------------------------------------------
-    */
-
     public function temuanIndex()
     {
-        $idUnitKerja = $this->getLoginUnitId();
+        $user = $this->currentUser();
 
-        abort_if(
-            !$idUnitKerja,
-            403,
-            'Akun Auditee belum mempunyai unit kerja.'
-        );
-
-        $data = TemuanAmi::with([
-            'pertanyaan',
-            'pertanyaan.user',
-            'pertanyaan.penerapan',
-            'pertanyaan.penerapan.indikator',
-            'pertanyaan.penerapan.user',
-            'pertanyaan.penerapan.standarmutuPeriode',
-            'pertanyaan.penerapan.standarmutuPeriode.standarMutu',
-            'pertanyaan.penerapan.standarmutuPeriode.periodeAmi',
-            'pertanyaan.penerapan.standarmutuPeriode.periodeAmi.unitKerja',
+        $temuan = TemuanAmi::with([
+            'penerapanStandar',
+            'penerapanStandar.indikator',
+            'penerapanStandar.user',
+            'penerapanStandar.standarmutuPeriode',
+            'penerapanStandar.standarmutuPeriode.standarMutu',
+            'penerapanStandar.standarmutuPeriode.periodeAmi',
+            'penerapanStandar.standarmutuPeriode.periodeAmi.unitKerja',
+            'tanggapan',
         ])
             ->whereHas(
-                'pertanyaan.penerapan.standarmutuPeriode.periodeAmi',
-                function ($query) use ($idUnitKerja) {
+                'penerapanStandar',
+                function ($query) use ($user) {
                     $query->where(
-                        'id_unit_kerja',
-                        $idUnitKerja
+                        'id_user',
+                        $user['id']
                     );
                 }
             )
@@ -84,196 +41,135 @@ class AuditeeMasterAuditController extends Controller
             ->get();
 
         return view(
-            'auditee.master.temuan.index',
-            compact('data')
-        );
-    }
-
-    public function temuanShow($id)
-    {
-        $idUnitKerja = $this->getLoginUnitId();
-
-        abort_if(
-            !$idUnitKerja,
-            403,
-            'Akun Auditee belum mempunyai unit kerja.'
-        );
-
-        $temuan = TemuanAmi::with([
-            'pertanyaan',
-            'pertanyaan.user',
-            'pertanyaan.penerapan',
-            'pertanyaan.penerapan.indikator',
-            'pertanyaan.penerapan.user',
-            'pertanyaan.penerapan.standarmutuPeriode',
-            'pertanyaan.penerapan.standarmutuPeriode.standarMutu',
-            'pertanyaan.penerapan.standarmutuPeriode.periodeAmi',
-            'pertanyaan.penerapan.standarmutuPeriode.periodeAmi.unitKerja',
-            'tanggapan.user',
-            'akarMasalah',
-        ])
-            ->whereHas(
-                'pertanyaan.penerapan.standarmutuPeriode.periodeAmi',
-                function ($query) use ($idUnitKerja) {
-                    $query->where(
-                        'id_unit_kerja',
-                        $idUnitKerja
-                    );
-                }
-            )
-            ->findOrFail($id);
-
-        return view(
-            'auditee.master.temuan.show',
+            'auditee.temuan.index',
             compact('temuan')
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | TIM AUDIT
-    |--------------------------------------------------------------------------
-    */
-
-    public function timIndex()
+    /**
+     * Alias agar route lama yang mungkin memakai method temuan()
+     * tetap dapat digunakan.
+     */
+    public function temuan()
     {
-        $idUnitKerja = $this->getLoginUnitId();
-
-        abort_if(
-            !$idUnitKerja,
-            403,
-            'Akun Auditee belum mempunyai unit kerja.'
-        );
-
-        $data = TimAmi::with([
-            'user',
-            'user.unit',
-            'periode',
-            'periode.standarMutu',
-            'periode.unitKerja',
-        ])
-            ->whereHas(
-                'periode',
-                function ($query) use ($idUnitKerja) {
-                    $query->where(
-                        'id_unit_kerja',
-                        $idUnitKerja
-                    );
-                }
-            )
-            ->orderByDesc('id_periode_ami')
-            ->orderBy('role')
-            ->get();
-
-        return view(
-            'auditee.master.tim.index',
-            compact('data')
-        );
+        return $this->temuanIndex();
     }
 
-    public function timShow($id)
+    /**
+     * Menampilkan daftar tim audit Auditee.
+     */
+    public function timIndex()
     {
-        $idUnitKerja = $this->getLoginUnitId();
-
-        abort_if(
-            !$idUnitKerja,
-            403,
-            'Akun Auditee belum mempunyai unit kerja.'
-        );
+        $user = $this->currentUser();
 
         $tim = TimAmi::with([
             'user',
-            'user.unit',
-            'periode',
-            'periode.standarMutu',
-            'periode.unitKerja',
+            'periodeAmi',
+            'periodeAmi.unitKerja',
+            'periodeAmi.standarMutu',
         ])
             ->whereHas(
-                'periode',
-                function ($query) use ($idUnitKerja) {
+                'periodeAmi',
+                function ($query) use ($user) {
                     $query->where(
                         'id_unit_kerja',
-                        $idUnitKerja
+                        $user['id_unit_kerja']
                     );
                 }
             )
-            ->findOrFail($id);
+            ->orderByDesc('id')
+            ->get();
 
         return view(
-            'auditee.master.tim.show',
+            'auditee.audit.tim.index',
             compact('tim')
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | JADWAL AUDIT
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Alias agar route lama yang mungkin memakai method tim()
+     * tetap dapat digunakan.
+     */
+    public function tim()
+    {
+        return $this->timIndex();
+    }
 
+    /**
+     * Menampilkan daftar jadwal audit Auditee.
+     */
     public function jadwalIndex()
     {
-        $idUnitKerja = $this->getLoginUnitId();
+        $user = $this->currentUser();
 
-        abort_if(
-            !$idUnitKerja,
-            403,
-            'Akun Auditee belum mempunyai unit kerja.'
-        );
-
-        $data = JadwalAmi::with([
-            'periode',
-            'periode.standarMutu',
-            'periode.unitKerja',
+        $jadwal = JadwalAmi::with([
+            'periodeAmi',
+            'periodeAmi.unitKerja',
+            'periodeAmi.standarMutu',
         ])
             ->whereHas(
-                'periode',
-                function ($query) use ($idUnitKerja) {
+                'periodeAmi',
+                function ($query) use ($user) {
                     $query->where(
                         'id_unit_kerja',
-                        $idUnitKerja
+                        $user['id_unit_kerja']
                     );
                 }
             )
-            ->orderByDesc('id_periode_ami')
-            ->orderBy('id')
+            ->orderByDesc('id')
             ->get();
 
         return view(
-            'auditee.master.jadwal.index',
-            compact('data')
+            'auditee.audit.jadwal.index',
+            compact('jadwal')
         );
     }
 
-    public function jadwalShow($id)
+    /**
+     * Alias agar route lama yang mungkin memakai method jadwal()
+     * tetap dapat digunakan.
+     */
+    public function jadwal()
     {
-        $idUnitKerja = $this->getLoginUnitId();
+        return $this->jadwalIndex();
+    }
 
-        abort_if(
-            !$idUnitKerja,
+    /**
+     * Mengambil data pengguna yang sedang login.
+     */
+    private function currentUser(): array
+    {
+        $sessionUser = session('user');
+
+        abort_unless(
+            $sessionUser,
+            401,
+            'Sesi pengguna tidak ditemukan. Silakan login kembali.'
+        );
+
+        $idUser = is_array($sessionUser)
+            ? ($sessionUser['id'] ?? null)
+            : ($sessionUser->id ?? null);
+
+        $idUnitKerja = is_array($sessionUser)
+            ? ($sessionUser['id_unit_kerja'] ?? null)
+            : ($sessionUser->id_unit_kerja ?? null);
+
+        abort_unless(
+            $idUser,
+            401,
+            'ID pengguna tidak ditemukan pada sesi.'
+        );
+
+        abort_unless(
+            $idUnitKerja,
             403,
-            'Akun Auditee belum mempunyai unit kerja.'
+            'Unit kerja pengguna belum ditentukan.'
         );
 
-        $jadwal = JadwalAmi::with([
-            'periode',
-            'periode.standarMutu',
-            'periode.unitKerja',
-        ])
-            ->whereHas(
-                'periode',
-                function ($query) use ($idUnitKerja) {
-                    $query->where(
-                        'id_unit_kerja',
-                        $idUnitKerja
-                    );
-                }
-            )
-            ->findOrFail($id);
-
-        return view(
-            'auditee.master.jadwal.show',
-            compact('jadwal')
-        );
+        return [
+            'id' => (int) $idUser,
+            'id_unit_kerja' => (int) $idUnitKerja,
+        ];
     }
 }

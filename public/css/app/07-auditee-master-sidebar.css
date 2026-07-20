@@ -1,0 +1,286 @@
+/*
+ * 07-auditee-master-sidebar.css
+ * Halaman master view-only Auditee, detail view, dan sidebar Audit AMI.
+ * Dipisahkan dari style.css tanpa mengubah urutan selector.
+ */
+
+/* =========================================================
+   AUDITEE MASTER AUDIT - VIEW ONLY
+========================================================= */
+
+.auditee-master-card,
+.auditee-detail-card {
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+.auditee-master-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 28px 32px;
+    border-bottom: 1px solid #eaecf0;
+}
+
+.auditee-master-header h2 {
+    margin: 0 0 6px;
+    color: #172033;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.auditee-master-header p {
+    margin: 0;
+    color: #667085;
+    font-size: 14px;
+}
+
+.auditee-view-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    flex-shrink: 0;
+    padding: 10px 15px;
+    border: 1px solid #c7d7fe;
+    border-radius: 20px;
+    background: #eef4ff;
+    color: #3538cd;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.auditee-master-table {
+    min-width: 1100px;
+}
+
+.auditee-master-table th {
+    padding: 18px;
+    background: #eef1ff;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.auditee-master-table td {
+    padding: 18px;
+    border-bottom: 1px solid #eaecf0;
+    color: #344054;
+    vertical-align: middle;
+}
+
+.auditee-master-table tbody tr:hover {
+    background: #fafbff;
+}
+
+.auditee-text-preview {
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.auditee-detail-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    background: #e0ecff;
+    color: #315efb;
+    font-size: 17px;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.auditee-detail-button:hover {
+    background: #cbdcff;
+    color: #2447c7;
+    transform: translateY(-1px);
+}
+
+.auditee-status,
+.auditee-role {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-finished {
+    background: #ecfdf3;
+    color: #067647;
+}
+
+.status-open {
+    background: #fff4ed;
+    color: #b54708;
+}
+
+.status-neutral {
+    background: #f2f4f7;
+    color: #475467;
+}
+
+.role-leader {
+    background: #eef1ff;
+    color: #3538cd;
+}
+
+.role-auditor {
+    background: #ecfdf3;
+    color: #067647;
+}
+
+.role-other {
+    background: #f2f4f7;
+    color: #475467;
+}
+
+.auditee-empty-table {
+    padding: 40px !important;
+    color: #98a2b3 !important;
+    text-align: center;
+}
+
+/* =========================================================
+   DETAIL VIEW
+========================================================= */
+
+.auditee-back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding: 11px 17px;
+    border-radius: 10px;
+    background: #f2f4f7;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.auditee-back-button:hover {
+    background: #e4e7ec;
+    color: #182230;
+}
+
+.auditee-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    padding: 30px 32px;
+}
+
+.auditee-detail-item {
+    padding: 18px;
+    border: 1px solid #e4e7ec;
+    border-radius: 12px;
+    background: #f9fafb;
+}
+
+.auditee-detail-item.detail-full {
+    grid-column: 1 / -1;
+}
+
+.auditee-detail-label {
+    display: block;
+    margin-bottom: 9px;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.auditee-detail-item strong {
+    color: #182230;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.auditee-detail-text {
+    color: #344054;
+    font-size: 15px;
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
+.auditee-evidence-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 16px;
+    border: 1px solid #86efac;
+    border-radius: 10px;
+    background: #ecfdf3;
+    color: #067647;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.auditee-evidence-button:hover {
+    background: #dcfae6;
+    color: #05603a;
+    transform: translateY(-1px);
+}
+
+.auditee-empty-value {
+    color: #98a2b3;
+    font-size: 14px;
+}
+
+/* =========================================================
+   SIDEBAR AUDIT AMI
+========================================================= */
+
+.sidebar .menu-level-1 li.active > a {
+    background: #eef1ff;
+    color: #3e4dd7;
+    font-weight: 700;
+}
+
+.sidebar .menu-utama.active-parent {
+    color: #3e4dd7;
+    font-weight: 700;
+}
+
+.sidebar .menu-arrow {
+    transition: transform 0.2s ease;
+}
+
+.sidebar .menu-level-1.show
+    + .menu-arrow {
+    transform: rotate(180deg);
+}
+
+@media (max-width: 800px) {
+    .auditee-master-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .auditee-detail-grid {
+        grid-template-columns: 1fr;
+        padding: 22px;
+    }
+
+    .auditee-detail-item.detail-full {
+        grid-column: auto;
+    }
+}
+

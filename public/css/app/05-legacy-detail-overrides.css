@@ -1,0 +1,1334 @@
+/*
+ * 05-legacy-detail-overrides.css
+ * Override detail tim, indikator, standar, temuan, sidebar logout, serta laporan lanjutan.
+ * Dipisahkan dari style.css tanpa mengubah urutan selector.
+ */
+
+/* =====================================================
+   HALAMAN DETAIL TIM AMI
+===================================================== */
+
+/* Judul halaman */
+.page-title{
+    font-size:24px;
+    font-weight:600;
+    margin-bottom:20px;
+}
+
+/* Card utama */
+.detail-card{
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+
+/* =====================================================
+   TAB MENU
+===================================================== */
+
+.detail-tabs{
+    display:flex;
+    gap:40px;
+    padding:0 25px;
+    border-bottom:1px solid #e5e7eb;
+    background:#fff;
+}
+
+.detail-tabs a{
+    text-decoration:none;
+    color:#6b7280;
+    padding:18px 0;
+    font-weight:500;
+}
+
+.detail-tabs a.active{
+    color:#4f46e5;
+    border-bottom:2px solid #4f46e5;
+}
+
+/* =====================================================
+   CONTENT
+===================================================== */
+
+.content-area{
+    padding:20px;
+}
+
+/* Header tabel */
+.top-action{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+/* Dropdown periode */
+.periode-filter{
+    width:220px;
+    padding:10px;
+    border:1px solid #ddd;
+    border-radius:8px;
+}
+
+/* Tombol tambah */
+.btn-tambah{
+    background:#4f46e5;
+    color:white;
+    padding:12px 20px;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.btn-tambah:hover{
+    color:white;
+}
+
+/* =====================================================
+   TABEL
+===================================================== */
+
+.custom-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.custom-table thead{
+    background:#eef2ff;
+}
+
+.custom-table th{
+    padding:16px;
+    text-align:center;
+    font-weight:600;
+}
+
+.custom-table td{
+    padding:16px;
+    text-align:center;
+    border-top:1px solid #eee;
+}
+
+/* =====================================================
+   ACTION BUTTON
+===================================================== */
+
+.action-buttons{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+}
+
+.btn-detail,
+.btn-edit,
+.btn-delete{
+    width:40px;
+    height:40px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border:none;
+    border-radius:8px;
+    text-decoration:none;
+    padding:0;
+}
+
+/* Detail */
+.btn-detail{
+    background:#dbeafe;
+    color:#2563eb;
+}
+
+/* Edit */
+.btn-edit{
+    background:#fef3c7;
+    color:#d97706;
+}
+
+/* Hapus */
+.btn-delete{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+/* Data kosong */
+.empty-data{
+    text-align:center;
+    color:#888;
+    padding:30px;
+}
+
+/* Input dan Textarea */
+.form-group input,
+.form-group textarea,
+.form-group select{
+
+    width:100%;
+    padding:12px 15px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+
+    font-family:'Poppins', sans-serif;
+    font-size:15px;
+    font-weight:400;
+    color:#1f2937;
+
+    outline:none;
+    box-sizing:border-box;
+}
+
+.form-group textarea{
+
+    resize:vertical;
+    min-height:120px;
+}
+
+/* =====================================
+   DETAIL INDIKATOR
+===================================== */
+
+.detail-card{
+    background:#fff;
+    border-radius:18px;
+    padding:35px;
+    box-shadow:0 8px 25px rgba(0,0,0,.05);
+}
+
+.detail-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:35px;
+}
+
+.detail-header h2{
+    margin:0;
+    font-size:32px;
+    font-weight:700;
+    color:#23314d;
+}
+
+.detail-body{
+
+    display:flex;
+    flex-direction:column;
+    gap:25px;
+
+}
+
+.detail-item{
+
+    display:flex;
+    flex-direction:column;
+
+}
+
+.detail-item label{
+
+    font-size:14px;
+    font-weight:600;
+    color:#7c8aa5;
+
+    margin-bottom:10px;
+
+}
+
+.detail-value{
+
+    background:#F8FAFD;
+
+    border:1px solid #E4E9F2;
+
+    border-radius:12px;
+
+    padding:18px 20px;
+
+    font-size:16px;
+
+    color:#2d3748;
+
+    line-height:1.7;
+
+}
+
+.btn-back{
+
+    background:#4F46E5;
+
+    color:white;
+
+    padding:11px 22px;
+
+    border-radius:10px;
+
+    text-decoration:none;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    transition:.3s;
+
+}
+
+.btn-back:hover{
+
+    background:#3730A3;
+
+    color:white;
+
+}
+
+/*==================================================
+    DETAIL standar mutu
+===================================================*/
+
+.detail-card{
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:35px;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.05);
+
+}
+
+.detail-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:35px;
+
+}
+
+.detail-header h2{
+
+    margin:0;
+
+    font-size:34px;
+
+    font-weight:700;
+
+    color:#23314d;
+
+}
+
+.detail-subtitle{
+
+    margin-top:8px;
+
+    color:#8b96a9;
+
+    font-size:15px;
+
+}
+
+.detail-body{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:25px;
+
+}
+
+.detail-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.detail-item label{
+
+    font-size:15px;
+
+    font-weight:600;
+
+    color:#5f6c82;
+
+    margin-bottom:8px;
+
+}
+
+.detail-value{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    background:#f8faff;
+
+    border:1px solid #e5ebf5;
+
+    border-radius:12px;
+
+    padding:18px 22px;
+
+    font-size:16px;
+
+    color:#2d3748;
+
+}
+
+.detail-value i{
+
+    color:#4F46E5;
+
+    font-size:20px;
+
+}
+
+.btn-back{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:12px 22px;
+
+    border-radius:10px;
+
+    background:#4F46E5;
+
+    color:#fff;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.btn-back:hover{
+
+    background:#3730A3;
+
+    color:white;
+
+}
+
+/*======================================
+    DETAIL isi standar
+======================================*/
+
+.detail-card{
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:35px;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.05);
+
+}
+
+.detail-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:35px;
+
+}
+
+.detail-header h2{
+
+    margin:0;
+
+    color:#23314d;
+
+    font-size:30px;
+
+    font-weight:700;
+
+}
+
+.detail-subtitle{
+
+    margin-top:8px;
+
+    color:#8b96a9;
+
+    font-size:15px;
+
+}
+
+.detail-body{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:22px;
+
+}
+
+.detail-item{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.detail-item label{
+
+    margin-bottom:8px;
+
+    font-weight:600;
+
+    color:#6B7280;
+
+    font-size:14px;
+
+}
+
+.detail-value{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:18px 20px;
+
+    border-radius:12px;
+
+    border:1px solid #E6EBF5;
+
+    background:#F8FAFD;
+
+    font-size:16px;
+
+    color:#23314d;
+
+}
+
+.detail-value i{
+
+    color:#4F46E5;
+
+    font-size:20px;
+
+}
+
+.btn-back{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    background:#4F46E5;
+
+    color:white;
+
+    padding:11px 22px;
+
+    border-radius:10px;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+}
+
+.btn-back:hover{
+
+    background:#3730A3;
+
+    color:white;
+
+}
+
+/*header*/
+
+.periode-header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+}
+
+.periode-header h4{
+
+    margin:0;
+    white-space:nowrap;
+
+}
+
+.btn-add{
+
+    white-space:nowrap;
+
+}
+
+/* ===========================
+   DETAIL PAGE
+=========================== */
+
+.detail-card{
+    background:#fff;
+    border-radius:22px;
+    padding:34px 38px;
+    box-shadow:0 8px 30px rgba(0,0,0,.05);
+}
+
+.detail-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:35px;
+}
+
+.detail-header h2{
+    margin:0;
+    font-size:24px;
+    font-weight:700;
+    color:#1F2D3D;
+}
+
+.detail-subtitle{
+    margin-top:8px;
+    color:#7D8CA3;
+}
+
+.detail-group{
+    margin-bottom:25px;
+}
+
+.detail-group label{
+    display:block;
+    font-size:17px;
+    font-weight:600;
+    color:#334155;
+    margin-bottom:10px;
+}
+
+.detail-box{
+    background:#F6F8FC;
+    border:1px solid #E5EAF4;
+    border-radius:14px;
+    padding:18px 22px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-size:17px;
+}
+
+.detail-box i{
+    color:#4F46E5;
+    font-size:20px;
+}
+
+.btn-back{
+    background:#4F46E5;
+    color:#fff;
+    padding:12px 22px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.btn-back:hover{
+    color:#fff;
+}
+
+.btn-secondary{
+    background:#E5E7EB;
+    color:#374151;
+    padding:10px 18px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.btn-secondary:hover{
+    background:#D1D5DB;
+}
+
+/* =========================================================
+   TAB MENU AUDIT MUTU INTERNAL
+========================================================= */
+
+.tab-menu{
+    display: flex;
+    gap: 35px;
+    margin-top: 18px;
+    margin-bottom: 10px;
+}
+
+/* Link menu */
+
+.tab-menu a{
+    text-decoration: none;
+    color: #444;
+    font-size: 14px;
+    padding-bottom: 10px;
+    transition: .3s;
+}
+
+/* Hover */
+
+.tab-menu a:hover{
+    color: #4F46E5;
+}
+
+/* Menu aktif */
+
+.tab-menu a.active{
+    color: #4F46E5;
+    font-weight: 600;
+    border-bottom: 2px solid #4F46E5;
+}
+
+
+/* =========================================================
+   STATUS TEMUAN
+========================================================= */
+
+/* Status OPEN */
+
+.status-open{
+    display: inline-block;
+    background: #31C74A;
+    color: white;
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Status CLOSED */
+
+.status-close{
+    display: inline-block;
+    background: #EF4444;
+    color: white;
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   TOMBOL TAMBAH TEMUAN
+========================================================= */
+
+.btn-add i{
+    margin-right: 6px;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.action-buttons{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* =========================================================
+   CARD HEADER AUDIT
+========================================================= */
+
+.card-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+
+/* =========================================================
+   JUDUL HALAMAN
+========================================================= */
+
+.card-header h3{
+    margin-bottom: 20px;
+    color: #1F2A44;
+    font-weight: 700;
+}
+
+/* ==========================================================
+   TEMUAN AUDIT
+========================================================== */
+
+/* Header */
+
+.temuan-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+/* Tab Menu */
+
+.temuan-tab{
+    display:flex;
+    gap:35px;
+    border-bottom:1px solid #E5E7EB;
+    margin-bottom:25px;
+}
+
+.temuan-tab a{
+    text-decoration:none;
+    color:#475569;
+    font-size:14px;
+    padding-bottom:10px;
+    transition:.3s;
+}
+
+.temuan-tab a:hover{
+    color:#4F46E5;
+}
+
+.temuan-tab a.active{
+    color:#4F46E5;
+    font-weight:600;
+    border-bottom:2px solid #4F46E5;
+}
+
+/* Data Kosong */
+
+.table-empty{
+    text-align:center;
+    padding:35px;
+    color:#94A3B8;
+    font-size:15px;
+}
+
+/* Badge Status */
+
+.badge-open{
+    background:#22C55E;
+    color:#fff;
+    padding:5px 14px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.badge-close{
+    background:#EF4444;
+    color:#fff;
+    padding:5px 14px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.badge-draft{
+    background:#FACC15;
+    color:#fff;
+    padding:5px 14px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+/* ==========================================
+   DETAIL TEMUAN AUDIT
+========================================== */
+
+.table-detail{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+.table-detail th{
+
+    width:220px;
+
+    background:#F8FAFC;
+
+    padding:14px;
+
+    text-align:left;
+
+    border:1px solid #E5E7EB;
+
+}
+
+.table-detail td{
+
+    padding:14px;
+
+    border:1px solid #E5E7EB;
+
+}
+
+/* ==========================================================
+   DETAIL TABLE
+========================================================== */
+
+.detail-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+.detail-table th{
+
+    width:220px;
+
+    background:#F8FAFC;
+
+    padding:14px;
+
+    text-align:left;
+
+    border:1px solid #E5E7EB;
+
+    font-weight:600;
+
+}
+
+.detail-table td{
+
+    padding:14px;
+
+    border:1px solid #E5E7EB;
+
+}
+
+/* ==========================================================
+   SIDEBAR LOGOUT
+========================================================== */
+
+.logout-form{
+
+    margin:0;
+
+    width:100%;
+
+}
+
+.logout-btn{
+
+    width:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:14px 20px;
+
+    background:transparent;
+
+    border:none;
+
+    outline:none;
+
+    color:#243b63;
+
+    font-size:17px;
+
+    font-weight:500;
+
+    cursor:pointer;
+
+    border-radius:10px;
+
+    transition:.3s;
+
+    font-family:inherit;
+
+}
+
+.logout-btn i{
+
+    font-size:20px;
+
+    width:22px;
+
+}
+
+.logout-btn:hover{
+
+    background:#EEF2FF;
+
+    color:#4F46E5;
+
+}
+
+.sidebar ul li.active .logout-btn{
+
+    background:#EEF2FF;
+
+    color:#4F46E5;
+
+}
+
+/* ======================================================
+    LAPORAN INDEX
+====================================================== */
+
+.laporan-item{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:25px;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:14px;
+
+    margin-bottom:20px;
+
+    transition:.3s;
+
+    background:white;
+
+}
+
+.laporan-item:hover{
+
+    box-shadow:0 8px 18px rgba(0,0,0,.06);
+
+}
+
+.laporan-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+}
+
+.laporan-icon{
+
+    width:70px;
+
+    height:70px;
+
+    border-radius:16px;
+
+    background:#EEF2FF;
+
+    color:#4F46E5;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:30px;
+
+}
+
+.laporan-left h4{
+
+    margin-bottom:8px;
+
+}
+
+.laporan-left p{
+
+    margin:4px 0;
+
+    color:#64748B;
+
+}
+
+.laporan-right{
+
+    text-align:right;
+
+}
+
+.badge{
+
+    display:inline-block;
+
+    padding:8px 16px;
+
+    border-radius:50px;
+
+    font-size:13px;
+
+    margin-bottom:15px;
+
+}
+
+.badge-success{
+
+    background:#DCFCE7;
+
+    color:#15803D;
+
+}
+
+.badge-warning{
+
+    background:#FEF3C7;
+
+    color:#B45309;
+
+}
+
+.badge-secondary{
+
+    background:#E5E7EB;
+
+    color:#374151;
+
+}
+
+.empty-state{
+
+    text-align:center;
+
+    padding:80px 20px;
+
+}
+
+.empty-state i{
+
+    font-size:70px;
+
+    color:#CBD5E1;
+
+}
+
+.empty-state h3{
+
+    margin-top:20px;
+
+}
+
+.empty-state p{
+
+    color:#64748B;
+
+}
+
+.laporan-subcard{
+
+    border:1px solid #E5E7EB;
+
+    border-radius:10px;
+
+    padding:18px;
+
+    margin-bottom:20px;
+
+    background:#FCFCFD;
+
+}
+
+.summary-card span{
+
+    display:block;
+
+    margin-top:10px;
+
+    color:#64748B;
+
+    font-size:14px;
+
+}
+
+.cover table td{
+
+    padding:8px;
+
+}
+
+.cover{
+
+    border-top:8px solid #1E40AF;
+
+}
+
+.laporan-card{
+
+    page-break-inside:avoid;
+
+}
+
+.badge-danger{
+
+background:#FEE2E2;
+
+color:#DC2626;
+
+padding:6px 14px;
+
+border-radius:30px;
+
+font-size:13px;
+
+}
+
+.btn-link{
+
+background:#2563EB;
+
+color:white;
+
+padding:8px 18px;
+
+border-radius:8px;
+
+text-decoration:none;
+
+}
+
+.kesimpulan-box{
+
+display:flex;
+
+gap:20px;
+
+background:#F0FDF4;
+
+padding:25px;
+
+border-left:6px solid #16A34A;
+
+border-radius:8px;
+
+line-height:1.8;
+
+}
+
+.kesimpulan-box i{
+
+font-size:28px;
+
+color:#16A34A;
+
+}
+
+.button-group{
+
+display:flex;
+
+justify-content:center;
+
+gap:20px;
+
+margin-top:40px;
+
+}
+
+.btn-primary{
+
+background:#DC2626;
+
+color:white;
+
+padding:12px 22px;
+
+border-radius:8px;
+
+text-decoration:none;
+
+}
+
+.btn-secondary{
+
+background:#64748B;
+
+color:white;
+
+padding:12px 22px;
+
+border-radius:8px;
+
+text-decoration:none;
+
+}
+
+.card-title{
+
+    font-size:36px;
+
+    font-weight:700;
+
+    color:#12284C;
+
+    margin:0;
+
+}
+
+.form-footer{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    margin-top:30px;
+
+}
+
+.btn-secondary{
+
+    background:#4F46E5;
+
+    color:#fff;
+
+    padding:12px 28px;
+
+    border-radius:10px;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.btn-secondary:hover{
+
+    background:#4338CA;
+
+    color:#fff;
+
+}
+

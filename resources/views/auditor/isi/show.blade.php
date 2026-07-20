@@ -1,4 +1,4 @@
-@extends('layouts.auditor')
+﻿@extends('layouts.auditor')
 
 @section('content')
 
@@ -68,7 +68,7 @@
 
     <br>
 
-    <h4>Indikator Standar</h4>
+    <h4>Penerapan Standar</h4>
 
     <table>
 

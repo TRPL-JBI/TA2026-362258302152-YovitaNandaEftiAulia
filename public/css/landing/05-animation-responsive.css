@@ -1,0 +1,480 @@
+/*
+ * 05-animation-responsive.css
+ * Reveal animation, tablet, mobile navigation, phone, dan reduced motion.
+ * Dipisahkan dari landing.css tanpa mengubah urutan selector.
+ */
+
+/* =========================================================
+   REVEAL ANIMATION
+========================================================= */
+
+.js .reveal {
+    opacity: 0;
+
+    transform: translateY(28px);
+
+    transition:
+        opacity 0.72s ease,
+        transform 0.72s ease;
+}
+
+.js .reveal.visible {
+    opacity: 1;
+
+    transform: translateY(0);
+}
+
+.reveal-delay-one {
+    transition-delay: 0.12s;
+}
+
+.reveal-delay-two {
+    transition-delay: 0.22s;
+}
+
+/* =========================================================
+   RESPONSIVE TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+    .hero-grid {
+        gap: 42px;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(380px, 0.86fr);
+    }
+
+    .floating-card-top {
+        left: -10px;
+    }
+
+    .floating-card-bottom {
+        right: -8px;
+    }
+
+    .about-grid,
+    .workflow-grid {
+        gap: 55px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE MOBILE NAVIGATION
+========================================================= */
+
+@media (max-width: 920px) {
+    .landing-container {
+        width:
+            min(
+                calc(100% - 36px),
+                760px
+            );
+    }
+
+    .mobile-menu-button {
+        display: flex;
+    }
+
+    .landing-navigation {
+        position: fixed;
+
+        top: 84px;
+        right: 18px;
+        left: 18px;
+
+        display: flex;
+
+        max-height: 0;
+
+        overflow: hidden;
+
+        align-items: stretch;
+        flex-direction: column;
+
+        gap: 3px;
+
+        border:
+            1px solid transparent;
+
+        border-radius: 18px;
+
+        background:
+            rgba(255, 255, 255, 0.98);
+
+        box-shadow:
+            0 25px 60px rgba(7, 29, 53, 0.18);
+
+        opacity: 0;
+
+        transform: translateY(-12px);
+
+        transition:
+            max-height 0.28s ease,
+            opacity 0.2s ease,
+            padding 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .landing-navigation.open {
+        max-height: 500px;
+
+        padding: 13px;
+
+        border-color: var(--line);
+
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+
+    .nav-link {
+        padding: 13px 14px;
+
+        border-radius: 11px;
+
+        color: var(--ink-600);
+    }
+
+    .nav-link::after {
+        display: none;
+    }
+
+    .nav-link:hover,
+    .nav-link.active,
+    .landing-header.scrolled .nav-link:hover,
+    .landing-header.scrolled .nav-link.active {
+        background: var(--blue-50);
+
+        color: var(--blue-700);
+    }
+
+    .navbar-login-button,
+    .landing-header.scrolled .navbar-login-button {
+        margin: 7px 0 0;
+
+        background: var(--blue-700);
+
+        color: #ffffff;
+    }
+
+    .hero-section {
+        min-height: auto;
+
+        padding-top: 132px;
+    }
+
+    .hero-grid,
+    .about-grid,
+    .workflow-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-content {
+        max-width: 710px;
+    }
+
+    .hero-visual {
+        min-height: 570px;
+
+        margin-top: 20px;
+    }
+
+    .hero-image-wrapper {
+        right: 50%;
+
+        width: min(100%, 610px);
+
+        transform: translateX(50%);
+    }
+
+    .floating-card-top {
+        left: 2%;
+    }
+
+    .floating-card-bottom {
+        right: 2%;
+    }
+
+    .hero-statistics {
+        grid-template-columns:
+            repeat(2, 1fr);
+
+        gap: 20px;
+    }
+
+    .statistic-divider {
+        display: none;
+    }
+
+    .about-visual {
+        order: 2;
+
+        min-height: 530px;
+    }
+
+    .about-image-wrapper {
+        width: calc(100% - 30px);
+
+        max-width: 620px;
+    }
+
+    .feature-grid,
+    .role-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .workflow-introduction {
+        position: static;
+    }
+
+    .role-card.featured {
+        transform: none;
+    }
+
+    .role-card.featured:hover {
+        transform: translateY(-6px);
+    }
+
+    .footer-grid {
+        grid-template-columns:
+            1.4fr 0.6fr;
+    }
+
+    .footer-contact {
+        grid-column: 1 / -1;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE PHONE
+========================================================= */
+
+@media (max-width: 640px) {
+    .landing-container {
+        width: calc(100% - 28px);
+    }
+
+    .section {
+        padding: 80px 0;
+    }
+
+    .navbar-inner {
+        min-height: 74px;
+    }
+
+    .brand-logo-wrapper {
+        width: 46px;
+        height: 46px;
+
+        border-radius: 14px;
+    }
+
+    .brand-logo {
+        width: 37px;
+        height: 37px;
+    }
+
+    .brand-text strong {
+        font-size: 12px;
+    }
+
+    .brand-text small {
+        font-size: 8px;
+    }
+
+    .landing-navigation {
+        top: 74px;
+        right: 14px;
+        left: 14px;
+    }
+
+    .hero-section {
+        padding:
+            120px 0 55px;
+    }
+
+    .hero-content h1 {
+        margin-top: 20px;
+
+        font-size: 45px;
+
+        letter-spacing: -2.6px;
+    }
+
+    .hero-description {
+        font-size: 13px;
+    }
+
+    .hero-actions {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .primary-button,
+    .secondary-button {
+        width: 100%;
+    }
+
+    .hero-benefits {
+        gap: 15px;
+
+        flex-direction: column;
+    }
+
+    .hero-visual {
+        min-height: 475px;
+    }
+
+    .hero-image-wrapper {
+        height: 455px;
+
+        border-radius:
+            25px 25px 25px 70px;
+    }
+
+    .floating-card {
+        display: none;
+    }
+
+    .hero-statistics {
+        margin-top: 48px;
+        padding: 22px 15px;
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .statistic-item strong {
+        font-size: 19px;
+    }
+
+    .about-visual {
+        min-height: 440px;
+    }
+
+    .about-image-wrapper {
+        width: 100%;
+        height: 420px;
+    }
+
+    .about-decoration {
+        display: none;
+    }
+
+    .section-content h2,
+    .section-heading h2,
+    .workflow-introduction h2 {
+        font-size: 35px;
+
+        letter-spacing: -1.5px;
+    }
+
+    .feature-grid,
+    .role-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-card {
+        min-height: 255px;
+    }
+
+    .workflow-item {
+        padding: 18px;
+    }
+
+    .workflow-number {
+        width: 51px;
+        height: 51px;
+
+        border-radius: 15px;
+    }
+
+    .cta-section {
+        padding-bottom: 80px;
+    }
+
+    .cta-card {
+        min-height: 500px;
+
+        border-radius: 23px;
+    }
+
+    .cta-overlay {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(7, 29, 53, 0.57) 0%,
+                rgba(7, 29, 53, 0.96) 58%
+            );
+    }
+
+    .cta-content {
+        position: absolute;
+
+        right: 0;
+        bottom: 0;
+        left: 0;
+
+        padding: 30px 24px;
+    }
+
+    .cta-content h2 {
+        font-size: 35px;
+    }
+
+    .cta-button {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+
+        gap: 36px;
+
+        padding-top: 55px;
+    }
+
+    .footer-contact {
+        grid-column: auto;
+    }
+
+    .footer-bottom {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            0.01ms !important;
+    }
+
+    .js .reveal {
+        opacity: 1;
+
+        transform: none;
+    }
+}

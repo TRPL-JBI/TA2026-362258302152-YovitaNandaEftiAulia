@@ -1,0 +1,1334 @@
+/*
+ * 11-temuan-auditor-final.css
+ * Tampilan final halaman temuan Auditor, detail, form, tanggapan Auditee, dan responsive.
+ * Dipisahkan dari style.css tanpa mengubah urutan selector.
+ */
+
+/* =========================================================
+   HALAMAN TEMUAN AUDITOR
+========================================================= */
+
+.auditor-temuan-page {
+    width: 100%;
+    padding: 8px 0 32px;
+    color: #1f2937;
+}
+
+.auditor-temuan-page *,
+.auditor-temuan-page *::before,
+.auditor-temuan-page *::after {
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.auditor-temuan-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding: 28px 30px;
+    background: linear-gradient(
+        135deg,
+        #0f3d72 0%,
+        #1556a0 55%,
+        #2877c7 100%
+    );
+    border-radius: 20px;
+    box-shadow: 0 16px 36px rgba(15, 61, 114, 0.2);
+    color: #ffffff;
+    overflow: hidden;
+    position: relative;
+}
+
+.auditor-temuan-header::before {
+    content: "";
+    position: absolute;
+    top: -90px;
+    right: -45px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.auditor-temuan-header::after {
+    content: "";
+    position: absolute;
+    right: 130px;
+    bottom: -80px;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.auditor-temuan-header > div {
+    position: relative;
+    z-index: 1;
+}
+
+.auditor-temuan-eyebrow {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    color: #cfe7ff;
+}
+
+.auditor-temuan-header h2 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #ffffff;
+}
+
+.auditor-temuan-header p {
+    max-width: 760px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.auditor-temuan-header-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 82px;
+    height: 82px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    font-size: 36px;
+    color: #ffffff;
+}
+
+/* =========================================================
+   ALERT
+========================================================= */
+
+.auditor-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 15px 18px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.auditor-alert > i {
+    margin-top: 2px;
+    font-size: 18px;
+}
+
+.auditor-alert-success {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.auditor-alert-danger {
+    color: #991b1b;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.auditor-error-list {
+    margin: 6px 0 0;
+    padding-left: 20px;
+}
+
+/* =========================================================
+   STATISTIK
+========================================================= */
+
+.auditor-temuan-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.auditor-temuan-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-height: 126px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 17px;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auditor-temuan-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.09);
+}
+
+.auditor-temuan-stat-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+    font-size: 23px;
+}
+
+.stat-blue {
+    color: #1d4ed8;
+    background: #dbeafe;
+}
+
+.stat-green {
+    color: #15803d;
+    background: #dcfce7;
+}
+
+.stat-orange {
+    color: #c2410c;
+    background: #ffedd5;
+}
+
+.stat-purple {
+    color: #7e22ce;
+    background: #f3e8ff;
+}
+
+.auditor-temuan-stat-card > div:last-child {
+    min-width: 0;
+}
+
+.auditor-temuan-stat-card span,
+.auditor-temuan-stat-card small {
+    display: block;
+}
+
+.auditor-temuan-stat-card span {
+    margin-bottom: 2px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.auditor-temuan-stat-card strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 26px;
+    line-height: 1.2;
+    color: #0f172a;
+}
+
+.auditor-temuan-stat-card small {
+    color: #94a3b8;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+/* =========================================================
+   INFORMASI
+========================================================= */
+
+.auditor-temuan-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 22px;
+    padding: 17px 19px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 15px;
+}
+
+.auditor-temuan-info-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 18px;
+}
+
+.auditor-temuan-info strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #1e3a8a;
+}
+
+.auditor-temuan-info p {
+    margin: 0;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.auditor-temuan-card {
+    margin-bottom: 22px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    box-shadow: 0 9px 26px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+}
+
+.auditor-temuan-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 22px 24px;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.auditor-temuan-section-label {
+    display: inline-block;
+    margin-bottom: 5px;
+    color: #2563eb;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.1px;
+}
+
+.auditor-temuan-card-header h3 {
+    margin: 0 0 5px;
+    color: #0f172a;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.auditor-temuan-card-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   TABEL
+========================================================= */
+
+.auditor-temuan-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+.auditor-temuan-table-wrap::-webkit-scrollbar {
+    height: 9px;
+}
+
+.auditor-temuan-table-wrap::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.auditor-temuan-table-wrap::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.auditor-temuan-table {
+    width: 100%;
+    min-width: 1850px;
+    border-collapse: collapse;
+}
+
+.auditor-temuan-table th,
+.auditor-temuan-table td {
+    padding: 15px 14px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.auditor-temuan-table th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.25px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.auditor-temuan-table td {
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.auditor-temuan-table tbody tr {
+    transition: background 0.18s ease;
+}
+
+.auditor-temuan-table tbody tr:hover {
+    background: #f8fbff;
+}
+
+.auditor-temuan-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.column-number {
+    width: 70px;
+    text-align: center !important;
+}
+
+.column-action {
+    min-width: 180px;
+}
+
+.auditor-table-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 9px;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 800;
+}
+
+.auditor-table-main-text {
+    min-width: 220px;
+}
+
+.auditor-table-main-text strong,
+.auditor-table-main-text span {
+    display: block;
+}
+
+.auditor-table-main-text strong {
+    margin-bottom: 4px;
+    color: #1e293b;
+    line-height: 1.45;
+}
+
+.auditor-table-main-text span {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.auditor-hierarchy-badge {
+    display: inline-block;
+    min-width: 130px;
+    padding: 8px 11px;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #1e40af;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.auditor-sub-hierarchy {
+    display: block;
+    min-width: 210px;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.auditor-indikator-text {
+    min-width: 260px;
+    color: #334155;
+    font-weight: 600;
+    line-height: 1.65;
+}
+
+.auditor-result-text {
+    min-width: 250px;
+    max-width: 360px;
+    white-space: normal;
+    word-break: break-word;
+    color: #475569;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   USER
+========================================================= */
+
+.auditor-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 165px;
+}
+
+.auditor-user-avatar,
+.auditor-response-avatar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 800;
+}
+
+.auditor-user-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+}
+
+.auditor-user-cell strong,
+.auditor-user-cell span {
+    display: block;
+}
+
+.auditor-user-cell strong {
+    color: #1e293b;
+    font-size: 12px;
+}
+
+.auditor-user-cell span {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+/* =========================================================
+   STATUS DAN NILAI KOSONG
+========================================================= */
+
+.auditor-empty-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 140px;
+    color: #94a3b8;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.auditor-status,
+.auditor-inline-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.auditor-status small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    font-size: 10px;
+}
+
+.status-complete {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.status-partial {
+    color: #9a3412;
+    background: #ffedd5;
+}
+
+.status-waiting {
+    color: #92400e;
+    background: #fef3c7;
+}
+
+.status-none {
+    color: #475569;
+    background: #f1f5f9;
+}
+
+.status-open {
+    color: #b91c1c;
+    background: #fee2e2;
+}
+
+.status-closed {
+    color: #166534;
+    background: #dcfce7;
+}
+
+/* =========================================================
+   TOMBOL BUKTI
+========================================================= */
+
+.auditor-evidence-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.18s ease;
+}
+
+.auditor-evidence-button:hover {
+    border-color: #2563eb;
+    background: #dbeafe;
+    color: #1e40af;
+    transform: translateY(-1px);
+}
+
+.auditor-evidence-button-large {
+    min-height: 42px;
+    padding: 10px 15px;
+}
+
+/* =========================================================
+   TOMBOL AKSI TABEL
+========================================================= */
+
+.auditor-action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 165px;
+}
+
+.auditor-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 9px 12px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.18s ease;
+}
+
+.action-create {
+    color: #ffffff;
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.action-create:hover {
+    color: #ffffff;
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.action-view {
+    color: #ffffff;
+    background: #0f766e;
+    border-color: #0f766e;
+}
+
+.action-view:hover {
+    color: #ffffff;
+    background: #115e59;
+    border-color: #115e59;
+    transform: translateY(-1px);
+}
+
+.action-disabled {
+    cursor: not-allowed;
+    color: #94a3b8;
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    opacity: 0.86;
+}
+
+/* =========================================================
+   EMPTY TABLE
+========================================================= */
+
+.auditor-empty-table {
+    padding: 46px 24px !important;
+    text-align: center !important;
+}
+
+.auditor-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.auditor-empty-state i {
+    margin-bottom: 6px;
+    color: #94a3b8;
+    font-size: 42px;
+}
+
+.auditor-empty-state strong {
+    color: #334155;
+    font-size: 16px;
+}
+
+.auditor-empty-state span {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+/* =========================================================
+   DETAIL ACTION
+========================================================= */
+
+.auditor-detail-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.auditor-detail-actions-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.auditor-delete-form {
+    margin: 0;
+}
+
+/* =========================================================
+   BUTTON UMUM
+========================================================= */
+
+.auditor-back-button,
+.auditor-primary-button,
+.auditor-secondary-button,
+.auditor-edit-button,
+.auditor-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 15px;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.auditor-back-button,
+.auditor-secondary-button {
+    color: #475569;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+}
+
+.auditor-back-button:hover,
+.auditor-secondary-button:hover {
+    color: #1e293b;
+    background: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+
+.auditor-primary-button {
+    color: #ffffff;
+    background: #2563eb;
+    border: 1px solid #2563eb;
+}
+
+.auditor-primary-button:hover {
+    color: #ffffff;
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.auditor-edit-button {
+    color: #ffffff;
+    background: #0f766e;
+    border: 1px solid #0f766e;
+}
+
+.auditor-edit-button:hover {
+    color: #ffffff;
+    background: #115e59;
+    border-color: #115e59;
+    transform: translateY(-1px);
+}
+
+.auditor-delete-button {
+    color: #ffffff;
+    background: #dc2626;
+    border: 1px solid #dc2626;
+}
+
+.auditor-delete-button:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   DETAIL GRID
+========================================================= */
+
+.auditor-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding: 22px 24px 24px;
+}
+
+.auditor-detail-item {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 13px;
+    background: #f8fafc;
+}
+
+.auditor-detail-item-wide {
+    grid-column: span 2;
+}
+
+.auditor-detail-item span,
+.auditor-detail-item strong {
+    display: block;
+}
+
+.auditor-detail-item > span {
+    margin-bottom: 6px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.auditor-detail-item > strong {
+    color: #1e293b;
+    font-size: 13px;
+    line-height: 1.65;
+    word-break: break-word;
+}
+
+/* =========================================================
+   HASIL DAN BUKTI
+========================================================= */
+
+.auditor-evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    padding: 22px 24px 24px;
+}
+
+.auditor-readonly-box {
+    min-height: 150px;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.auditor-readonly-box > span {
+    display: block;
+    margin-bottom: 10px;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.45px;
+}
+
+.auditor-readonly-box p {
+    margin: 0;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.75;
+    white-space: pre-line;
+    word-break: break-word;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.auditor-temuan-form {
+    padding: 24px;
+}
+
+.auditor-form-group {
+    margin-bottom: 21px;
+}
+
+.auditor-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.required-mark {
+    color: #dc2626;
+}
+
+.auditor-form-group textarea,
+.auditor-form-group select,
+.auditor-form-group input[type="text"],
+.auditor-form-group input[type="url"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
+    outline: none;
+    background: #ffffff;
+    color: #1e293b;
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.auditor-form-group textarea {
+    min-height: 160px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.auditor-form-group select {
+    min-height: 46px;
+    cursor: pointer;
+}
+
+.auditor-form-group textarea:focus,
+.auditor-form-group select:focus,
+.auditor-form-group input[type="text"]:focus,
+.auditor-form-group input[type="url"]:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.auditor-form-group small {
+    display: block;
+    margin-top: 7px;
+    color: #94a3b8;
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.auditor-field-error {
+    display: block;
+    margin-top: 7px;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.auditor-form-information {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin: 5px 0 22px;
+    padding: 14px 16px;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1e40af;
+}
+
+.auditor-form-information i {
+    margin-top: 2px;
+}
+
+.auditor-form-information p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.auditor-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 18px;
+    border-top: 1px solid #edf0f4;
+}
+
+/* =========================================================
+   STATUS BANNER DETAIL
+========================================================= */
+
+.auditor-temuan-status-banner {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.auditor-temuan-status-banner > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 7px 20px rgba(15, 23, 42, 0.05);
+}
+
+.auditor-temuan-status-banner > div > span {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.auditor-response-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #1d4ed8;
+    font-size: 15px;
+}
+
+/* =========================================================
+   ISI TEMUAN
+========================================================= */
+
+.auditor-finding-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px;
+}
+
+.auditor-finding-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 21px;
+}
+
+.auditor-finding-content > div:last-child {
+    flex: 1;
+    min-width: 0;
+}
+
+.auditor-finding-content span {
+    display: block;
+    margin-bottom: 7px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.45px;
+}
+
+.auditor-finding-content p {
+    margin: 0;
+    color: #1e293b;
+    font-size: 14px;
+    line-height: 1.8;
+    white-space: pre-line;
+    word-break: break-word;
+}
+
+/* =========================================================
+   TANGGAPAN AUDITEE
+========================================================= */
+
+.auditor-response-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.auditor-response-list {
+    padding: 22px 24px 24px;
+}
+
+.auditor-response-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 17px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.auditor-response-item + .auditor-response-item {
+    margin-top: 13px;
+}
+
+.auditor-response-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 15px;
+}
+
+.auditor-response-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.auditor-response-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 9px;
+}
+
+.auditor-response-header strong,
+.auditor-response-header span {
+    display: block;
+}
+
+.auditor-response-header strong {
+    color: #1e293b;
+    font-size: 13px;
+}
+
+.auditor-response-header span {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.auditor-response-header small {
+    color: #94a3b8;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.auditor-response-content p {
+    margin: 0;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.75;
+    white-space: pre-line;
+    word-break: break-word;
+}
+
+.auditor-empty-response {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 190px;
+    text-align: center;
+}
+
+.auditor-empty-response i {
+    margin-bottom: 5px;
+    color: #94a3b8;
+    font-size: 38px;
+}
+
+.auditor-empty-response strong {
+    color: #334155;
+    font-size: 15px;
+}
+
+.auditor-empty-response span {
+    max-width: 420px;
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1400px) {
+    .auditor-temuan-stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .auditor-temuan-header {
+        align-items: flex-start;
+    }
+
+    .auditor-detail-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .auditor-detail-item-wide {
+        grid-column: span 2;
+    }
+
+    .auditor-evidence-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .auditor-temuan-page {
+        padding-bottom: 22px;
+    }
+
+    .auditor-temuan-header {
+        padding: 22px;
+        border-radius: 16px;
+    }
+
+    .auditor-temuan-header h2 {
+        font-size: 25px;
+    }
+
+    .auditor-temuan-header-icon {
+        width: 62px;
+        height: 62px;
+        border-radius: 17px;
+        font-size: 28px;
+    }
+
+    .auditor-temuan-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .auditor-temuan-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 19px;
+    }
+
+    .auditor-detail-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .auditor-detail-actions-right {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .auditor-detail-actions a,
+    .auditor-detail-actions button,
+    .auditor-delete-form {
+        width: 100%;
+    }
+
+    .auditor-detail-grid {
+        grid-template-columns: 1fr;
+        padding: 19px;
+    }
+
+    .auditor-detail-item-wide {
+        grid-column: span 1;
+    }
+
+    .auditor-evidence-grid,
+    .auditor-temuan-form,
+    .auditor-finding-content,
+    .auditor-response-list {
+        padding: 19px;
+    }
+
+    .auditor-temuan-status-banner {
+        grid-template-columns: 1fr;
+    }
+
+    .auditor-form-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .auditor-form-actions a,
+    .auditor-form-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .auditor-temuan-header {
+        flex-direction: column;
+    }
+
+    .auditor-temuan-header-icon {
+        display: none;
+    }
+
+    .auditor-temuan-stat-card {
+        min-height: 112px;
+        padding: 17px;
+    }
+
+    .auditor-response-header {
+        flex-direction: column;
+    }
+
+    .auditor-response-header small {
+        white-space: normal;
+    }
+}
+

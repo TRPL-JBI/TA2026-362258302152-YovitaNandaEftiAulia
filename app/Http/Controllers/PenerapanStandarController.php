@@ -7,48 +7,109 @@ use App\Models\PenerapanStandar;
 
 class PenerapanStandarController extends Controller
 {
+    /**
+     * Menampilkan seluruh penerapan standar dalam satu periode AMI.
+     *
+     * Halaman ini hanya bersifat read-only.
+     */
     public function index($id)
     {
         $periode = PeriodeAmi::with([
             'standarMutu',
-            'unitKerja'
+            'unitKerja',
+            'user',
+            'standarMutuPeriode',
+            'standarMutuPeriode.standarMutu',
         ])->findOrFail($id);
 
         $data = PenerapanStandar::with([
             'user',
-            'standarMutuPeriodeAmi.standarMutu',
-            'standarMutuPeriodeAmi.periodeAmi'
-        ])
-        ->whereHas(
-            'standarMutuPeriodeAmi',
-            function ($q) use ($id) {
+            'indikator',
 
-                $q->where(
-                    'id_periode_ami',
-                    $id
-                );
-            }
-        )
-        ->get();
+            'standarMutuPeriodeAmi',
+            'standarMutuPeriodeAmi.standarMutu',
+            'standarMutuPeriodeAmi.periodeAmi',
+
+            'temuan',
+        ])
+            ->whereHas(
+                'standarMutuPeriodeAmi',
+                function ($query) use ($id) {
+                    $query->where(
+                        'id_periode_ami',
+                        $id
+                    );
+                }
+            )
+            ->orderBy('id_indikator')
+            ->orderBy('id')
+            ->get();
+
+        $jumlahPenerapan = $data->count();
+
+        $jumlahBukti = $data
+            ->filter(function ($item) {
+                return filled($item->link_bukti);
+            })
+            ->count();
+
+        $jumlahAuditee = $data
+            ->pluck('id_user')
+            ->filter()
+            ->unique()
+            ->count();
+
+        $jumlahTemuan = $data
+            ->sum(function ($item) {
+                return $item->temuan->count();
+            });
 
         return view(
             'penerapan.index',
             compact(
                 'periode',
-                'data'
+                'data',
+                'jumlahPenerapan',
+                'jumlahBukti',
+                'jumlahAuditee',
+                'jumlahTemuan'
             )
         );
     }
 
-    public function show($id,$penerapan)
+    /**
+     * Menampilkan detail satu penerapan standar.
+     *
+     * Tidak ada proses edit atau hapus pada halaman ini.
+     */
+    public function show($id, $penerapan)
     {
-        $periode = PeriodeAmi::findOrFail($id);
+        $periode = PeriodeAmi::with([
+            'standarMutu',
+            'unitKerja',
+            'user',
+        ])->findOrFail($id);
 
         $data = PenerapanStandar::with([
             'user',
-            'standarMutuPeriodeAmi.standarMutu'
+            'indikator',
+
+            'standarMutuPeriodeAmi',
+            'standarMutuPeriodeAmi.standarMutu',
+            'standarMutuPeriodeAmi.periodeAmi',
+
+            'temuan',
         ])
-        ->findOrFail($penerapan);
+            ->whereHas(
+                'standarMutuPeriodeAmi',
+                function ($query) use ($id) {
+                    $query->where(
+                        'id_periode_ami',
+                        $id
+                    );
+                }
+            )
+            ->findOrFail($penerapan);
 
         return view(
             'penerapan.show',

@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardAuditeeController;
 use App\Http\Controllers\AuditeePenerapanController;
 use App\Http\Controllers\AuditeeTanggapanController;
 use App\Http\Controllers\AuditeeStandarController;
@@ -27,9 +27,9 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
-   Route::get(
+    Route::get(
     '/dashboard',
-    [DashboardController::class,'dashboardAuditee']
+    [DashboardAuditeeController::class, 'index']
 )->name('dashboard.auditee');
 
 /*

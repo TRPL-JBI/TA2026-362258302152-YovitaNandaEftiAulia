@@ -1,4 +1,4 @@
-@extends('layouts.auditee')
+﻿@extends('layouts.auditee')
 
 @section('content')
 <div class="quality-form-page">
@@ -188,3 +188,4 @@
     </div>
 </div>
 @endsection
+

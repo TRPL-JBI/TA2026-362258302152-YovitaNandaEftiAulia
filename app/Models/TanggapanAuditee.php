@@ -11,20 +11,10 @@ class TanggapanAuditee extends Model
     public $timestamps = false;
 
     protected $fillable = [
-
         'id_temuan_ami',
-
         'tanggapan',
-
-        'id_user'
-
+        'id_user',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | RELASI TEMUAN
-    |--------------------------------------------------------------------------
-    */
 
     public function temuan()
     {
@@ -33,12 +23,6 @@ class TanggapanAuditee extends Model
             'id_temuan_ami'
         );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RELASI USER
-    |--------------------------------------------------------------------------
-    */
 
     public function user()
     {

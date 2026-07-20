@@ -1,11 +1,9 @@
-@extends('layouts.auditee')
+﻿@extends('layouts.auditee')
 
 @section('content')
 
 <div class="breadcrumb">
-
-    Dashboard / Detail Temuan
-
+    Dashboard / Temuan Audit / Detail Temuan
 </div>
 
 <div class="card">
@@ -13,9 +11,7 @@
     <div class="card-header">
 
         <h2 class="card-title">
-
             Detail Temuan Audit
-
         </h2>
 
     </div>
@@ -27,15 +23,17 @@
             <tr>
 
                 <th width="220">
-
-                    Pertanyaan AMI
-
+                    Tahun AMI
                 </th>
 
                 <td>
-
-                    {{ $temuan->pertanyaan->pertanyaan }}
-
+                    {{
+                        $temuan->penerapan
+                            ->standarmutuPeriode
+                            ->periodeAmi
+                            ->tahun
+                        ?? '-'
+                    }}
                 </td>
 
             </tr>
@@ -43,15 +41,23 @@
             <tr>
 
                 <th>
-
-                    Temuan Auditor
-
+                    Unit Kerja
                 </th>
 
                 <td>
-
-                    {{ $temuan->temuan }}
-
+                    {{
+                        $temuan->penerapan
+                            ->standarmutuPeriode
+                            ->periodeAmi
+                            ->unitKerja
+                            ->nama
+                        ?? $temuan->penerapan
+                            ->standarmutuPeriode
+                            ->periodeAmi
+                            ->unitKerja
+                            ->nama_unit_kerja
+                        ?? '-'
+                    }}
                 </td>
 
             </tr>
@@ -59,15 +65,17 @@
             <tr>
 
                 <th>
-
-                    Status
-
+                    Standar Mutu
                 </th>
 
                 <td>
-
-                    {{ $temuan->status_temuan }}
-
+                    {{
+                        $temuan->penerapan
+                            ->standarmutuPeriode
+                            ->standarMutu
+                            ->nama_standar_mutu
+                        ?? '-'
+                    }}
                 </td>
 
             </tr>
@@ -75,22 +83,189 @@
             <tr>
 
                 <th>
+                    Penerapan Standar
+                </th>
 
-                    Tanggapan Auditee
+                <td>
+                    {{
+                        $temuan->penerapan
+                            ->indikator
+                            ->deskripsi
+                        ?? $temuan->penerapan
+                            ->indikator
+                            ->indikator
+                        ?? '-'
+                    }}
+                </td>
 
+            </tr>
+
+            <tr>
+
+                <th>
+                    Hasil Penerapan Auditee
+                </th>
+
+                <td>
+                    {!! nl2br(e(
+                        $temuan->penerapan
+                            ->deskripsi_hasil
+                        ?? '-'
+                    )) !!}
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <th>
+                    Bukti Pendukung
                 </th>
 
                 <td>
 
-                    @if($temuan->tanggapan->count())
+                    @if(!empty($temuan->penerapan->link_bukti))
 
-                        {!! nl2br(e($temuan->tanggapan->first()->tanggapan)) !!}
+                        <a
+                            href="{{ $temuan->penerapan->link_bukti }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn-detail"
+                        >
+                            <i class="bi bi-box-arrow-up-right"></i>
+
+                            Lihat Bukti
+                        </a>
 
                     @else
 
-                        -
+                        <span>
+                            Belum ada bukti pendukung.
+                        </span>
 
                     @endif
+
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <th>
+                    Temuan Auditor
+                </th>
+
+                <td>
+                    {!! nl2br(e($temuan->temuan ?? '-')) !!}
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <th>
+                    Status Temuan
+                </th>
+
+                <td>
+
+                    @php
+                        $status = strtolower(
+                            trim($temuan->status_temuan ?? '')
+                        );
+                    @endphp
+
+                    @if($status === 'open')
+
+                        <span class="badge-open">
+                            Open
+                        </span>
+
+                    @elseif($status === 'closed')
+
+                        <span class="badge-close">
+                            Closed
+                        </span>
+
+                    @else
+
+                        <span>
+                            {{ ucfirst($status ?: '-') }}
+                        </span>
+
+                    @endif
+
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <th>
+                    Tanggapan Auditee
+                </th>
+
+                <td>
+
+                    @forelse($temuan->tanggapan as $tanggapan)
+
+                        <div style="margin-bottom: 10px;">
+
+                            <strong>
+                                Tanggapan {{ $loop->iteration }}
+                            </strong>
+
+                            <div style="margin-top: 5px;">
+                                {!! nl2br(e(
+                                    $tanggapan->tanggapan ?? '-'
+                                )) !!}
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        <span>
+                            Belum ada tanggapan.
+                        </span>
+
+                    @endforelse
+
+                </td>
+
+            </tr>
+
+            <tr>
+
+                <th>
+                    Akar Masalah
+                </th>
+
+                <td>
+
+                    @forelse($temuan->akarMasalah as $akar)
+
+                        <div style="margin-bottom: 10px;">
+
+                            <strong>
+                                Akar Masalah {{ $loop->iteration }}
+                            </strong>
+
+                            <div style="margin-top: 5px;">
+                                {!! nl2br(e(
+                                    $akar->akar_masalah ?? '-'
+                                )) !!}
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        <span>
+                            Belum ada akar masalah.
+                        </span>
+
+                    @endforelse
 
                 </td>
 
@@ -102,14 +277,50 @@
 
     <div class="form-footer">
 
-        <a href="{{ route('auditee.temuan.index') }}"
-           class="btn-secondary">
-
+        <a
+            href="{{ route('auditee.temuan.index') }}"
+            class="btn-secondary"
+        >
             <i class="bi bi-arrow-left"></i>
 
             Kembali
-
         </a>
+
+        @php
+            $tanggapanPertama = $temuan
+                ->tanggapan
+                ->first();
+        @endphp
+
+        @if(!$tanggapanPertama)
+
+            <a
+                href="{{ route(
+                    'auditee.tanggapan.create',
+                    $temuan->id
+                ) }}"
+                class="btn-save"
+            >
+                <i class="bi bi-chat-dots"></i>
+
+                Beri Tanggapan
+            </a>
+
+        @else
+
+            <a
+                href="{{ route(
+                    'auditee.tanggapan.edit',
+                    $tanggapanPertama->id
+                ) }}"
+                class="btn-save"
+            >
+                <i class="bi bi-pencil"></i>
+
+                Edit Tanggapan
+            </a>
+
+        @endif
 
     </div>
 

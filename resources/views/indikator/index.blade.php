@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
 
@@ -38,7 +38,7 @@
                 <a href="{{ route('isi.show',$isiStandar->parent_standar_id) }}"
                    class="btn-secondary">
 
-                    ← Kembali
+                    â† Kembali
 
                 </a>
 
@@ -47,7 +47,7 @@
                 <a href="{{ route('isi.index',$isiStandar->id_standar_mutu) }}"
                    class="btn-secondary">
 
-                    ← Kembali
+                    â† Kembali
 
                 </a>
 

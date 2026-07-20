@@ -1,4 +1,4 @@
-@extends('layouts.auditor')
+﻿@extends('layouts.auditor')
 
 @section('content')
 
@@ -22,11 +22,6 @@
 
     </a>
 
-    <a href="{{ route('auditor.pertanyaan.index',$periode->id) }}">
-
-        Pertanyaan AMI
-
-    </a>
 
     <a href="{{ route('auditor.tim.index',$periode->id) }}">
 

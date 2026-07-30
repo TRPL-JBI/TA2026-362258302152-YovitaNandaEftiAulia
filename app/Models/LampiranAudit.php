@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LampiranAudit extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'lampiran_audit';
 
     public $timestamps = false;
@@ -16,7 +20,11 @@ class LampiranAudit extends Model
         'id_user',
     ];
 
-    public function periodeAmi()
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
+
+    public function periodeAmi(): BelongsTo
     {
         return $this->belongsTo(
             PeriodeAmi::class,
@@ -24,7 +32,7 @@ class LampiranAudit extends Model
         );
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(
             User::class,

@@ -5,28 +5,89 @@
         rel="stylesheet"
         href="{{ asset('css/auditor-temuan-penerapan.css') }}"
     >
+
+    <style>
+        .auditor-form-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .auditor-dynamic-section {
+            display: none;
+            padding: 22px;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #f8fafc;
+        }
+
+        .auditor-dynamic-section.is-visible {
+            display: block;
+        }
+
+        .auditor-dynamic-header {
+            margin-bottom: 20px;
+        }
+
+        .auditor-dynamic-header h4 {
+            margin: 0 0 6px;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .auditor-dynamic-header p {
+            margin: 0;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .auditor-form-type-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 14px;
+            background: #eef2ff;
+            color: #3730a3;
+        }
+
+        .auditor-form-type-info[hidden] {
+        display: none !important;
+        }
+
+        .auditor-form-type-info i {
+            margin-top: 2px;
+            font-size: 18px;
+        }
+
+        .auditor-form-type-info p {
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .auditor-form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 @endpush
 
 @section('content')
 
 @php
-    $indikator =
-        $penerapan->indikator;
+    $indikator = $penerapan->indikator;
 
-    $isiStandar =
-        $indikator?->isiStandar;
+    $isiStandar = $indikator?->isiStandar;
 
-    $standarPeriode =
-        $penerapan->standarmutuPeriode;
+    $standarPeriode = $penerapan->standarmutuPeriode;
 
-    $standarMutu =
-        $standarPeriode?->standarMutu;
+    $standarMutu = $standarPeriode?->standarMutu;
 
-    $periodeAmi =
-        $standarPeriode?->periodeAmi;
+    $periodeAmi = $standarPeriode?->periodeAmi;
 
-    $unitKerja =
-        $periodeAmi?->unitKerja;
+    $unitKerja = $periodeAmi?->unitKerja;
 
     $namaStandar =
         $standarMutu?->nama_standar_mutu
@@ -95,44 +156,43 @@
         $hierarkiIsi->isNotEmpty()
             ? $hierarkiIsi->implode(' → ')
             : '-';
+
+    $jenisTemuanTerpilih =
+        old('jenis_temuan', '');
 @endphp
 
 <div class="auditor-temuan-page">
 
-    {{-- =====================================================
-         HEADER
-    ====================================================== --}}
+    {{-- HEADER --}}
 
     <section class="auditor-temuan-header">
 
         <div>
 
             <span class="auditor-temuan-eyebrow">
-                TAMBAH TEMUAN AUDIT
+                TAMBAH PENILAIAN AUDIT
             </span>
 
             <h2>
-                Tambah Temuan
+                Tambah Penilaian
             </h2>
 
             <p>
-                Tambahkan temuan berdasarkan hasil penerapan
-                dan bukti yang telah dikirim oleh Auditee.
+                Berikan skor, tentukan jenis temuan, dan masukkan
+                rekomendasi berdasarkan hasil serta bukti penerapan Auditee.
             </p>
 
         </div>
 
         <div class="auditor-temuan-header-icon">
 
-            <i class="bi bi-plus-circle"></i>
+            <i class="bi bi-clipboard-check"></i>
 
         </div>
 
     </section>
 
-    {{-- =====================================================
-         VALIDATION ERROR
-    ====================================================== --}}
+    {{-- VALIDATION ERROR --}}
 
     @if($errors->any())
 
@@ -178,9 +238,7 @@
 
     @endif
 
-    {{-- =====================================================
-         RINGKASAN PENERAPAN
-    ====================================================== --}}
+    {{-- DATA PENERAPAN --}}
 
     <section class="auditor-temuan-card">
 
@@ -197,8 +255,8 @@
                 </h3>
 
                 <p>
-                    Data berikut hanya dapat dilihat dan tidak
-                    dapat diubah oleh Auditor.
+                    Data berikut hanya dapat dilihat dan tidak dapat
+                    diubah oleh Auditor.
                 </p>
 
             </div>
@@ -290,29 +348,88 @@
 
             </div>
 
-            <div class="auditor-detail-item">
+           <div class="auditor-detail-item">
 
-                <span>
-                    Status Penerapan
-                </span>
+    <label
+        for="status_penerapan"
+        style="
+            display: block;
+            margin-bottom: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        "
+    >
+        Status Penerapan
 
-                <strong class="auditor-inline-status status-complete">
+        <span class="required-mark">
+            *
+        </span>
+    </label>
 
-                    <i class="bi bi-check-circle-fill"></i>
+    <select
+        name="status_penerapan"
+        id="status_penerapan"
+        form="formPenilaianAudit"
+        required
+        style="
+            width: 100%;
+            height: 44px;
+            padding: 0 14px;
+            border: 1px solid #d7deea;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #111827;
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+        "
+    >
 
-                    Lengkap
+        <option value="">
+            Pilih status penerapan
+        </option>
 
-                </strong>
+        <option
+            value="sesuai"
+            {{
+                old('status_penerapan') === 'sesuai'
+                    ? 'selected'
+                    : ''
+            }}
+        >
+            Sesuai
+        </option>
 
-            </div>
+        <option
+            value="belum_sesuai"
+            {{
+                old('status_penerapan') === 'belum_sesuai'
+                    ? 'selected'
+                    : ''
+            }}
+        >
+            Tidak Sesuai
+        </option>
 
+    </select>
+
+    @error('status_penerapan')
+
+        <span class="auditor-field-error">
+            {{ $message }}
+        </span>
+
+    @enderror
+
+</div>
         </div>
 
     </section>
 
-    {{-- =====================================================
-         HASIL DAN BUKTI
-    ====================================================== --}}
+    {{-- HASIL DAN BUKTI --}}
 
     <section class="auditor-temuan-card">
 
@@ -385,9 +502,7 @@
 
     </section>
 
-    {{-- =====================================================
-         FORM TEMUAN
-    ====================================================== --}}
+    {{-- FORM PENILAIAN --}}
 
     <section class="auditor-temuan-card">
 
@@ -396,16 +511,16 @@
             <div>
 
                 <span class="auditor-temuan-section-label">
-                    FORM TEMUAN
+                    FORM PENILAIAN
                 </span>
 
                 <h3>
-                    Isi Temuan Audit
+                    Penilaian Audit
                 </h3>
 
                 <p>
-                    Tuliskan kondisi yang ditemukan berdasarkan
-                    pemeriksaan hasil dan bukti penerapan.
+                    Isi seluruh penilaian berdasarkan kondisi penerapan
+                    yang telah diperiksa.
                 </p>
 
             </div>
@@ -416,6 +531,7 @@
             action="{{ route('auditor.temuan.store') }}"
             method="POST"
             class="auditor-temuan-form"
+            id="formPenilaianAudit"
         >
 
             @csrf
@@ -426,100 +542,396 @@
                 value="{{ $penerapan->id }}"
             >
 
-            <div class="auditor-form-group">
+            {{-- SKOR DAN JENIS TEMUAN --}}
 
-                <label for="temuan">
+            <div class="auditor-form-row">
 
-                    Isi Temuan
+                <div class="auditor-form-group">
 
-                    <span class="required-mark">
-                        *
-                    </span>
+                    <label for="id_skala_skor">
 
-                </label>
+                        Skor Penilaian
 
-                <textarea
-                    name="temuan"
-                    id="temuan"
-                    rows="7"
-                    maxlength="5000"
-                    placeholder="Tuliskan temuan audit secara jelas dan objektif..."
-                    required
-                >{{ old('temuan') }}</textarea>
+                        <span class="required-mark">
+                            *
+                        </span>
 
-                <small>
-                    Jelaskan kondisi yang ditemukan, bukti pendukung,
-                    dan ketidaksesuaian apabila ada.
-                </small>
+                    </label>
 
-                @error('temuan')
+                    <select
+                        name="id_skala_skor"
+                        id="id_skala_skor"
+                        required
+                    >
 
-                    <span class="auditor-field-error">
-                        {{ $message }}
-                    </span>
+                        <option value="">
+                            Pilih skor penilaian
+                        </option>
 
-                @enderror
+                        @foreach($skalaSkor as $skor)
+
+                            <option
+                                value="{{ $skor->id }}"
+                                {{
+                                    (string) old('id_skala_skor')
+                                    === (string) $skor->id
+                                        ? 'selected'
+                                        : ''
+                                }}
+                            >
+                                {{ $skor->nilai_skor }}
+                                -
+                                {{ $skor->label_skor }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+                    <small>
+                        Pilih skor berdasarkan tingkat pemenuhan standar.
+                    </small>
+
+                    @error('id_skala_skor')
+
+                        <span class="auditor-field-error">
+                            {{ $message }}
+                        </span>
+
+                    @enderror
+
+                </div>
+
+                <div class="auditor-form-group">
+
+                    <label for="jenis_temuan">
+
+                        Jenis Temuan
+
+                        <span class="required-mark">
+                            *
+                        </span>
+
+                    </label>
+
+                    <select
+                        name="jenis_temuan"
+                        id="jenis_temuan"
+                        required
+                    >
+
+                        <option value="">
+                            Pilih jenis temuan
+                        </option>
+
+                        <option
+                            value="sesuai_standar"
+                            {{
+                                $jenisTemuanTerpilih === 'sesuai_standar'
+                                    ? 'selected'
+                                    : ''
+                            }}
+                        >
+                            Sudah Sesuai Standar
+                        </option>
+
+                        <option
+                            value="kts"
+                            {{
+                                $jenisTemuanTerpilih === 'kts'
+                                    ? 'selected'
+                                    : ''
+                            }}
+                        >
+                            KTS
+                        </option>
+
+                        <option
+                            value="ob"
+                            {{
+                                $jenisTemuanTerpilih === 'ob'
+                                    ? 'selected'
+                                    : ''
+                            }}
+                        >
+                            OB
+                        </option>
+
+                    </select>
+
+                    <small>
+                        Pilihan jenis temuan menentukan jenis rekomendasi.
+                    </small>
+
+                    @error('jenis_temuan')
+
+                        <span class="auditor-field-error">
+                            {{ $message }}
+                        </span>
+
+                    @enderror
+
+                </div>
 
             </div>
 
-            <div class="auditor-form-group">
+            {{-- INFORMASI DINAMIS --}}
 
-                <label for="status_temuan">
+            <div
+                class="auditor-form-type-info"
+                id="informasiJenis"
+                hidden
+            >
 
-                    Status Temuan
+                <i class="bi bi-info-circle-fill"></i>
 
-                    <span class="required-mark">
-                        *
-                    </span>
+                <p id="teksInformasiJenis"></p>
 
-                </label>
+            </div>
 
-                <select
-                    name="status_temuan"
-                    id="status_temuan"
-                    required
-                >
+            {{-- FORM KTS / OB --}}
 
-                    <option value="">
-                        Pilih status temuan
-                    </option>
+            <div
+                class="auditor-dynamic-section"
+                id="bagianTemuan"
+            >
 
-                    <option
-                        value="open"
-                        {{
-                            old('status_temuan', 'open') === 'open'
-                                ? 'selected'
-                                : ''
-                        }}
+                <div class="auditor-dynamic-header">
+
+                    <h4>
+                        Data Temuan Audit
+                    </h4>
+
+                    <p>
+                        Bagian ini digunakan untuk jenis temuan KTS atau OB.
+                    </p>
+
+                </div>
+
+                <div class="auditor-form-group">
+
+                    <label for="temuan">
+
+                        Isi Temuan
+
+                        <span class="required-mark">
+                            *
+                        </span>
+
+                    </label>
+
+                    <textarea
+                        name="temuan"
+                        id="temuan"
+                        rows="6"
+                        maxlength="5000"
+                        placeholder="Tuliskan kondisi ketidaksesuaian atau hasil observasi..."
+                    >{{ old('temuan') }}</textarea>
+
+                    <small>
+                        Jelaskan kondisi yang ditemukan berdasarkan hasil
+                        dan bukti penerapan.
+                    </small>
+
+                    @error('temuan')
+
+                        <span class="auditor-field-error">
+                            {{ $message }}
+                        </span>
+
+                    @enderror
+
+                </div>
+
+            </div>
+
+            {{-- DATA REKOMENDASI GLOBAL --}}
+
+            <div
+                class="auditor-dynamic-section"
+                id="bagianRekomendasi"
+            >
+
+                <div class="auditor-dynamic-header">
+
+                    <h4 id="judulRekomendasi">
+                        Data Rekomendasi
+                    </h4>
+
+                    <p id="keteranganRekomendasi">
+                        Masukkan deskripsi dan rekomendasi berdasarkan jenis temuan.
+                    </p>
+
+                </div>
+
+                <div class="auditor-form-group">
+
+                    <label for="aspek">
+
+                        Aspek
+
+                        <span class="required-mark">
+                            *
+                        </span>
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="aspek"
+                        id="aspek"
+                        maxlength="255"
+                        value="{{ old('aspek') }}"
+                        placeholder="Contoh: Dokumen kurikulum, proses pembelajaran, sarana..."
                     >
-                        Open
-                    </option>
 
-                    <option
-                        value="closed"
-                        {{
-                            old('status_temuan') === 'closed'
-                                ? 'selected'
-                                : ''
-                        }}
+                    <small>
+                        Tuliskan aspek yang menjadi fokus penilaian.
+                    </small>
+
+                    @error('aspek')
+
+                        <span class="auditor-field-error">
+                            {{ $message }}
+                        </span>
+
+                    @enderror
+
+                </div>
+
+                <div class="auditor-form-group">
+
+                    <label
+                        for="deskripsi"
+                        id="labelDeskripsi"
                     >
-                        Closed
-                    </option>
 
-                </select>
+                        Deskripsi
 
-                <small>
-                    Gunakan Open untuk temuan yang masih membutuhkan
-                    tindak lanjut Auditee.
-                </small>
+                        <span class="required-mark">
+                            *
+                        </span>
 
-                @error('status_temuan')
+                    </label>
 
-                    <span class="auditor-field-error">
-                        {{ $message }}
-                    </span>
+                    <textarea
+                        name="deskripsi"
+                        id="deskripsi"
+                        rows="5"
+                        maxlength="5000"
+                        placeholder="Tuliskan deskripsi..."
+                    >{{ old('deskripsi') }}</textarea>
 
-                @enderror
+                    <small id="bantuanDeskripsi">
+                        Tuliskan deskripsi kondisi yang dinilai.
+                    </small>
+
+                    @error('deskripsi')
+
+                        <span class="auditor-field-error">
+                            {{ $message }}
+                        </span>
+
+                    @enderror
+
+                </div>
+
+                <div class="auditor-form-group">
+
+                    <label
+                        for="rekomendasi"
+                        id="labelRekomendasi"
+                    >
+
+                        Rekomendasi
+
+                        <span class="required-mark">
+                            *
+                        </span>
+
+                    </label>
+
+                    <textarea
+                        name="rekomendasi"
+                        id="rekomendasi"
+                        rows="6"
+                        maxlength="5000"
+                        placeholder="Tuliskan rekomendasi..."
+                    >{{ old('rekomendasi') }}</textarea>
+
+                    <small id="bantuanRekomendasi">
+                        Tuliskan saran yang perlu dilakukan berdasarkan penilaian.
+                    </small>
+
+                    @error('rekomendasi')
+
+                        <span class="auditor-field-error">
+                            {{ $message }}
+                        </span>
+
+                    @enderror
+
+                </div>
+
+                <div class="auditor-form-group">
+
+                    <label for="status_temuan">
+
+                        Status
+
+                        <span class="required-mark">
+                            *
+                        </span>
+
+                    </label>
+
+                    <select
+                        name="status_temuan"
+                        id="status_temuan"
+                        required
+                    >
+
+                        <option value="">
+                            Pilih status
+                        </option>
+
+                        <option
+                            value="open"
+                            {{
+                                old('status_temuan', 'open') === 'open'
+                                    ? 'selected'
+                                    : ''
+                            }}
+                        >
+                            Open
+                        </option>
+
+                        <option
+                            value="closed"
+                            {{
+                                old('status_temuan') === 'closed'
+                                    ? 'selected'
+                                    : ''
+                            }}
+                        >
+                            Closed
+                        </option>
+
+                    </select>
+
+                    <small id="bantuanStatus">
+                        Open berarti masih membutuhkan tindak lanjut.
+                    </small>
+
+                    @error('status_temuan')
+
+                        <span class="auditor-field-error">
+                            {{ $message }}
+                        </span>
+
+                    @enderror
+
+                </div>
 
             </div>
 
@@ -528,8 +940,8 @@
                 <i class="bi bi-info-circle-fill"></i>
 
                 <p>
-                    Setelah temuan disimpan, Auditee dapat melihat
-                    temuan tersebut dan memberikan tanggapan.
+                    Skor disimpan pada penerapan standar, sedangkan
+                    rekomendasi disimpan berdasarkan setiap temuan.
                 </p>
 
             </div>
@@ -554,7 +966,7 @@
 
                     <i class="bi bi-save"></i>
 
-                    Simpan Temuan
+                    Simpan Penilaian
 
                 </button>
 
@@ -567,3 +979,120 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const jenisTemuan = document.getElementById('jenis_temuan');
+    const bagianTemuan = document.getElementById('bagianTemuan');
+    const bagianRekomendasi = document.getElementById('bagianRekomendasi');
+    const inputTemuan = document.getElementById('temuan');
+
+    const informasiJenis = document.getElementById('informasiJenis');
+    const teksInformasiJenis = document.getElementById('teksInformasiJenis');
+
+    const judulRekomendasi = document.getElementById('judulRekomendasi');
+    const keteranganRekomendasi = document.getElementById('keteranganRekomendasi');
+
+    const labelDeskripsi = document.getElementById('labelDeskripsi');
+    const bantuanDeskripsi = document.getElementById('bantuanDeskripsi');
+
+    const labelRekomendasi = document.getElementById('labelRekomendasi');
+    const bantuanRekomendasi = document.getElementById('bantuanRekomendasi');
+
+    const bantuanStatus = document.getElementById('bantuanStatus');
+
+    const aspek = document.getElementById('aspek');
+    const deskripsi = document.getElementById('deskripsi');
+    const rekomendasi = document.getElementById('rekomendasi');
+
+    function tampilkanForm() {
+        const nilai = jenisTemuan.value;
+
+        bagianTemuan.classList.remove('is-visible');
+        bagianRekomendasi.classList.remove('is-visible');
+
+        informasiJenis.hidden = true;
+        informasiJenis.style.display = 'none';
+
+        inputTemuan.required = false;
+        aspek.required = false;
+        deskripsi.required = false;
+        rekomendasi.required = false;
+
+        if (!nilai) {
+            return;
+        }
+
+        informasiJenis.hidden = false;
+        informasiJenis.style.display = 'flex';
+        bagianRekomendasi.classList.add('is-visible');
+
+        aspek.required = true;
+        deskripsi.required = true;
+        rekomendasi.required = true;
+
+        if (nilai === 'sesuai_standar') {
+            teksInformasiJenis.textContent =
+                'Penerapan dinilai sudah sesuai standar. Isi deskripsi kondisi positif dan rekomendasi peningkatan.';
+
+            judulRekomendasi.textContent =
+                'Data Rekomendasi Peningkatan';
+
+            keteranganRekomendasi.textContent =
+                'Tuliskan kondisi yang sudah baik dan saran peningkatan agar penerapan terus berkembang.';
+
+            labelDeskripsi.innerHTML =
+                'Deskripsi <span class="required-mark">*</span>';
+
+            bantuanDeskripsi.textContent =
+                'Jelaskan kondisi, keunggulan, atau bagian yang telah memenuhi standar.';
+
+            labelRekomendasi.innerHTML =
+                'Rekomendasi Peningkatan <span class="required-mark">*</span>';
+
+            bantuanRekomendasi.textContent =
+                'Tuliskan saran peningkatan walaupun penerapan sudah memenuhi standar.';
+
+            bantuanStatus.textContent =
+                'Open berarti rekomendasi peningkatan masih perlu ditindaklanjuti.';
+        }
+
+        if (nilai === 'kts' || nilai === 'ob') {
+            bagianTemuan.classList.add('is-visible');
+            inputTemuan.required = true;
+
+            teksInformasiJenis.textContent =
+                nilai === 'kts'
+                    ? 'Penerapan memiliki ketidaksesuaian. Isi temuan dan rekomendasi perbaikan.'
+                    : 'Penerapan memiliki hasil observasi. Isi temuan dan rekomendasi perbaikan.';
+
+            judulRekomendasi.textContent =
+                'Data Rekomendasi Perbaikan';
+
+            keteranganRekomendasi.textContent =
+                'Tuliskan deskripsi kondisi dan tindakan perbaikan yang disarankan.';
+
+            labelDeskripsi.innerHTML =
+                'Deskripsi <span class="required-mark">*</span>';
+
+            bantuanDeskripsi.textContent =
+                'Jelaskan kondisi atau latar belakang temuan secara lebih rinci.';
+
+            labelRekomendasi.innerHTML =
+                'Rekomendasi Perbaikan <span class="required-mark">*</span>';
+
+            bantuanRekomendasi.textContent =
+                'Tuliskan tindakan perbaikan yang perlu dilakukan oleh Auditee.';
+
+            bantuanStatus.textContent =
+                'Open berarti temuan masih membutuhkan tindak lanjut Auditee.';
+        }
+    }
+
+    jenisTemuan.addEventListener('change', tampilkanForm);
+
+    tampilkanForm();
+});
+</script>
+@endpush

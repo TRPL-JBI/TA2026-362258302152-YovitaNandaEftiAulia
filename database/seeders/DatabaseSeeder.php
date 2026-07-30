@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             $this->call([
                 UnitKerjaSeeder::class,
                 AdminSeeder::class,
+                SkalaSkorSeeder::class,
             ]);
         }
 

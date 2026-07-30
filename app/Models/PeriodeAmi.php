@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PeriodeAmi extends Model
 {
     protected $table = 'periode_ami';
+
+    public $timestamps = false;
 
     protected $fillable = [
         'tahun',
@@ -18,15 +22,10 @@ class PeriodeAmi extends Model
         'waktu_audit',
         'tanggal_buka_ami',
         'tanggal_tutup_ami',
-        'status'
+        'status',
     ];
 
-    public $timestamps = false;
-
-    // =========================
-    // RELASI STANDAR MUTU
-    // =========================
-    public function standarMutu()
+    public function standarMutu(): BelongsTo
     {
         return $this->belongsTo(
             StandarMutu::class,
@@ -34,10 +33,7 @@ class PeriodeAmi extends Model
         );
     }
 
-    // =========================
-    // RELASI UNIT KERJA
-    // =========================
-    public function unitKerja()
+    public function unitKerja(): BelongsTo
     {
         return $this->belongsTo(
             UnitKerja::class,
@@ -45,10 +41,7 @@ class PeriodeAmi extends Model
         );
     }
 
-    // =========================
-    // RELASI USER
-    // =========================
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(
             User::class,
@@ -56,10 +49,7 @@ class PeriodeAmi extends Model
         );
     }
 
-    // =========================
-    // RELASI PERIODE AMI
-    // =========================
-    public function standarMutuPeriode()
+    public function standarMutuPeriode(): HasMany
     {
         return $this->hasMany(
             StandarMutuPeriodeAmi::class,
@@ -67,55 +57,47 @@ class PeriodeAmi extends Model
         );
     }
 
-    // =========================
-    // TIM AMI
-    // =========================
-    public function tim()
-{
-    return $this->hasMany(
-        TimAmi::class,
-        'id_periode_ami'
-    );
-}
+    public function tim(): HasMany
+    {
+        return $this->hasMany(
+            TimAmi::class,
+            'id_periode_ami'
+        );
+    }
 
+    public function jadwal(): HasMany
+    {
+        return $this->hasMany(
+            JadwalAmi::class,
+            'id_periode_ami'
+        );
+    }
 
-// =========================
-// JADWAL AMI
-// =========================
-public function jadwal()
-{
-    return $this->hasMany(
-        JadwalAmi::class,
-        'id_periode_ami'
-    );
-}
+    /*
+    |--------------------------------------------------------------------------
+    | KESIMPULAN PER PERIODE
+    |--------------------------------------------------------------------------
+    */
 
-/*
-|--------------------------------------------------------------------------
-| KESIMPULAN AUDIT
-|--------------------------------------------------------------------------
-*/
+    public function kesimpulanAudit(): HasMany
+    {
+        return $this->hasMany(
+            KesimpulanAudit::class,
+            'id_periode_ami'
+        );
+    }
 
-public function kesimpulanAudit()
-{
-    return $this->hasMany(
-        KesimpulanAudit::class,
-        'id_periode_ami'
-    );
-}
+    /*
+    |--------------------------------------------------------------------------
+    | LAMPIRAN PER PERIODE
+    |--------------------------------------------------------------------------
+    */
 
-/*
-|--------------------------------------------------------------------------
-| LAMPIRAN AUDIT
-|--------------------------------------------------------------------------
-*/
-
-public function lampiran()
-{
-    return $this->hasMany(
-        LampiranAudit::class,
-        'id_periode_ami'
-    );
-}
-
+    public function lampiran(): HasMany
+    {
+        return $this->hasMany(
+            LampiranAudit::class,
+            'id_periode_ami'
+        );
+    }
 }

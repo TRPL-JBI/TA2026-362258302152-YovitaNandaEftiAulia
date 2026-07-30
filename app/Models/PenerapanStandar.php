@@ -3,24 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PenerapanStandar extends Model
 {
-    /**
-     * Nama tabel database.
-     */
+    use SoftDeletes;
+
     protected $table = 'penerapan_standar';
 
-    /**
-     * Tabel tidak menggunakan created_at dan updated_at.
-     */
     public $timestamps = false;
 
-    /**
-     * Kolom yang dapat diisi.
-     */
     protected $fillable = [
         'id_standarmutu_periodeami',
         'id_indikator',
@@ -29,70 +25,119 @@ class PenerapanStandar extends Model
         'id_user',
     ];
 
-    /**
-     * Auditee yang mengisi penerapan standar.
-     */
+    protected $casts = [
+        'id_standarmutu_periodeami' => 'integer',
+        'id_indikator' => 'integer',
+        'id_user' => 'integer',
+        'deleted_at' => 'datetime',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | USER / AUDITEE
+    |--------------------------------------------------------------------------
+    */
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(
             User::class,
-            'id_user'
+            'id_user',
+            'id'
         );
     }
 
-    /**
-     * Indikator yang diterapkan oleh Auditee.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | INDIKATOR
+    |--------------------------------------------------------------------------
+    */
+
     public function indikator(): BelongsTo
     {
         return $this->belongsTo(
             IndikatorStandar::class,
-            'id_indikator'
+            'id_indikator',
+            'id'
         );
     }
 
-    /**
-     * Hubungan penerapan dengan standar mutu pada periode AMI.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | STANDAR MUTU PERIODE AMI
+    |--------------------------------------------------------------------------
+    */
+
     public function standarmutuPeriode(): BelongsTo
     {
         return $this->belongsTo(
             StandarMutuPeriodeAmi::class,
-            'id_standarmutu_periodeami'
+            'id_standarmutu_periodeami',
+            'id'
         );
     }
 
-    /**
-     * Alias relasi agar kode lama yang masih menggunakan
-     * standarMutuPeriodeAmi tetap dapat berjalan.
-     */
     public function standarMutuPeriodeAmi(): BelongsTo
     {
         return $this->belongsTo(
             StandarMutuPeriodeAmi::class,
-            'id_standarmutu_periodeami'
+            'id_standarmutu_periodeami',
+            'id'
         );
     }
 
-    /**
-     * Temuan yang dibuat Auditor berdasarkan penerapan ini.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | TEMUAN AMI
+    |--------------------------------------------------------------------------
+    |
+    | Satu penerapan standar dapat memiliki lebih dari satu temuan.
+    |
+    */
+
     public function temuan(): HasMany
     {
         return $this->hasMany(
             TemuanAmi::class,
-            'id_penerapan_standar'
+            'id_penerapan_standar',
+            'id'
         );
     }
 
-    /**
-     * Rekomendasi peningkatan untuk penerapan standar.
-     */
-    public function rekomendasi(): HasMany
+    /*
+    |--------------------------------------------------------------------------
+    | REKOMENDASI
+    |--------------------------------------------------------------------------
+    |
+    | Rekomendasi tidak lagi terhubung langsung ke penerapan standar.
+    | Relasinya melewati tabel temuan_ami.
+    |
+    */
+
+    public function rekomendasi(): HasManyThrough
     {
-        return $this->hasMany(
-            RekomendasiPeningkatan::class,
-            'id_penerapan_standar'
+        return $this->hasManyThrough(
+            Rekomendasi::class,
+            TemuanAmi::class,
+            'id_penerapan_standar',
+            'id_temuan',
+            'id',
+            'id'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SKOR PENERAPAN STANDAR
+    |--------------------------------------------------------------------------
+    */
+
+    public function skor(): HasOne
+    {
+        return $this->hasOne(
+            SkorPenerapanStandar::class,
+            'id_penerapan_standar',
+            'id'
         );
     }
 }

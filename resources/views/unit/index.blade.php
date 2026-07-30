@@ -2,132 +2,209 @@
 
 @section('content')
 
-<h3 class="breadcrumb">
-    Dashboard / Daftar Unit Kerja
-</h3>
+<div class="unit-page">
 
-<div class="card">
-
-    <!-- HEADER -->
-    <div class="card-header"
-         style="display:flex;
-                justify-content:space-between;
-                align-items:center;">
-
-        <h4>
-            Data Unit Kerja
-        </h4>
-
-        <!-- tambah -->
-        <a href="{{ route('unit-kerja.create') }}"
-           class="btn-add">
-
-            + Tambah Unit
-
+    <div class="unit-breadcrumb">
+        <a href="{{ route('dashboard') }}">
+            Dashboard
         </a>
 
+        <span>/</span>
+
+        <strong>
+            Daftar Unit Kerja
+        </strong>
     </div>
 
-    <!-- TABLE -->
-    <table>
+    @if (session('success'))
+        <div class="unit-alert unit-alert-success">
+            <i class="bi bi-check-circle-fill"></i>
 
-        <thead>
+            <span>
+                {{ session('success') }}
+            </span>
+        </div>
+    @endif
 
-            <tr>
+    @if (session('error'))
+        <div class="unit-alert unit-alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i>
 
-                <th>No.</th>
-                <th>Nama Unit Kerja</th>
-                <th>Kategori</th>
-                <th>Aksi</th>
+            <span>
+                {{ session('error') }}
+            </span>
+        </div>
+    @endif
 
-            </tr>
+    <div class="unit-card">
 
-        </thead>
+        <div class="unit-card-header">
 
-        <tbody>
+            <div>
+                <h1>
+                    Daftar Unit Kerja
+                </h1>
 
-            @forelse($data as $item)
+                <p>
+                    Data Unit Kerja beserta user yang menjadi
+                    penanggung jawab.
+                </p>
+            </div>
 
-            <tr>
+            <a
+                href="{{ route('unit-kerja.create') }}"
+                class="unit-btn-add"
+            >
+                <i class="bi bi-plus-circle"></i>
 
-                <!-- nomor -->
-                <td>
-                    {{ $loop->iteration }}
-                </td>
+                Tambah Data
+            </a>
 
-                <!-- nama -->
-                <td>
-                    {{ $item->nama }}
-                </td>
+        </div>
 
-                <!-- kategori -->
-                <td>
-                    {{ $item->kategori_unit_kerja }}
-                </td>
+        <div class="unit-table-wrapper">
 
-                <!-- aksi -->
-                <td>
+            <table class="unit-table">
 
-                    <div class="action-buttons">
+                <thead>
+                    <tr>
+                        <th class="unit-col-no">
+                            No.
+                        </th>
 
-                        <!-- DETAIL -->
-                        <a href="{{ route('unit-kerja.show', $item->id) }}"
-                           class="btn-icon btn-detail">
+                        <th>
+                            Nama Unit Kerja
+                        </th>
 
-                            <i class="bi bi-eye"></i>
+                        <th>
+                            Kategori Unit Kerja
+                        </th>
 
-                        </a>
+                        <th>
+                            Nama User
+                        </th>
 
-                        <!-- EDIT -->
-                        <a href="{{ route('unit-kerja.edit', $item->id) }}"
-                           class="btn-icon btn-edit">
+                        <th class="unit-col-action">
+                            Aksi
+                        </th>
+                    </tr>
+                </thead>
 
-                            <i class="bi bi-pencil"></i>
+                <tbody>
 
-                        </a>
+                    @forelse ($data as $item)
 
-                        <!-- DELETE -->
-                        <form action="{{ route('unit-kerja.destroy', $item->id) }}"
-                              method="POST">
+                        <tr>
+                            <td class="unit-text-center">
+                                {{ $loop->iteration }}
+                            </td>
 
-                            @csrf
-                            @method('DELETE')
+                            <td>
+                                <strong class="unit-name">
+                                    {{ $item->nama }}
+                                </strong>
+                            </td>
 
-                            <button type="submit"
-                                    class="btn-icon btn-delete"
-                                    onclick="return confirm('Yakin hapus?')">
+                            <td>
+                                <span class="unit-category">
+                                    {{ $item->kategori_unit_kerja }}
+                                </span>
+                            </td>
 
-                                <i class="bi bi-trash"></i>
+                            <td>
+                                @if ($item->kepalaUnit)
 
-                            </button>
+                                    <div class="unit-user">
+                                        <div class="unit-user-icon">
+                                            <i class="bi bi-person"></i>
+                                        </div>
 
-                        </form>
+                                        <div>
+                                            <strong>
+                                                {{ $item->kepalaUnit->nama }}
+                                            </strong>
 
-                    </div>
+                                            <small>
+                                                {{ $item->kepalaUnit->email }}
+                                            </small>
+                                        </div>
+                                    </div>
 
-                </td>
+                                @else
 
-            </tr>
+                                    <span class="unit-user-empty">
+                                        Belum ditentukan
+                                    </span>
 
-            @empty
+                                @endif
+                            </td>
 
-            <tr>
+                            <td>
+                                <div class="unit-actions">
 
-                <td colspan="4"
-                    style="text-align:center;
-                           padding:15px;">
+                                    <a
+                                        href="{{ route('unit-kerja.show', $item->id) }}"
+                                        class="unit-action-btn unit-action-show"
+                                        title="Lihat"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </a>
 
-                    Data belum tersedia
+                                    <a
+                                        href="{{ route('unit-kerja.edit', $item->id) }}"
+                                        class="unit-action-btn unit-action-edit"
+                                        title="Edit penugasan"
+                                    >
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
 
-                </td>
+                                    <form
+                                        action="{{ route('unit-kerja.destroy', $item->id) }}"
+                                        method="POST"
+                                        class="unit-delete-form"
+                                        onsubmit="return confirm('Yakin ingin menghapus Unit Kerja ini?')"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
 
-            </tr>
+                                        <button
+                                            type="submit"
+                                            class="unit-action-btn unit-action-delete"
+                                            title="Hapus"
+                                        >
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
 
-            @endforelse
+                                </div>
+                            </td>
+                        </tr>
 
-        </tbody>
+                    @empty
 
-    </table>
+                        <tr>
+                            <td colspan="5">
+
+                                <div class="unit-empty">
+                                    <i class="bi bi-building"></i>
+
+                                    <strong>
+                                        Data Unit Kerja belum tersedia
+                                    </strong>
+                                </div>
+
+                            </td>
+                        </tr>
+
+                    @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 

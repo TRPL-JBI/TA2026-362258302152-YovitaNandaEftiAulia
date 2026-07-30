@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class JadwalAmi extends Model
 {
@@ -11,15 +12,36 @@ class JadwalAmi extends Model
     protected $fillable = [
         'id_periode_ami',
         'kegiatan',
-        'waktu'
+        'waktu',
     ];
 
     public $timestamps = false;
 
-    // =========================
-    // RELASI PERIODE AMI
-    // =========================
-    public function periode()
+    /*
+    |--------------------------------------------------------------------------
+    | PERIODE AMI
+    |--------------------------------------------------------------------------
+    |
+    | Nama relasi periodeAmi dipakai oleh controller Auditee.
+    |
+    */
+
+    public function periodeAmi(): BelongsTo
+    {
+        return $this->belongsTo(
+            PeriodeAmi::class,
+            'id_periode_ami'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ALIAS RELASI LAMA
+    |--------------------------------------------------------------------------
+    |
+    */
+
+    public function periode(): BelongsTo
     {
         return $this->belongsTo(
             PeriodeAmi::class,

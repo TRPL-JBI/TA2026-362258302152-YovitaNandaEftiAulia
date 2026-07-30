@@ -17,8 +17,8 @@
         Penerapan Standar
     </a>
 
-    <a href="{{ route('pertanyaan.index',$jadwal->id_periode_ami) }}">
-        Pertanyaan AMI
+    <a href="{{ route('penerapan.index') }}">
+        Penerapan Standar
     </a>
 
     <a href="{{ route('tim-ami.index',$jadwal->id_periode_ami) }}">
@@ -92,3 +92,6 @@
 </div>
 
 @endsection
+
+
+

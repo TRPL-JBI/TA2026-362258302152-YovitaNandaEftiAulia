@@ -37,8 +37,8 @@
 
                 <a href="{{ route('isi.show',$isiStandar->parent_standar_id) }}"
                    class="btn-secondary">
-
-                    â† Kembali
+                    <i class="bi bi-arrow-left"></i>
+                    Kembali
 
                 </a>
 

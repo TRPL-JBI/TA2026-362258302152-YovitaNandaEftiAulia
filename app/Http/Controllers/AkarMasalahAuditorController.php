@@ -10,21 +10,44 @@ class AkarMasalahAuditorController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | INDEX
+    | DAFTAR AKAR MASALAH
     |--------------------------------------------------------------------------
+    |
+    | Auditor hanya dapat melihat akar masalah dari periode AMI tempat
+    | dirinya terdaftar dalam tim_ami.
+    |
     */
 
     public function index()
     {
+        $auditorId = $this->getLoginAuditorId();
+
         $data = AkarMasalah::with([
+            'user',
 
             'temuan',
+            'temuan.penerapanStandar',
+            'temuan.penerapanStandar.user',
+            'temuan.penerapanStandar.indikator',
 
-            'user'
-
+            'temuan.penerapanStandar.standarmutuPeriode',
+            'temuan.penerapanStandar.standarmutuPeriode.standarMutu',
+            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi',
+            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.unitKerja',
+            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim',
+            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim.user',
         ])
-        ->orderBy('id','desc')
-        ->get();
+            ->whereHas(
+                'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim',
+                function ($query) use ($auditorId) {
+                    $query->where(
+                        'id_user',
+                        $auditorId
+                    );
+                }
+            )
+            ->orderByDesc('id')
+            ->get();
 
         return view(
             'auditor.akarmasalah.index',
@@ -34,16 +57,52 @@ class AkarMasalahAuditorController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | CREATE
+    | FORM TAMBAH AKAR MASALAH
     |--------------------------------------------------------------------------
+    |
+    | Pilihan temuan hanya berasal dari periode penugasan Auditor.
+    | Temuan dari periode yang sudah ditutup tidak ditampilkan.
+    |
     */
 
     public function create()
     {
-        $temuan = TemuanAmi::orderBy(
-            'id',
-            'desc'
-        )->get();
+        $auditorId = $this->getLoginAuditorId();
+
+        $temuan = TemuanAmi::with([
+            'penerapanStandar',
+            'penerapanStandar.user',
+            'penerapanStandar.indikator',
+
+            'penerapanStandar.standarmutuPeriode',
+            'penerapanStandar.standarmutuPeriode.standarMutu',
+            'penerapanStandar.standarmutuPeriode.periodeAmi',
+            'penerapanStandar.standarmutuPeriode.periodeAmi.unitKerja',
+        ])
+            ->whereHas(
+                'penerapanStandar.standarmutuPeriode.periodeAmi.tim',
+                function ($query) use ($auditorId) {
+                    $query->where(
+                        'id_user',
+                        $auditorId
+                    );
+                }
+            )
+            ->whereHas(
+                'penerapanStandar.standarmutuPeriode.periodeAmi',
+                function ($query) {
+                    $query->whereNotIn(
+                        'status',
+                        [
+                            'ditutup',
+                            'closed',
+                            'selesai',
+                        ]
+                    );
+                }
+            )
+            ->orderByDesc('id')
+            ->get();
 
         return view(
             'auditor.akarmasalah.create',
@@ -51,42 +110,84 @@ class AkarMasalahAuditorController extends Controller
         );
     }
 
-        /*
+    /*
     |--------------------------------------------------------------------------
-    | STORE
+    | SIMPAN AKAR MASALAH
     |--------------------------------------------------------------------------
     */
 
     public function store(Request $request)
     {
-        $request->validate([
+        $auditorId = $this->getLoginAuditorId();
 
-            'id_temuan'     => 'required|exists:temuan_ami,id',
+        $validated = $request->validate(
+            [
+                'id_temuan' => [
+                    'required',
+                    'integer',
+                    'exists:temuan_ami,id',
+                ],
 
-            'akar_masalah'  => 'required'
+                'akar_masalah' => [
+                    'required',
+                    'string',
+                    'max:10000',
+                ],
+            ],
+            [
+                'id_temuan.required' =>
+                    'Temuan wajib dipilih.',
 
-        ]);
+                'id_temuan.integer' =>
+                    'Temuan tidak valid.',
 
-        $user = session('user');
+                'id_temuan.exists' =>
+                    'Temuan tidak ditemukan.',
 
-        $idUser = is_array($user)
-            ? $user['id']
-            : $user->id;
+                'akar_masalah.required' =>
+                    'Akar masalah wajib diisi.',
+
+                'akar_masalah.string' =>
+                    'Akar masalah harus berupa teks.',
+
+                'akar_masalah.max' =>
+                    'Akar masalah maksimal 10.000 karakter.',
+            ]
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI TEMUAN DAN PENUGASAN
+        |--------------------------------------------------------------------------
+        |
+        | Temuan harus berasal dari periode tempat Auditor ditugaskan.
+        |
+        */
+
+        $temuan = $this->findAssignedTemuan(
+            (int) $validated['id_temuan'],
+            $auditorId
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | KUNCI PERIODE YANG SUDAH DITUTUP
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensurePeriodIsOpen($temuan);
 
         AkarMasalah::create([
+            'id_temuan' => $temuan->id,
 
-            'id_temuan'    => $request->id_temuan,
+            'akar_masalah' =>
+                trim($validated['akar_masalah']),
 
-            'akar_masalah' => $request->akar_masalah,
-
-            'id_user'      => $idUser
-
+            'id_user' => $auditorId,
         ]);
 
         return redirect()
-
             ->route('auditor.akarmasalah.index')
-
             ->with(
                 'success',
                 'Akar Masalah berhasil ditambahkan.'
@@ -95,19 +196,18 @@ class AkarMasalahAuditorController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | SHOW
+    | DETAIL AKAR MASALAH
     |--------------------------------------------------------------------------
     */
 
     public function show($id)
     {
-        $data = AkarMasalah::with([
+        $auditorId = $this->getLoginAuditorId();
 
-            'temuan',
-
-            'user'
-
-        ])->findOrFail($id);
+        $data = $this->findAssignedAkarMasalah(
+            (int) $id,
+            $auditorId
+        );
 
         return view(
             'auditor.akarmasalah.show',
@@ -115,20 +215,71 @@ class AkarMasalahAuditorController extends Controller
         );
     }
 
-        /*
+    /*
     |--------------------------------------------------------------------------
-    | EDIT
+    | FORM EDIT AKAR MASALAH
     |--------------------------------------------------------------------------
     */
 
     public function edit($id)
     {
-        $data = AkarMasalah::findOrFail($id);
+        $auditorId = $this->getLoginAuditorId();
 
-        $temuan = TemuanAmi::orderBy(
-            'id',
-            'desc'
-        )->get();
+        $data = $this->findAssignedAkarMasalah(
+            (int) $id,
+            $auditorId
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA DIKUNCI JIKA PERIODE DITUTUP
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensurePeriodIsOpen(
+            $data->temuan
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | PILIHAN TEMUAN YANG BOLEH DIGUNAKAN
+        |--------------------------------------------------------------------------
+        */
+
+        $temuan = TemuanAmi::with([
+            'penerapanStandar',
+            'penerapanStandar.user',
+            'penerapanStandar.indikator',
+
+            'penerapanStandar.standarmutuPeriode',
+            'penerapanStandar.standarmutuPeriode.standarMutu',
+            'penerapanStandar.standarmutuPeriode.periodeAmi',
+            'penerapanStandar.standarmutuPeriode.periodeAmi.unitKerja',
+        ])
+            ->whereHas(
+                'penerapanStandar.standarmutuPeriode.periodeAmi.tim',
+                function ($query) use ($auditorId) {
+                    $query->where(
+                        'id_user',
+                        $auditorId
+                    );
+                }
+            )
+            ->whereHas(
+                'penerapanStandar.standarmutuPeriode.periodeAmi',
+                function ($query) {
+                    $query->whereNotIn(
+                        'status',
+                        [
+                            'ditutup',
+                            'closed',
+                            'selesai',
+                        ]
+                    );
+                }
+            )
+            ->orderByDesc('id')
+            ->get();
 
         return view(
             'auditor.akarmasalah.edit',
@@ -141,34 +292,91 @@ class AkarMasalahAuditorController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | UPDATE
+    | UPDATE AKAR MASALAH
     |--------------------------------------------------------------------------
     */
 
-    public function update(Request $request, $id)
-    {
-        $request->validate([
+    public function update(
+        Request $request,
+        $id
+    ) {
+        $auditorId = $this->getLoginAuditorId();
 
-            'id_temuan'     => 'required|exists:temuan_ami,id',
+        $data = $this->findAssignedAkarMasalah(
+            (int) $id,
+            $auditorId
+        );
 
-            'akar_masalah'  => 'required'
+        /*
+        |--------------------------------------------------------------------------
+        | PERIODE ASAL HARUS MASIH TERBUKA
+        |--------------------------------------------------------------------------
+        */
 
-        ]);
+        $this->ensurePeriodIsOpen(
+            $data->temuan
+        );
 
-        $data = AkarMasalah::findOrFail($id);
+        $validated = $request->validate(
+            [
+                'id_temuan' => [
+                    'required',
+                    'integer',
+                    'exists:temuan_ami,id',
+                ],
+
+                'akar_masalah' => [
+                    'required',
+                    'string',
+                    'max:10000',
+                ],
+            ],
+            [
+                'id_temuan.required' =>
+                    'Temuan wajib dipilih.',
+
+                'id_temuan.integer' =>
+                    'Temuan tidak valid.',
+
+                'id_temuan.exists' =>
+                    'Temuan tidak ditemukan.',
+
+                'akar_masalah.required' =>
+                    'Akar masalah wajib diisi.',
+
+                'akar_masalah.string' =>
+                    'Akar masalah harus berupa teks.',
+
+                'akar_masalah.max' =>
+                    'Akar masalah maksimal 10.000 karakter.',
+            ]
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | TEMUAN TUJUAN JUGA HARUS MILIK PENUGASAN AUDITOR
+        |--------------------------------------------------------------------------
+        */
+
+        $temuanTujuan = $this->findAssignedTemuan(
+            (int) $validated['id_temuan'],
+            $auditorId
+        );
+
+        $this->ensurePeriodIsOpen(
+            $temuanTujuan
+        );
 
         $data->update([
+            'id_temuan' =>
+                $temuanTujuan->id,
 
-            'id_temuan'    => $request->id_temuan,
-
-            'akar_masalah' => $request->akar_masalah
-
+            'akar_masalah' =>
+                trim($validated['akar_masalah']),
         ]);
 
         return redirect()
-
             ->route('auditor.akarmasalah.index')
-
             ->with(
                 'success',
                 'Akar Masalah berhasil diperbarui.'
@@ -177,23 +385,185 @@ class AkarMasalahAuditorController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | DESTROY
+    | HAPUS AKAR MASALAH
     |--------------------------------------------------------------------------
     */
 
     public function destroy($id)
     {
-        $data = AkarMasalah::findOrFail($id);
+        $auditorId = $this->getLoginAuditorId();
+
+        $data = $this->findAssignedAkarMasalah(
+            (int) $id,
+            $auditorId
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | TIDAK BOLEH DIHAPUS JIKA PERIODE SUDAH DITUTUP
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensurePeriodIsOpen(
+            $data->temuan
+        );
 
         $data->delete();
 
         return redirect()
-
             ->route('auditor.akarmasalah.index')
-
             ->with(
                 'success',
                 'Akar Masalah berhasil dihapus.'
             );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CARI AKAR MASALAH DALAM PENUGASAN AUDITOR
+    |--------------------------------------------------------------------------
+    */
+
+    private function findAssignedAkarMasalah(
+        int $id,
+        int $auditorId
+    ): AkarMasalah {
+        return AkarMasalah::with([
+            'user',
+
+            'temuan',
+            'temuan.penerapanStandar',
+            'temuan.penerapanStandar.user',
+            'temuan.penerapanStandar.indikator',
+
+            'temuan.penerapanStandar.standarmutuPeriode',
+            'temuan.penerapanStandar.standarmutuPeriode.standarMutu',
+            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi',
+            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.unitKerja',
+            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim',
+            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim.user',
+        ])
+            ->whereHas(
+                'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim',
+                function ($query) use ($auditorId) {
+                    $query->where(
+                        'id_user',
+                        $auditorId
+                    );
+                }
+            )
+            ->findOrFail($id);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CARI TEMUAN DALAM PENUGASAN AUDITOR
+    |--------------------------------------------------------------------------
+    */
+
+    private function findAssignedTemuan(
+        int $id,
+        int $auditorId
+    ): TemuanAmi {
+        return TemuanAmi::with([
+            'penerapanStandar',
+            'penerapanStandar.user',
+            'penerapanStandar.indikator',
+
+            'penerapanStandar.standarmutuPeriode',
+            'penerapanStandar.standarmutuPeriode.standarMutu',
+            'penerapanStandar.standarmutuPeriode.periodeAmi',
+            'penerapanStandar.standarmutuPeriode.periodeAmi.unitKerja',
+            'penerapanStandar.standarmutuPeriode.periodeAmi.tim',
+            'penerapanStandar.standarmutuPeriode.periodeAmi.tim.user',
+        ])
+            ->whereHas(
+                'penerapanStandar.standarmutuPeriode.periodeAmi.tim',
+                function ($query) use ($auditorId) {
+                    $query->where(
+                        'id_user',
+                        $auditorId
+                    );
+                }
+            )
+            ->findOrFail($id);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PASTIKAN PERIODE MASIH DAPAT DIUBAH
+    |--------------------------------------------------------------------------
+    */
+
+    private function ensurePeriodIsOpen(
+        TemuanAmi $temuan
+    ): void {
+        $periode = $temuan
+            ->penerapanStandar
+            ?->standarmutuPeriode
+            ?->periodeAmi;
+
+        abort_if(
+            !$periode,
+            404,
+            'Periode AMI dari temuan tidak ditemukan.'
+        );
+
+        $status = strtolower(
+            trim((string) $periode->status)
+        );
+
+        abort_if(
+            in_array(
+                $status,
+                [
+                    'ditutup',
+                    'closed',
+                    'selesai',
+                ],
+                true
+            ),
+            403,
+            'Data tidak dapat diubah karena periode AMI sudah ditutup.'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL ID AUDITOR YANG LOGIN
+    |--------------------------------------------------------------------------
+    */
+
+    private function getLoginAuditorId(): int
+    {
+        $user = session('user');
+
+        abort_if(
+            !$user,
+            401,
+            'Sesi pengguna tidak ditemukan. Silakan login kembali.'
+        );
+
+        $userId = is_array($user)
+            ? ($user['id'] ?? null)
+            : ($user->id ?? null);
+
+        $role = is_array($user)
+            ? ($user['role'] ?? null)
+            : ($user->role ?? null);
+
+        abort_if(
+            !$userId,
+            401,
+            'ID pengguna pada sesi tidak ditemukan.'
+        );
+
+        abort_unless(
+            $role === 'auditor',
+            403,
+            'Halaman ini hanya dapat diakses oleh Auditor.'
+        );
+
+        return (int) $userId;
     }
 }

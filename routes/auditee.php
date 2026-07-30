@@ -16,42 +16,61 @@ use App\Http\Controllers\AuditeeMasterAuditController;
 
 Route::middleware([
     'auth.session',
-    'auditee'
+    'auditee',
 ])
-->prefix('auditee')
-->group(function () {
+    ->prefix('auditee')
+    ->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | DASHBOARD
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | DASHBOARD
+        |--------------------------------------------------------------------------
+        */
 
-    Route::get(
-    '/dashboard',
-    [DashboardAuditeeController::class, 'index']
-)->name('dashboard.auditee');
+        Route::get(
+            '/dashboard',
+            [DashboardAuditeeController::class, 'index']
+        )->name('dashboard.auditee');
 
-/*
-|--------------------------------------------------------------------------
-| STANDAR MUTU
-|--------------------------------------------------------------------------
-*/
+        /*
+        |--------------------------------------------------------------------------
+        | STANDAR MUTU
+        |--------------------------------------------------------------------------
+        |
+        | Route utama untuk membuka detail standar mutu Auditee.
+        |
+        */
 
-Route::get(
-    '/standar/{id}',
-    [AuditeeStandarController::class,'index']
-)->name('auditee.standar.index');
-
-/*
-|--------------------------------------------------------------------------
-| PENERAPAN STANDAR
-|--------------------------------------------------------------------------
-*/
-Route::get(
-            '/standar-mutu/{id}',
+        Route::get(
+            '/standar/{id}',
             [AuditeeStandarController::class, 'index']
         )->name('auditee.standar.index');
+
+        /*
+        |--------------------------------------------------------------------------
+        | ALIAS URL LAMA
+        |--------------------------------------------------------------------------
+        |
+        | URL /standar-mutu/{id} tetap dapat dipakai, tetapi diarahkan ke
+        | route utama agar tidak ada nama route yang duplikat.
+        |
+        */
+
+        Route::get(
+            '/standar-mutu/{id}',
+            function ($id) {
+                return redirect()->route(
+                    'auditee.standar.index',
+                    $id
+                );
+            }
+        )->name('auditee.standar.legacy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | PENERAPAN STANDAR
+        |--------------------------------------------------------------------------
+        */
 
         Route::get(
             '/penerapan/create/{standar}',
@@ -78,13 +97,13 @@ Route::get(
             [AuditeePenerapanController::class, 'destroy']
         )->name('auditee.penerapan.destroy');
 
-/*
-|--------------------------------------------------------------------------
-| TANGGAPAN AUDITEE
-|--------------------------------------------------------------------------
-*/
+        /*
+        |--------------------------------------------------------------------------
+        | TEMUAN DAN TANGGAPAN AUDITEE
+        |--------------------------------------------------------------------------
+        */
 
-Route::get(
+        Route::get(
             '/temuan',
             [AuditeeTanggapanController::class, 'index']
         )->name('auditee.temuan.index');
@@ -120,38 +139,38 @@ Route::get(
         )->name('auditee.tanggapan.destroy');
 
         /*
-|--------------------------------------------------------------------------
-| MASTER AUDIT AMI UNTUK AUDITEE - VIEW ONLY
-|--------------------------------------------------------------------------
-*/
+        |--------------------------------------------------------------------------
+        | MASTER AUDIT AMI AUDITEE — VIEW ONLY
+        |--------------------------------------------------------------------------
+        */
 
-Route::get(
-    '/audit-ami/temuan',
-    [AuditeeMasterAuditController::class, 'temuanIndex']
-)->name('auditee.audit.temuan.index');
+        Route::get(
+            '/audit-ami/temuan',
+            [AuditeeMasterAuditController::class, 'temuanIndex']
+        )->name('auditee.audit.temuan.index');
 
-Route::get(
-    '/audit-ami/temuan/{id}',
-    [AuditeeMasterAuditController::class, 'temuanShow']
-)->name('auditee.audit.temuan.show');
+        Route::get(
+            '/audit-ami/temuan/{id}',
+            [AuditeeMasterAuditController::class, 'temuanShow']
+        )->name('auditee.audit.temuan.show');
 
-Route::get(
-    '/audit-ami/tim',
-    [AuditeeMasterAuditController::class, 'timIndex']
-)->name('auditee.audit.tim.index');
+        Route::get(
+            '/audit-ami/tim',
+            [AuditeeMasterAuditController::class, 'timIndex']
+        )->name('auditee.audit.tim.index');
 
-Route::get(
-    '/audit-ami/tim/{id}',
-    [AuditeeMasterAuditController::class, 'timShow']
-)->name('auditee.audit.tim.show');
+        Route::get(
+            '/audit-ami/tim/{id}',
+            [AuditeeMasterAuditController::class, 'timShow']
+        )->name('auditee.audit.tim.show');
 
-Route::get(
-    '/audit-ami/jadwal',
-    [AuditeeMasterAuditController::class, 'jadwalIndex']
-)->name('auditee.audit.jadwal.index');
+        Route::get(
+            '/audit-ami/jadwal',
+            [AuditeeMasterAuditController::class, 'jadwalIndex']
+        )->name('auditee.audit.jadwal.index');
 
-Route::get(
-    '/audit-ami/jadwal/{id}',
-    [AuditeeMasterAuditController::class, 'jadwalShow']
-)->name('auditee.audit.jadwal.show');
+        Route::get(
+            '/audit-ami/jadwal/{id}',
+            [AuditeeMasterAuditController::class, 'jadwalShow']
+        )->name('auditee.audit.jadwal.show');
     });

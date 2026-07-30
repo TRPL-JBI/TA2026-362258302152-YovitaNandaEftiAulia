@@ -1,0 +1,694 @@
+/*
+|--------------------------------------------------------------------------
+| HALAMAN TEMUAN AUDITOR — ALUR AUDIT DALAM TABEL
+|--------------------------------------------------------------------------
+|
+| File ini hanya menambahkan tampilan untuk:
+|
+| - Temuan Audit
+| - Tanggapan Auditee
+| - Akar Masalah
+| - Rekomendasi Peningkatan
+| - Kesimpulan Periode
+| - Lampiran Periode
+|
+| CSS Status Penerapan, Status Temuan, dan Aksi lama tidak diubah.
+|
+|--------------------------------------------------------------------------
+*/
+
+/*
+|--------------------------------------------------------------------------
+| LEBAR TABEL DAN SCROLL HORIZONTAL
+|--------------------------------------------------------------------------
+*/
+
+.auditor-temuan-table-wrap {
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-bottom: 10px;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 #e9eef5;
+}
+
+.auditor-temuan-table-wrap::-webkit-scrollbar {
+    height: 12px;
+}
+
+.auditor-temuan-table-wrap::-webkit-scrollbar-track {
+    background: #e9eef5;
+    border-radius: 999px;
+}
+
+.auditor-temuan-table-wrap::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border: 3px solid #e9eef5;
+    border-radius: 999px;
+}
+
+.auditor-temuan-table-wrap::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+.auditor-temuan-table.audit-flow-table {
+    width: max-content;
+    min-width: 3400px;
+    table-layout: fixed;
+}
+
+/*
+|--------------------------------------------------------------------------
+| PETUNJUK SCROLL
+|--------------------------------------------------------------------------
+*/
+
+.audit-scroll-hint {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 8px 13px;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    background: #f8fafc;
+    border: 1px solid #dbe3ef;
+    border-radius: 10px;
+}
+
+.audit-scroll-hint i {
+    color: #2563eb;
+    font-size: 15px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| UKURAN KOLOM LAMA
+|--------------------------------------------------------------------------
+|
+| Ukuran ini hanya membantu menjaga tabel tetap sejajar.
+| Logika dan isi kolom lama tidak berubah.
+|
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-table .column-number {
+    width: 65px;
+    min-width: 65px;
+    max-width: 65px;
+}
+
+.audit-flow-table th:nth-child(2),
+.audit-flow-table td:nth-child(2) {
+    width: 230px;
+    min-width: 230px;
+    max-width: 230px;
+}
+
+.audit-flow-table th:nth-child(3),
+.audit-flow-table td:nth-child(3) {
+    width: 170px;
+    min-width: 170px;
+    max-width: 170px;
+}
+
+.audit-flow-table th:nth-child(4),
+.audit-flow-table td:nth-child(4) {
+    width: 190px;
+    min-width: 190px;
+    max-width: 190px;
+}
+
+.audit-flow-table .column-indicator {
+    width: 290px;
+    min-width: 290px;
+    max-width: 290px;
+}
+
+.audit-flow-table th:nth-child(6),
+.audit-flow-table td:nth-child(6) {
+    width: 170px;
+    min-width: 170px;
+    max-width: 170px;
+}
+
+.audit-flow-table th:nth-child(7),
+.audit-flow-table td:nth-child(7) {
+    width: 230px;
+    min-width: 230px;
+    max-width: 230px;
+}
+
+.audit-flow-table th:nth-child(8),
+.audit-flow-table td:nth-child(8) {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| HEADER KOLOM BARU
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-heading {
+    width: 225px;
+    min-width: 225px;
+    max-width: 225px;
+    padding: 15px 12px !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    line-height: 1.45 !important;
+    text-align: left !important;
+    text-transform: uppercase;
+    letter-spacing: 0.035em;
+    white-space: normal !important;
+    border-bottom-width: 2px !important;
+}
+
+.heading-finding {
+    color: #b91c1c !important;
+    background: #fff1f2 !important;
+    border-bottom-color: #f87171 !important;
+}
+
+.heading-response {
+    color: #075985 !important;
+    background: #f0f9ff !important;
+    border-bottom-color: #38bdf8 !important;
+}
+
+.heading-root {
+    color: #92400e !important;
+    background: #fffbeb !important;
+    border-bottom-color: #fbbf24 !important;
+}
+
+.heading-recommendation {
+    color: #166534 !important;
+    background: #f0fdf4 !important;
+    border-bottom-color: #4ade80 !important;
+}
+
+.heading-conclusion {
+    color: #6d28d9 !important;
+    background: #faf5ff !important;
+    border-bottom-color: #c084fc !important;
+}
+
+.heading-attachment {
+    color: #0f766e !important;
+    background: #f0fdfa !important;
+    border-bottom-color: #2dd4bf !important;
+}
+
+/*
+|--------------------------------------------------------------------------
+| KOLOM BARU
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-column {
+    width: 225px;
+    min-width: 225px;
+    max-width: 225px;
+    padding: 11px !important;
+    vertical-align: top !important;
+    background: #ffffff;
+}
+
+.audit-flow-cell,
+.audit-flow-empty {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 150px;
+    padding: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.035);
+}
+
+.audit-flow-cell-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.audit-flow-cell p {
+    display: -webkit-box;
+    min-height: 57px;
+    margin: 10px 0 12px;
+    overflow: hidden;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.audit-flow-subtitle {
+    display: -webkit-box;
+    margin-top: 9px;
+    overflow: hidden;
+    color: #1e293b;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+/*
+|--------------------------------------------------------------------------
+| LABEL KOLOM
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    max-width: 100%;
+    min-height: 26px;
+    padding: 5px 9px;
+    overflow: hidden;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.035em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border: 1px solid transparent;
+    border-radius: 999px;
+}
+
+.audit-flow-label i {
+    flex: 0 0 auto;
+    font-size: 11px;
+}
+
+.label-finding {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.label-response {
+    color: #0369a1;
+    background: #f0f9ff;
+    border-color: #bae6fd;
+}
+
+.label-root {
+    color: #a16207;
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+
+.label-recommendation {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.label-conclusion {
+    color: #6d28d9;
+    background: #faf5ff;
+    border-color: #e9d5ff;
+}
+
+.label-attachment {
+    color: #0f766e;
+    background: #f0fdfa;
+    border-color: #99f6e4;
+}
+
+/*
+|--------------------------------------------------------------------------
+| EMPTY STATE DALAM KOLOM
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-empty {
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #94a3b8;
+    text-align: center;
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    border-style: dashed;
+    box-shadow: none;
+}
+
+.audit-flow-empty > i {
+    color: #94a3b8;
+    font-size: 22px;
+}
+
+.audit-flow-empty > span {
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+.audit-flow-empty > small {
+    display: block;
+    color: #94a3b8;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+/*
+|--------------------------------------------------------------------------
+| TOMBOL DALAM KOLOM BARU
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: auto;
+}
+
+.audit-flow-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 29px;
+    padding: 6px 9px;
+    color: #475569;
+    font-size: 8px;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    white-space: nowrap;
+    background: #ffffff;
+    border: 1px solid #dbe3ef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition:
+        color 0.18s ease,
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.18s ease;
+}
+
+.audit-flow-button:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.audit-flow-button i {
+    font-size: 10px;
+}
+
+.audit-flow-button.button-view {
+    color: #0369a1;
+    background: #f0f9ff;
+    border-color: #bae6fd;
+}
+
+.audit-flow-button.button-view:hover {
+    color: #ffffff;
+    background: #0284c7;
+    border-color: #0284c7;
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);
+}
+
+.audit-flow-button.button-edit {
+    color: #b45309;
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+
+.audit-flow-button.button-edit:hover {
+    color: #ffffff;
+    background: #d97706;
+    border-color: #d97706;
+    box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
+}
+
+.audit-flow-button.button-create {
+    color: #ffffff;
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.audit-flow-button.button-create:hover {
+    color: #ffffff;
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.24);
+}
+
+.audit-flow-button.button-neutral {
+    color: #475569;
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.audit-flow-button.button-neutral:hover {
+    color: #ffffff;
+    background: #475569;
+    border-color: #475569;
+}
+
+/*
+|--------------------------------------------------------------------------
+| BARIS TABEL
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-table tbody tr {
+    transition:
+        background-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.audit-flow-table tbody tr:hover {
+    background: #fbfdff;
+}
+
+.audit-flow-table tbody tr:hover .audit-flow-cell {
+    border-color: #cbd5e1;
+    box-shadow: 0 5px 15px rgba(15, 23, 42, 0.055);
+}
+
+/*
+|--------------------------------------------------------------------------
+| KOLOM STATUS DAN AKSI LAMA
+|--------------------------------------------------------------------------
+|
+| Kolom ke-15, ke-16, dan ke-17 adalah:
+|
+| - Status Penerapan
+| - Status Temuan
+| - Aksi
+|
+| Di sini hanya diatur lebarnya, bukan warna atau logikanya.
+|
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-table th:nth-child(15),
+.audit-flow-table td:nth-child(15) {
+    width: 170px;
+    min-width: 170px;
+    max-width: 170px;
+}
+
+.audit-flow-table th:nth-child(16),
+.audit-flow-table td:nth-child(16) {
+    width: 155px;
+    min-width: 155px;
+    max-width: 155px;
+}
+
+.audit-flow-table th:nth-child(17),
+.audit-flow-table td:nth-child(17) {
+    width: 175px;
+    min-width: 175px;
+    max-width: 175px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| STICKY HEADER
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+/*
+|--------------------------------------------------------------------------
+| STICKY KOLOM NOMOR DAN INDIKATOR
+|--------------------------------------------------------------------------
+|
+| Nomor dan indikator tetap terlihat saat tabel digeser.
+| Kolom lama lain tetap ikut bergeser.
+|
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-table th.column-number,
+.audit-flow-table td.column-number {
+    position: sticky;
+    left: 0;
+    z-index: 8;
+    background: #ffffff;
+}
+
+.audit-flow-table thead th.column-number {
+    z-index: 12;
+}
+
+.audit-flow-table th.column-indicator,
+.audit-flow-table td.column-indicator {
+    position: sticky;
+    left: 65px;
+    z-index: 7;
+    background: #ffffff;
+    box-shadow: 5px 0 10px rgba(15, 23, 42, 0.06);
+}
+
+.audit-flow-table thead th.column-indicator {
+    z-index: 11;
+}
+
+/*
+|--------------------------------------------------------------------------
+| PERBAIKAN STICKY SAAT HOVER
+|--------------------------------------------------------------------------
+*/
+
+.audit-flow-table tbody tr:hover td.column-number,
+.audit-flow-table tbody tr:hover td.column-indicator {
+    background: #fbfdff;
+}
+
+/*
+|--------------------------------------------------------------------------
+| EMPTY TABLE
+|--------------------------------------------------------------------------
+*/
+
+.auditor-empty-table {
+    width: 100%;
+    padding: 45px 25px !important;
+    text-align: center;
+}
+
+.auditor-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: 430px;
+    margin: 0 auto;
+    color: #64748b;
+}
+
+.auditor-empty-state > i {
+    color: #94a3b8;
+    font-size: 38px;
+}
+
+.auditor-empty-state > strong {
+    color: #334155;
+    font-size: 15px;
+}
+
+.auditor-empty-state > span {
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVE
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 1200px) {
+    .auditor-temuan-table.audit-flow-table {
+        min-width: 3250px;
+    }
+
+    .audit-flow-heading,
+    .audit-flow-column {
+        width: 210px;
+        min-width: 210px;
+        max-width: 210px;
+    }
+}
+
+@media (max-width: 768px) {
+    .audit-scroll-hint {
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    .auditor-temuan-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .auditor-temuan-table.audit-flow-table {
+        min-width: 3150px;
+    }
+
+    .audit-flow-heading,
+    .audit-flow-column {
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
+    }
+
+    .audit-flow-cell,
+    .audit-flow-empty {
+        min-height: 142px;
+        padding: 10px;
+    }
+
+    .audit-flow-cell p {
+        font-size: 10px;
+    }
+
+    .audit-flow-table .column-indicator {
+        width: 245px;
+        min-width: 245px;
+        max-width: 245px;
+    }
+}

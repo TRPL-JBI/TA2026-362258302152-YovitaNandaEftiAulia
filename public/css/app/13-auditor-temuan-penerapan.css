@@ -1,0 +1,933 @@
+/*
+|--------------------------------------------------------------------------
+| HALAMAN TEMUAN AUDIT
+|--------------------------------------------------------------------------
+*/
+
+.auditor-temuan-page {
+    width: 100%;
+    color: #1e293b;
+}
+
+/*
+|--------------------------------------------------------------------------
+| HEADER HALAMAN
+|--------------------------------------------------------------------------
+*/
+
+.auditor-temuan-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 178px;
+    margin-bottom: 26px;
+    padding: 30px 32px;
+    overflow: hidden;
+    color: #ffffff;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(255, 255, 255, 0.2),
+            transparent 32%
+        ),
+        linear-gradient(
+            135deg,
+            #172554 0%,
+            #1d4ed8 55%,
+            #2563eb 100%
+        );
+    border-radius: 22px;
+    box-shadow: 0 18px 45px rgba(30, 64, 175, 0.18);
+}
+
+.auditor-temuan-header::before {
+    position: absolute;
+    right: -48px;
+    bottom: -78px;
+    width: 230px;
+    height: 230px;
+    content: "";
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+}
+
+.auditor-temuan-header::after {
+    position: absolute;
+    top: -55px;
+    right: 155px;
+    width: 140px;
+    height: 140px;
+    content: "";
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+}
+
+.auditor-temuan-header-content {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+}
+
+.auditor-temuan-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+    color: #bfdbfe;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+}
+
+.auditor-temuan-eyebrow::before {
+    width: 24px;
+    height: 2px;
+    content: "";
+    background: #93c5fd;
+    border-radius: 999px;
+}
+
+.auditor-temuan-header h2 {
+    margin: 0 0 10px;
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.auditor-temuan-header p {
+    max-width: 720px;
+    margin: 0;
+    color: #dbeafe;
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.auditor-temuan-header-icon {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex: 0 0 82px;
+    align-items: center;
+    justify-content: center;
+    width: 82px;
+    height: 82px;
+    color: #ffffff;
+    font-size: 35px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 24px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+}
+
+/*
+|--------------------------------------------------------------------------
+| ALERT
+|--------------------------------------------------------------------------
+*/
+
+.auditor-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 15px 17px;
+    font-size: 13px;
+    line-height: 1.6;
+    border: 1px solid transparent;
+    border-radius: 14px;
+}
+
+.auditor-alert > i {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    font-size: 18px;
+}
+
+.auditor-alert strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.auditor-alert ul {
+    margin: 7px 0 0;
+    padding-left: 20px;
+}
+
+.auditor-alert-success {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.auditor-alert-danger {
+    color: #991b1b;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+/*
+|--------------------------------------------------------------------------
+| STATISTIK
+|--------------------------------------------------------------------------
+*/
+
+.auditor-temuan-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.auditor-temuan-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 17px;
+    box-shadow: 0 7px 22px rgba(15, 23, 42, 0.045);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.auditor-temuan-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 13px 30px rgba(15, 23, 42, 0.08);
+}
+
+.auditor-temuan-stat-icon {
+    display: flex;
+    flex: 0 0 49px;
+    align-items: center;
+    justify-content: center;
+    width: 49px;
+    height: 49px;
+    font-size: 21px;
+    border-radius: 14px;
+}
+
+.auditor-temuan-stat-icon.stat-blue {
+    color: #1d4ed8;
+    background: #dbeafe;
+}
+
+.auditor-temuan-stat-icon.stat-green {
+    color: #15803d;
+    background: #dcfce7;
+}
+
+.auditor-temuan-stat-icon.stat-orange {
+    color: #c2410c;
+    background: #ffedd5;
+}
+
+.auditor-temuan-stat-icon.stat-purple {
+    color: #7e22ce;
+    background: #f3e8ff;
+}
+
+.auditor-temuan-stat-content {
+    min-width: 0;
+}
+
+.auditor-temuan-stat-content span {
+    display: block;
+    margin-bottom: 3px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.auditor-temuan-stat-content strong {
+    display: block;
+    margin-bottom: 2px;
+    color: #0f172a;
+    font-size: 25px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.auditor-temuan-stat-content small {
+    display: block;
+    color: #94a3b8;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/*
+|--------------------------------------------------------------------------
+| INFORMASI HAK AKSES
+|--------------------------------------------------------------------------
+*/
+
+.auditor-temuan-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 22px;
+    padding: 17px 18px;
+    color: #1e40af;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 16px;
+}
+
+.auditor-temuan-info-icon {
+    display: flex;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    color: #1d4ed8;
+    font-size: 18px;
+    background: #dbeafe;
+    border-radius: 11px;
+}
+
+.auditor-temuan-info-content {
+    min-width: 0;
+}
+
+.auditor-temuan-info strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #1e3a8a;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.auditor-temuan-info p {
+    margin: 0;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+/*
+|--------------------------------------------------------------------------
+| KARTU TABEL
+|--------------------------------------------------------------------------
+*/
+
+.auditor-temuan-card {
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 19px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.055);
+}
+
+.auditor-temuan-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 21px 23px;
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #f8fafc 100%
+        );
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.auditor-temuan-section-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #2563eb;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+.auditor-temuan-card-header h3 {
+    margin: 0 0 4px;
+    color: #172033;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.auditor-temuan-card-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+/*
+|--------------------------------------------------------------------------
+| TABLE WRAPPER
+|--------------------------------------------------------------------------
+*/
+
+.auditor-temuan-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.auditor-temuan-table-wrap::-webkit-scrollbar {
+    height: 9px;
+}
+
+.auditor-temuan-table-wrap::-webkit-scrollbar-track {
+    background: #f8fafc;
+}
+
+.auditor-temuan-table-wrap::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border: 2px solid #f8fafc;
+    border-radius: 999px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| TABEL
+|--------------------------------------------------------------------------
+*/
+
+.auditor-temuan-table {
+    width: 100%;
+    min-width: 1650px;
+    border-collapse: collapse;
+}
+
+.auditor-temuan-table thead th {
+    padding: 14px 13px;
+    color: #475569;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.4;
+    text-align: left;
+    vertical-align: middle;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.auditor-temuan-table tbody td {
+    padding: 15px 13px;
+    color: #334155;
+    font-size: 12px;
+    line-height: 1.55;
+    vertical-align: top;
+    background: #ffffff;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.auditor-temuan-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.auditor-temuan-table tbody tr {
+    transition: background 0.18s ease;
+}
+
+.auditor-temuan-table tbody tr:hover td {
+    background: #fbfdff;
+}
+
+.auditor-temuan-table .column-number {
+    width: 58px;
+    text-align: center;
+}
+
+.auditor-temuan-table .column-action {
+    min-width: 185px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| NOMOR
+|--------------------------------------------------------------------------
+*/
+
+.auditor-table-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 800;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| TEKS TABEL
+|--------------------------------------------------------------------------
+*/
+
+.auditor-table-main-text {
+    min-width: 185px;
+}
+
+.auditor-table-main-text strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #1e293b;
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1.55;
+}
+
+.auditor-table-main-text span {
+    display: block;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.auditor-indikator-text,
+.auditor-result-text {
+    min-width: 210px;
+    max-width: 320px;
+    color: #475569;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.auditor-result-text {
+    min-width: 180px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| HIERARKI STANDAR
+|--------------------------------------------------------------------------
+*/
+
+.auditor-hierarchy-badge {
+    display: inline-flex;
+    align-items: center;
+    max-width: 190px;
+    padding: 6px 9px;
+    color: #1d4ed8;
+    font-size: 10px;
+    font-weight: 750;
+    line-height: 1.45;
+    white-space: normal;
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 9px;
+}
+
+.auditor-sub-hierarchy {
+    display: block;
+    min-width: 165px;
+    max-width: 230px;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+/*
+|--------------------------------------------------------------------------
+| AUDITEE
+|--------------------------------------------------------------------------
+*/
+
+.auditor-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 150px;
+}
+
+.auditor-user-avatar {
+    display: flex;
+    flex: 0 0 34px;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 800;
+    background: #dbeafe;
+    border-radius: 10px;
+}
+
+.auditor-user-cell strong {
+    display: block;
+    margin-bottom: 1px;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.auditor-user-cell span {
+    display: block;
+    color: #94a3b8;
+    font-size: 9px;
+    font-weight: 650;
+}
+
+/*
+|--------------------------------------------------------------------------
+| NILAI KOSONG
+|--------------------------------------------------------------------------
+*/
+
+.auditor-empty-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: max-content;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 650;
+}
+
+.auditor-empty-value i {
+    font-size: 12px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| TOMBOL BUKTI
+|--------------------------------------------------------------------------
+*/
+
+.auditor-evidence-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: max-content;
+    padding: 7px 10px;
+    color: #0369a1;
+    font-size: 10px;
+    font-weight: 750;
+    text-decoration: none;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 9px;
+    transition:
+        color 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.auditor-evidence-button:hover {
+    color: #ffffff;
+    text-decoration: none;
+    background: #0284c7;
+    border-color: #0284c7;
+    transform: translateY(-1px);
+}
+
+/*
+|--------------------------------------------------------------------------
+| STATUS
+|--------------------------------------------------------------------------
+*/
+
+.auditor-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-width: max-content;
+    padding: 6px 9px;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.035em;
+    border: 1px solid transparent;
+    border-radius: 999px;
+}
+
+.auditor-status small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    font-size: 8px;
+    border-radius: 999px;
+}
+
+.auditor-status.status-waiting {
+    color: #92400e;
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+
+.auditor-status.status-complete {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.auditor-status.status-partial {
+    color: #c2410c;
+    background: #fff7ed;
+    border-color: #fed7aa;
+}
+
+.auditor-status.status-none {
+    color: #64748b;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.auditor-status.status-open {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.auditor-status.status-open small {
+    color: #ffffff;
+    background: #dc2626;
+}
+
+.auditor-status.status-closed {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.auditor-status.status-closed small {
+    color: #ffffff;
+    background: #16a34a;
+}
+
+/*
+|--------------------------------------------------------------------------
+| GRUP AKSI
+|--------------------------------------------------------------------------
+*/
+
+.auditor-action-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+    min-width: 155px;
+}
+
+.auditor-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 7px 10px;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    transition:
+        color 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.18s ease;
+}
+
+.auditor-action-button:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.auditor-action-button.action-create {
+    color: #ffffff;
+    background: #2563eb;
+    border-color: #2563eb;
+    box-shadow: 0 5px 13px rgba(37, 99, 235, 0.18);
+}
+
+.auditor-action-button.action-create:hover {
+    color: #ffffff;
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.auditor-action-button.action-view {
+    color: #0369a1;
+    background: #f0f9ff;
+    border-color: #bae6fd;
+}
+
+.auditor-action-button.action-view:hover {
+    color: #ffffff;
+    background: #0284c7;
+    border-color: #0284c7;
+}
+
+.auditor-action-button.action-disabled,
+.auditor-action-button:disabled {
+    color: #94a3b8;
+    cursor: not-allowed;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    box-shadow: none;
+    transform: none;
+}
+
+/*
+|--------------------------------------------------------------------------
+| EMPTY STATE
+|--------------------------------------------------------------------------
+*/
+
+.auditor-empty-table {
+    padding: 0 !important;
+}
+
+.auditor-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    padding: 38px 24px;
+    text-align: center;
+}
+
+.auditor-empty-state > i {
+    margin-bottom: 12px;
+    color: #cbd5e1;
+    font-size: 43px;
+}
+
+.auditor-empty-state strong {
+    margin-bottom: 6px;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.auditor-empty-state span {
+    max-width: 440px;
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVE LAPTOP
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 1280px) {
+    .auditor-temuan-stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .auditor-temuan-header {
+        padding: 27px;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVE TABLET
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 768px) {
+    .auditor-temuan-header {
+        min-height: auto;
+        padding: 24px;
+        border-radius: 18px;
+    }
+
+    .auditor-temuan-header h2 {
+        font-size: 25px;
+    }
+
+    .auditor-temuan-header-icon {
+        flex-basis: 65px;
+        width: 65px;
+        height: 65px;
+        font-size: 27px;
+        border-radius: 18px;
+    }
+
+    .auditor-temuan-card-header {
+        padding: 19px;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVE MOBILE
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 576px) {
+    .auditor-temuan-header {
+        align-items: flex-start;
+        padding: 21px;
+    }
+
+    .auditor-temuan-header h2 {
+        font-size: 22px;
+    }
+
+    .auditor-temuan-header p {
+        font-size: 12px;
+    }
+
+    .auditor-temuan-header-icon {
+        display: none;
+    }
+
+    .auditor-temuan-stat-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .auditor-temuan-stat-card {
+        padding: 15px;
+    }
+
+    .auditor-temuan-info {
+        padding: 15px;
+    }
+
+    .auditor-temuan-card {
+        border-radius: 15px;
+    }
+
+    .auditor-temuan-card-header {
+        padding: 17px;
+    }
+
+    .auditor-temuan-card-header h3 {
+        font-size: 16px;
+    }
+}

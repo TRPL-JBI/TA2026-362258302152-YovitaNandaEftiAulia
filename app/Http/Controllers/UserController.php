@@ -5,28 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\UnitKerja;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | ATURAN PASSWORD
-    |--------------------------------------------------------------------------
-    |
-    | Pada aplikasi normal:
-    | - minimal 8 karakter;
-    | - huruf besar dan kecil;
-    | - angka;
-    | - simbol;
-    | - diperiksa terhadap database password bocor.
-    |
-    | Pada environment testing, pemeriksaan password bocor dilewati karena
-    | membutuhkan layanan internet eksternal. Aturan lainnya tetap diuji.
-    |
-    */
-
+    /**
+     * Aturan password pengguna.
+     */
     private function passwordRule(): Password
     {
         $rule = Password::min(8)
@@ -42,46 +29,38 @@ class UserController extends Controller
         return $rule;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | INDEX
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Menampilkan daftar pengguna.
+     */
     public function index()
     {
-        $data = User::with('unit')
+        $data = User::query()
+            ->with([
+                'unit',
+                'unitKerjaKepala',
+            ])
             ->orderBy('nama')
             ->get();
 
-        return view(
-            'users.index',
-            compact('data')
-        );
+        return view('users.index', compact('data'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Menampilkan form tambah pengguna.
+     */
     public function create()
     {
-        $unit = UnitKerja::orderBy('nama')->get();
+        $unit = UnitKerja::query()
+            ->with('kepalaUnit')
+            ->orderBy('nama')
+            ->get();
 
-        return view(
-            'users.create',
-            compact('unit')
-        );
+        return view('users.create', compact('unit'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | STORE
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Menyimpan pengguna baru.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate(
@@ -111,9 +90,16 @@ class UserController extends Controller
                     'in:admin,auditee,auditor',
                 ],
 
-                'id_unit_kerja' => [
-                    'required',
+                'unit_kerja_ids' => [
+                    'nullable',
+                    'required_if:role,auditee',
+                    'array',
+                    'min:1',
+                ],
+
+                'unit_kerja_ids.*' => [
                     'integer',
+                    'distinct',
                     'exists:unit_kerja,id',
                 ],
 
@@ -166,7 +152,7 @@ class UserController extends Controller
                     'Password harus mengandung simbol.',
 
                 'password.uncompromised' =>
-                    'Password ini pernah ditemukan dalam kebocoran data. Gunakan password lain.',
+                    'Password pernah ditemukan dalam kebocoran data. Gunakan password lain.',
 
                 'role.required' =>
                     'Role pengguna wajib dipilih.',
@@ -174,14 +160,23 @@ class UserController extends Controller
                 'role.in' =>
                     'Role pengguna tidak valid.',
 
-                'id_unit_kerja.required' =>
-                    'Unit kerja wajib dipilih.',
+                'unit_kerja_ids.required_if' =>
+                    'Pilih minimal satu Unit Kerja untuk user Auditee atau Kepala Unit.',
 
-                'id_unit_kerja.integer' =>
-                    'Unit kerja tidak valid.',
+                'unit_kerja_ids.array' =>
+                    'Pilihan Unit Kerja tidak valid.',
 
-                'id_unit_kerja.exists' =>
-                    'Unit kerja tidak ditemukan.',
+                'unit_kerja_ids.min' =>
+                    'Pilih minimal satu Unit Kerja.',
+
+                'unit_kerja_ids.*.integer' =>
+                    'Pilihan Unit Kerja tidak valid.',
+
+                'unit_kerja_ids.*.distinct' =>
+                    'Unit Kerja tidak boleh dipilih lebih dari satu kali.',
+
+                'unit_kerja_ids.*.exists' =>
+                    'Salah satu Unit Kerja tidak ditemukan.',
 
                 'status.required' =>
                     'Status pengguna wajib dipilih.',
@@ -191,24 +186,43 @@ class UserController extends Controller
             ]
         );
 
-        User::create([
-            'nama' => trim($validated['nama']),
+        DB::transaction(function () use ($validated) {
+            $unitKerjaIds = $validated['role'] === 'auditee'
+                ? array_values(
+                    array_unique($validated['unit_kerja_ids'] ?? [])
+                )
+                : [];
 
-            'email' => strtolower(
-                trim($validated['email'])
-            ),
+            $user = User::create([
+                'nama' => trim($validated['nama']),
 
-            'password' => Hash::make(
-                $validated['password']
-            ),
+                'email' => strtolower(
+                    trim($validated['email'])
+                ),
 
-            'role' => $validated['role'],
+                'password' => Hash::make(
+                    $validated['password']
+                ),
 
-            'id_unit_kerja' =>
-                $validated['id_unit_kerja'],
+                'role' => $validated['role'],
 
-            'status' => $validated['status'],
-        ]);
+                /*
+                 * Kolom lama dipertahankan sementara untuk kompatibilitas.
+                 * Hubungan utama tetap unit_kerja.id_user.
+                 */
+                'id_unit_kerja' => $unitKerjaIds[0] ?? null,
+
+                'status' => $validated['status'],
+            ]);
+
+            if ($validated['role'] === 'auditee') {
+                UnitKerja::query()
+                    ->whereIn('id', $unitKerjaIds)
+                    ->update([
+                        'id_user' => $user->id,
+                    ]);
+            }
+        });
 
         return redirect()
             ->route('user.index')
@@ -218,50 +232,53 @@ class UserController extends Controller
             );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SHOW
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Menampilkan detail pengguna.
+     */
     public function show($id)
     {
-        $data = User::with('unit')
+        $data = User::query()
+            ->with([
+                'unit',
+                'unitKerjaKepala',
+            ])
             ->findOrFail($id);
 
-        return view(
-            'users.show',
-            compact('data')
-        );
+        return view('users.show', compact('data'));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Menampilkan form edit pengguna.
+     */
     public function edit($id)
     {
-        $data = User::findOrFail($id);
+        $data = User::query()
+            ->with('unitKerjaKepala')
+            ->findOrFail($id);
 
-        $unit = UnitKerja::orderBy('nama')->get();
+        $unit = UnitKerja::query()
+            ->with('kepalaUnit')
+            ->orderBy('nama')
+            ->get();
+
+        $unitKerjaTerpilih = $data->unitKerjaKepala
+            ->pluck('id')
+            ->map(fn ($idUnit) => (int) $idUnit)
+            ->all();
 
         return view(
             'users.edit',
             compact(
                 'data',
-                'unit'
+                'unit',
+                'unitKerjaTerpilih'
             )
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Memperbarui pengguna.
+     */
     public function update(
         Request $request,
         $id
@@ -295,9 +312,16 @@ class UserController extends Controller
                     'in:admin,auditee,auditor',
                 ],
 
-                'id_unit_kerja' => [
-                    'required',
+                'unit_kerja_ids' => [
+                    'nullable',
+                    'required_if:role,auditee',
+                    'array',
+                    'min:1',
+                ],
+
+                'unit_kerja_ids.*' => [
                     'integer',
+                    'distinct',
                     'exists:unit_kerja,id',
                 ],
 
@@ -347,7 +371,7 @@ class UserController extends Controller
                     'Password harus mengandung simbol.',
 
                 'password.uncompromised' =>
-                    'Password ini pernah ditemukan dalam kebocoran data. Gunakan password lain.',
+                    'Password pernah ditemukan dalam kebocoran data. Gunakan password lain.',
 
                 'role.required' =>
                     'Role pengguna wajib dipilih.',
@@ -355,14 +379,23 @@ class UserController extends Controller
                 'role.in' =>
                     'Role pengguna tidak valid.',
 
-                'id_unit_kerja.required' =>
-                    'Unit kerja wajib dipilih.',
+                'unit_kerja_ids.required_if' =>
+                    'Pilih minimal satu Unit Kerja untuk user Auditee atau Kepala Unit.',
 
-                'id_unit_kerja.integer' =>
-                    'Unit kerja tidak valid.',
+                'unit_kerja_ids.array' =>
+                    'Pilihan Unit Kerja tidak valid.',
 
-                'id_unit_kerja.exists' =>
-                    'Unit kerja tidak ditemukan.',
+                'unit_kerja_ids.min' =>
+                    'Pilih minimal satu Unit Kerja.',
+
+                'unit_kerja_ids.*.integer' =>
+                    'Pilihan Unit Kerja tidak valid.',
+
+                'unit_kerja_ids.*.distinct' =>
+                    'Unit Kerja tidak boleh dipilih lebih dari satu kali.',
+
+                'unit_kerja_ids.*.exists' =>
+                    'Salah satu Unit Kerja tidak ditemukan.',
 
                 'status.required' =>
                     'Status pengguna wajib dipilih.',
@@ -372,37 +405,65 @@ class UserController extends Controller
             ]
         );
 
-        $updateData = [
-            'nama' => trim($validated['nama']),
+        DB::transaction(function () use ($validated, $data) {
+            $unitKerjaIds = $validated['role'] === 'auditee'
+                ? array_values(
+                    array_unique($validated['unit_kerja_ids'] ?? [])
+                )
+                : [];
 
-            'email' => strtolower(
-                trim($validated['email'])
-            ),
+            $updateData = [
+                'nama' => trim($validated['nama']),
 
-            'role' => $validated['role'],
+                'email' => strtolower(
+                    trim($validated['email'])
+                ),
 
-            'id_unit_kerja' =>
-                $validated['id_unit_kerja'],
+                'role' => $validated['role'],
 
-            'status' => $validated['status'],
-        ];
+                /*
+                 * Kolom lama dipertahankan sementara.
+                 */
+                'id_unit_kerja' => $unitKerjaIds[0] ?? null,
 
-        /*
-        |--------------------------------------------------------------------------
-        | PASSWORD HANYA DIUBAH JIKA DIISI
-        |--------------------------------------------------------------------------
-        */
+                'status' => $validated['status'],
+            ];
 
-        if (
-            isset($validated['password'])
-            && trim((string) $validated['password']) !== ''
-        ) {
-            $updateData['password'] = Hash::make(
-                $validated['password']
-            );
-        }
+            if (
+                isset($validated['password']) &&
+                trim((string) $validated['password']) !== ''
+            ) {
+                $updateData['password'] = Hash::make(
+                    $validated['password']
+                );
+            }
 
-        $data->update($updateData);
+            $data->update($updateData);
+
+            /*
+             * Lepaskan semua Unit Kerja yang sebelumnya
+             * ditangani user ini.
+             */
+            UnitKerja::query()
+                ->where('id_user', $data->id)
+                ->update([
+                    'id_user' => null,
+                ]);
+
+            /*
+             * Pasangkan kembali Unit Kerja yang dicentang.
+             */
+            if (
+                $validated['role'] === 'auditee' &&
+                count($unitKerjaIds) > 0
+            ) {
+                UnitKerja::query()
+                    ->whereIn('id', $unitKerjaIds)
+                    ->update([
+                        'id_user' => $data->id,
+                    ]);
+            }
+        });
 
         return redirect()
             ->route('user.index')
@@ -412,28 +473,14 @@ class UserController extends Controller
             );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DESTROY
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Menghapus pengguna.
+     */
     public function destroy($id)
     {
         $user = User::findOrFail($id);
 
-        /*
-        |--------------------------------------------------------------------------
-        | AMBIL USER YANG SEDANG LOGIN
-        |--------------------------------------------------------------------------
-        |
-        | Session user dapat berupa object atau array, sehingga keduanya
-        | ditangani agar aman.
-        |
-        */
-
         $loginUser = session('user');
-
         $loginUserId = null;
 
         if (is_object($loginUser)) {
@@ -444,15 +491,9 @@ class UserController extends Controller
             $loginUserId = $loginUser['id'] ?? null;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CEGAH USER MENGHAPUS AKUN SENDIRI
-        |--------------------------------------------------------------------------
-        */
-
         if (
-            $loginUserId !== null
-            && (int) $loginUserId === (int) $user->id
+            $loginUserId !== null &&
+            (int) $loginUserId === (int) $user->id
         ) {
             return redirect()
                 ->route('user.index')
@@ -462,7 +503,19 @@ class UserController extends Controller
                 );
         }
 
-        $user->delete();
+        DB::transaction(function () use ($user) {
+            /*
+             * Unit Kerja tidak ikut dihapus.
+             * Hanya hubungan Kepala Unit yang dilepas.
+             */
+            UnitKerja::query()
+                ->where('id_user', $user->id)
+                ->update([
+                    'id_user' => null,
+                ]);
+
+            $user->delete();
+        });
 
         return redirect()
             ->route('user.index')

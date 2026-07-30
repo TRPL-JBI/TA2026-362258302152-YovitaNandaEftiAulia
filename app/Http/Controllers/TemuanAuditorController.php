@@ -4,196 +4,198 @@ namespace App\Http\Controllers;
 
 use App\Models\IndikatorStandar;
 use App\Models\PenerapanStandar;
+use App\Models\Rekomendasi;
+use App\Models\SkalaSkor;
+use App\Models\SkorPenerapanStandar;
 use App\Models\TemuanAmi;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class TemuanAuditorController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | INDEX
-    |--------------------------------------------------------------------------
-    |
-    | Menampilkan seluruh indikator dan penerapan pada periode
-    | yang ditugaskan kepada Auditor.
-    |
-    | Auditor hanya melihat data penerapan milik Auditee.
-    | Auditor tidak dapat mengubah penerapan tersebut.
-    |
-    */
-public function index()
-{
-    $idAuditor = $this->getLoginUserId();
-
-    /*
-    |--------------------------------------------------------------------------
-    | PERIODE PENUGASAN AUDITOR
+    | INDEX PENILAIAN AUDIT
     |--------------------------------------------------------------------------
     */
 
-    $idPeriodeDitugaskan = DB::table('tim_ami')
-        ->where('id_user', $idAuditor)
-        ->pluck('id_periode_ami')
-        ->filter()
-        ->unique()
-        ->values();
+    public function index(): View
+    {
+        $idAuditor = $this->getLoginUserId();
 
-    /*
-    |--------------------------------------------------------------------------
-    | STANDAR MUTU DALAM PERIODE PENUGASAN
-    |--------------------------------------------------------------------------
-    */
+        $idPeriodeDitugaskan = DB::table('tim_ami')
+            ->where('id_user', $idAuditor)
+            ->pluck('id_periode_ami')
+            ->filter()
+            ->unique()
+            ->values();
 
-    $idStandarMutuDitugaskan = DB::table('standarmutu_periodeami')
-        ->whereIn(
-            'id_periode_ami',
-            $idPeriodeDitugaskan
+        $idStandarMutuDitugaskan = DB::table(
+            'standarmutu_periodeami'
         )
-        ->pluck('id_standar_mutu')
-        ->filter()
-        ->unique()
-        ->values();
+            ->whereIn(
+                'id_periode_ami',
+                $idPeriodeDitugaskan
+            )
+            ->pluck('id_standar_mutu')
+            ->filter()
+            ->unique()
+            ->values();
 
-    /*
-    |--------------------------------------------------------------------------
-    | INDIKATOR PADA STANDAR MUTU YANG DITUGASKAN
-    |--------------------------------------------------------------------------
-    */
-
-    $data = IndikatorStandar::with([
-        'isiStandar',
-        'isiStandar.standarMutu',
-
-        'isiStandar.parent',
-        'isiStandar.parent.standarMutu',
-
-        'isiStandar.parent.parent',
-        'isiStandar.parent.parent.standarMutu',
-
-        'isiStandar.parent.parent.parent',
-        'isiStandar.parent.parent.parent.standarMutu',
-
-        'penerapan' => function ($query) use ($idPeriodeDitugaskan) {
-            $query
-                ->with([
-                    'user',
-
-                    'standarmutuPeriode',
-                    'standarmutuPeriode.standarMutu',
-                    'standarmutuPeriode.periodeAmi',
-                    'standarmutuPeriode.periodeAmi.unitKerja',
-
-                    'temuan',
-                    'temuan.tanggapan',
-                ])
-                ->whereHas(
-                    'standarmutuPeriode',
-                    function ($subQuery) use ($idPeriodeDitugaskan) {
-                        $subQuery->whereIn(
-                            'id_periode_ami',
-                            $idPeriodeDitugaskan
-                        );
-                    }
-                )
-                ->orderByDesc('id');
-        },
-    ])
-        ->whereHas(
+        $data = IndikatorStandar::with([
             'isiStandar',
-            function ($query) use ($idStandarMutuDitugaskan) {
-                $query->whereIn(
-                    'id_standar_mutu',
+            'isiStandar.standarMutu',
+
+            'isiStandar.parent',
+            'isiStandar.parent.standarMutu',
+
+            'isiStandar.parent.parent',
+            'isiStandar.parent.parent.standarMutu',
+
+            'isiStandar.parent.parent.parent',
+            'isiStandar.parent.parent.parent.standarMutu',
+
+            'penerapan' => function ($query) use (
+                $idPeriodeDitugaskan
+            ) {
+                $query
+                    ->with([
+                        'user',
+
+                        'standarmutuPeriode',
+                        'standarmutuPeriode.standarMutu',
+                        'standarmutuPeriode.periodeAmi',
+                        'standarmutuPeriode.periodeAmi.unitKerja',
+
+                        'standarmutuPeriode.periodeAmi.kesimpulanAudit',
+                        'standarmutuPeriode.periodeAmi.kesimpulanAudit.user',
+
+                        'standarmutuPeriode.periodeAmi.lampiran',
+                        'standarmutuPeriode.periodeAmi.lampiran.user',
+
+                        /*
+                        |------------------------------------------------------
+                        | SKOR PENILAIAN
+                        |------------------------------------------------------
+                        */
+
+                        'skor',
+                        'skor.skalaSkor',
+
+                        /*
+                        |------------------------------------------------------
+                        | TEMUAN DAN REKOMENDASI
+                        |------------------------------------------------------
+                        */
+
+                        'temuan',
+                        'temuan.rekomendasi',
+                        'temuan.rekomendasi.user',
+
+                        /*
+                        |------------------------------------------------------
+                        | TANGGAPAN DAN AKAR MASALAH
+                        |------------------------------------------------------
+                        */
+
+                        'temuan.tanggapan',
+                        'temuan.tanggapan.user',
+
+                        'temuan.akarMasalah',
+                        'temuan.akarMasalah.user',
+                    ])
+                    ->whereHas(
+                        'standarmutuPeriode',
+                        function ($subQuery) use (
+                            $idPeriodeDitugaskan
+                        ) {
+                            $subQuery->whereIn(
+                                'id_periode_ami',
+                                $idPeriodeDitugaskan
+                            );
+                        }
+                    )
+                    ->orderByDesc('id');
+            },
+        ])
+            ->whereHas(
+                'isiStandar',
+                function ($query) use (
                     $idStandarMutuDitugaskan
-                );
-            }
-        )
-        ->orderBy('id_isi_standar_mutu')
-        ->orderBy('id')
-        ->get()
-        ->unique('id')
-        ->values();
+                ) {
+                    $query->whereIn(
+                        'id_standar_mutu',
+                        $idStandarMutuDitugaskan
+                    );
+                }
+            )
+            ->orderBy('id_isi_standar_mutu')
+            ->orderBy('id')
+            ->get()
+            ->unique('id')
+            ->values();
 
-    // Bagian perhitungan statistik tetap lanjut di bawah sini.
+        $semuaPenerapan = $data
+            ->flatMap(function ($indikator) {
+                return $indikator->penerapan ?? collect();
+            });
 
-    /*
-    |--------------------------------------------------------------------------
-    | RINGKASAN
-    |--------------------------------------------------------------------------
-    */
+        $totalPenerapan = $semuaPenerapan->count();
 
-    $semuaPenerapan = $data
-        ->flatMap(function ($indikator) {
-            return $indikator->penerapan ?? collect();
-        });
+        $penerapanLengkap = $semuaPenerapan
+            ->filter(function ($penerapan) {
+                return $this->penerapanLengkap($penerapan);
+            })
+            ->count();
 
-    $totalPenerapan = $semuaPenerapan->count();
+        $penerapanBelumLengkap =
+            $totalPenerapan - $penerapanLengkap;
 
-    $penerapanLengkap = $semuaPenerapan
-        ->filter(function ($penerapan) {
-            return $this->penerapanLengkap($penerapan);
-        })
-        ->count();
+        $totalTemuan = $semuaPenerapan
+            ->sum(function ($penerapan) {
+                return $penerapan->temuan?->count() ?? 0;
+            });
 
-    $penerapanBelumLengkap =
-        $totalPenerapan - $penerapanLengkap;
+        $temuanOpen = $semuaPenerapan
+            ->sum(function ($penerapan) {
+                return $penerapan->temuan
+                    ?->where('status_temuan', 'open')
+                    ->count() ?? 0;
+            });
 
-    $totalTemuan = $semuaPenerapan
-        ->sum(function ($penerapan) {
-            return $penerapan->temuan?->count() ?? 0;
-        });
+        $temuanClosed = $semuaPenerapan
+            ->sum(function ($penerapan) {
+                return $penerapan->temuan
+                    ?->where('status_temuan', 'closed')
+                    ->count() ?? 0;
+            });
 
-    $temuanOpen = $semuaPenerapan
-        ->sum(function ($penerapan) {
-            return $penerapan->temuan
-                ?->filter(function ($temuan) {
-                    return strtolower(
-                        trim((string) $temuan->status_temuan)
-                    ) === 'open';
-                })
-                ->count() ?? 0;
-        });
-
-    $temuanClosed = $semuaPenerapan
-        ->sum(function ($penerapan) {
-            return $penerapan->temuan
-                ?->filter(function ($temuan) {
-                    return strtolower(
-                        trim((string) $temuan->status_temuan)
-                    ) === 'closed';
-                })
-                ->count() ?? 0;
-        });
-
-    return view(
-        'auditor.temuan.index',
-        compact(
-            'data',
-            'totalPenerapan',
-            'penerapanLengkap',
-            'penerapanBelumLengkap',
-            'totalTemuan',
-            'temuanOpen',
-            'temuanClosed'
-        )
-    );
-}
+        return view(
+            'auditor.temuan.index',
+            compact(
+                'data',
+                'totalPenerapan',
+                'penerapanLengkap',
+                'penerapanBelumLengkap',
+                'totalTemuan',
+                'temuanOpen',
+                'temuanClosed'
+            )
+        );
+    }
 
     /*
     |--------------------------------------------------------------------------
-    | CREATE
+    | CREATE PENILAIAN
     |--------------------------------------------------------------------------
-    |
-    | Auditor hanya dapat membuka halaman create apabila:
-    |
-    | - deskripsi_hasil sudah diisi;
-    | - link_bukti sudah tersedia.
-    |
     */
 
     public function create(
         PenerapanStandar $penerapan
-    ) {
+    ): View {
         $penerapan->load([
             'user',
 
@@ -209,79 +211,42 @@ public function index()
             'standarmutuPeriode.periodeAmi.unitKerja',
 
             'temuan',
+            'skor',
+            'skor.skalaSkor',
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI PENUGASAN AUDITOR
-        |--------------------------------------------------------------------------
-        */
-
-        $this->pastikanAuditorDitugaskan(
-            $penerapan
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | CEK PENERAPAN SUDAH LENGKAP
-        |--------------------------------------------------------------------------
-        */
+        $this->pastikanAuditorDitugaskan($penerapan);
 
         abort_unless(
             $this->penerapanLengkap($penerapan),
             403,
-            'Temuan belum dapat dibuat karena Auditee belum melengkapi hasil dan bukti penerapan.'
+            'Penilaian belum dapat dibuat karena Auditee belum melengkapi hasil dan bukti penerapan.'
         );
+
+        $skalaSkor = SkalaSkor::orderBy('nilai_skor')
+            ->get();
 
         return view(
             'auditor.temuan.create',
-            compact('penerapan')
+            compact(
+                'penerapan',
+                'skalaSkor'
+            )
         );
     }
 
     /*
     |--------------------------------------------------------------------------
-    | STORE
+    | STORE PENILAIAN
     |--------------------------------------------------------------------------
     */
 
-    public function store(Request $request)
-    {
+    public function store(
+        Request $request
+    ): RedirectResponse {
         $validated = $request->validate(
-            [
-                'id_penerapan_standar' => [
-                    'required',
-                    'integer',
-                    'exists:penerapan_standar,id',
-                ],
-
-                'temuan' => [
-                    'required',
-                    'string',
-                    'max:5000',
-                ],
-
-                'status_temuan' => [
-                    'required',
-                    'in:open,closed',
-                ],
-            ],
-            [
-                'id_penerapan_standar.required' =>
-                    'Data penerapan standar tidak ditemukan.',
-
-                'id_penerapan_standar.exists' =>
-                    'Data penerapan standar tidak valid.',
-
-                'temuan.required' =>
-                    'Isi temuan audit wajib diisi.',
-
-                'status_temuan.required' =>
-                    'Status temuan wajib dipilih.',
-
-                'status_temuan.in' =>
-                    'Status temuan tidak valid.',
-            ]
+            $this->validationRules(),
+            $this->validationMessages()
         );
 
         $penerapan = PenerapanStandar::with([
@@ -291,62 +256,114 @@ public function index()
             $validated['id_penerapan_standar']
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI PENUGASAN
-        |--------------------------------------------------------------------------
-        */
-
-        $this->pastikanAuditorDitugaskan(
-            $penerapan
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI PENERAPAN
-        |--------------------------------------------------------------------------
-        */
+        $this->pastikanAuditorDitugaskan($penerapan);
 
         if (!$this->penerapanLengkap($penerapan)) {
             return back()
                 ->withInput()
                 ->with(
                     'error',
-                    'Temuan belum dapat ditambahkan karena hasil atau bukti penerapan belum lengkap.'
+                    'Penilaian belum dapat ditambahkan karena hasil atau bukti penerapan belum lengkap.'
                 );
         }
 
-        TemuanAmi::create([
-            'id_penerapan_standar' =>
-                $penerapan->id,
+        $idAuditor = $this->getLoginUserId();
 
-            'temuan' =>
-                $validated['temuan'],
+        DB::transaction(function () use (
+            $validated,
+            $penerapan,
+            $idAuditor
+        ) {
+            /*
+            |--------------------------------------------------------------
+            | SIMPAN ATAU PERBARUI SKOR PENERAPAN
+            |--------------------------------------------------------------
+            */
 
-            'status_temuan' =>
-                $validated['status_temuan'],
-        ]);
+            SkorPenerapanStandar::updateOrCreate(
+                [
+                    'id_penerapan_standar' =>
+                        $penerapan->id,
+                ],
+                [
+                    'id_skala_skor' =>
+                        $validated['id_skala_skor'],
+                ]
+            );
+
+            /*
+            |--------------------------------------------------------------
+            | SIMPAN TEMUAN / HASIL PENILAIAN
+            |--------------------------------------------------------------
+            */
+
+            $temuan = TemuanAmi::create([
+                'id_penerapan_standar' =>
+                    $penerapan->id,
+
+                'jenis_temuan' =>
+                    $validated['jenis_temuan'],
+
+                'temuan' =>
+                    in_array(
+                        $validated['jenis_temuan'],
+                        ['kts', 'ob'],
+                        true
+                    )
+                        ? $validated['temuan']
+                        : null,
+
+                'status_temuan' =>
+                    $validated['status_temuan'],
+            ]);
+
+            /*
+            |--------------------------------------------------------------
+            | SIMPAN REKOMENDASI PER TEMUAN
+            |--------------------------------------------------------------
+            */
+
+            Rekomendasi::create([
+                'id_temuan' =>
+                    $temuan->id,
+
+                'aspek' =>
+                    $validated['aspek'],
+
+                'deskripsi' =>
+                    $validated['deskripsi'],
+
+                'rekomendasi' =>
+                    $validated['rekomendasi'],
+
+                'id_user' =>
+                    $idAuditor,
+            ]);
+        });
 
         return redirect()
             ->route('auditor.temuan.index')
             ->with(
                 'success',
-                'Temuan Audit berhasil ditambahkan.'
+                'Penilaian Audit berhasil ditambahkan.'
             );
     }
 
     /*
     |--------------------------------------------------------------------------
-    | SHOW
+    | SHOW PENILAIAN
     |--------------------------------------------------------------------------
     */
 
-    public function show(TemuanAmi $temuan)
-    {
+    public function show(
+        TemuanAmi $temuan
+    ): View {
         $temuan->load([
             'penerapanStandar',
-
             'penerapanStandar.user',
+
+            'penerapanStandar.skor',
+            'penerapanStandar.skor.skalaSkor',
 
             'penerapanStandar.indikator',
             'penerapanStandar.indikator.isiStandar',
@@ -359,8 +376,20 @@ public function index()
             'penerapanStandar.standarmutuPeriode.periodeAmi',
             'penerapanStandar.standarmutuPeriode.periodeAmi.unitKerja',
 
+            'penerapanStandar.standarmutuPeriode.periodeAmi.kesimpulanAudit',
+            'penerapanStandar.standarmutuPeriode.periodeAmi.kesimpulanAudit.user',
+
+            'penerapanStandar.standarmutuPeriode.periodeAmi.lampiran',
+            'penerapanStandar.standarmutuPeriode.periodeAmi.lampiran.user',
+
+            'rekomendasi',
+            'rekomendasi.user',
+
             'tanggapan',
             'tanggapan.user',
+
+            'akarMasalah',
+            'akarMasalah.user',
         ]);
 
         $this->pastikanAuditorDitugaskan(
@@ -375,16 +404,19 @@ public function index()
 
     /*
     |--------------------------------------------------------------------------
-    | EDIT
+    | EDIT PENILAIAN
     |--------------------------------------------------------------------------
     */
 
-    public function edit(TemuanAmi $temuan)
-    {
+    public function edit(
+        TemuanAmi $temuan
+    ): View {
         $temuan->load([
             'penerapanStandar',
-
             'penerapanStandar.user',
+
+            'penerapanStandar.skor',
+            'penerapanStandar.skor.skalaSkor',
 
             'penerapanStandar.indikator',
             'penerapanStandar.indikator.isiStandar',
@@ -396,53 +428,136 @@ public function index()
             'penerapanStandar.standarmutuPeriode.standarMutu',
             'penerapanStandar.standarmutuPeriode.periodeAmi',
             'penerapanStandar.standarmutuPeriode.periodeAmi.unitKerja',
+
+            'rekomendasi',
+            'rekomendasi.user',
+
+            'tanggapan',
+            'tanggapan.user',
+
+            'akarMasalah',
+            'akarMasalah.user',
         ]);
 
         $this->pastikanAuditorDitugaskan(
             $temuan->penerapanStandar
         );
 
+        $skalaSkor = SkalaSkor::orderBy('nilai_skor')
+            ->get();
+
         return view(
             'auditor.temuan.edit',
-            compact('temuan')
+            compact(
+                'temuan',
+                'skalaSkor'
+            )
         );
     }
 
     /*
     |--------------------------------------------------------------------------
-    | UPDATE
+    | UPDATE PENILAIAN
     |--------------------------------------------------------------------------
     */
 
     public function update(
         Request $request,
         TemuanAmi $temuan
-    ) {
+    ): RedirectResponse {
         $validated = $request->validate(
-            [
-                'temuan' => [
-                    'required',
-                    'string',
-                    'max:5000',
-                ],
-
-                'status_temuan' => [
-                    'required',
-                    'in:open,closed',
-                ],
-            ],
-            [
-                'temuan.required' =>
-                    'Isi temuan audit wajib diisi.',
-
-                'status_temuan.required' =>
-                    'Status temuan wajib dipilih.',
-
-                'status_temuan.in' =>
-                    'Status temuan tidak valid.',
-            ]
+            $this->validationRules(false),
+            $this->validationMessages()
         );
 
+        $temuan->load([
+            'penerapanStandar',
+            'penerapanStandar.standarmutuPeriode',
+            'penerapanStandar.standarmutuPeriode.periodeAmi',
+            'rekomendasi',
+        ]);
+
+        $penerapan = $temuan->penerapanStandar;
+
+        $this->pastikanAuditorDitugaskan($penerapan);
+
+        $idAuditor = $this->getLoginUserId();
+
+        DB::transaction(function () use (
+            $validated,
+            $temuan,
+            $penerapan,
+            $idAuditor
+        ) {
+            SkorPenerapanStandar::updateOrCreate(
+                [
+                    'id_penerapan_standar' =>
+                        $penerapan->id,
+                ],
+                [
+                    'id_skala_skor' =>
+                        $validated['id_skala_skor'],
+                ]
+            );
+
+            $temuan->update([
+                'jenis_temuan' =>
+                    $validated['jenis_temuan'],
+
+                'temuan' =>
+                    in_array(
+                        $validated['jenis_temuan'],
+                        ['kts', 'ob'],
+                        true
+                    )
+                        ? $validated['temuan']
+                        : null,
+
+                'status_temuan' =>
+                    $validated['status_temuan'],
+            ]);
+
+            Rekomendasi::updateOrCreate(
+                [
+                    'id_temuan' =>
+                        $temuan->id,
+                ],
+                [
+                    'aspek' =>
+                        $validated['aspek'],
+
+                    'deskripsi' =>
+                        $validated['deskripsi'],
+
+                    'rekomendasi' =>
+                        $validated['rekomendasi'],
+
+                    'id_user' =>
+                        $idAuditor,
+                ]
+            );
+        });
+
+        return redirect()
+            ->route(
+                'auditor.temuan.show',
+                $temuan->id
+            )
+            ->with(
+                'success',
+                'Penilaian Audit berhasil diperbarui.'
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CLOSE
+    |--------------------------------------------------------------------------
+    */
+
+    public function close(
+        TemuanAmi $temuan
+    ): RedirectResponse {
         $temuan->load([
             'penerapanStandar',
             'penerapanStandar.standarmutuPeriode',
@@ -454,22 +569,13 @@ public function index()
         );
 
         $temuan->update([
-            'temuan' =>
-                $validated['temuan'],
-
-            'status_temuan' =>
-                $validated['status_temuan'],
+            'status_temuan' => 'closed',
         ]);
 
-        return redirect()
-            ->route(
-                'auditor.temuan.show',
-                $temuan->id
-            )
-            ->with(
-                'success',
-                'Temuan Audit berhasil diperbarui.'
-            );
+        return back()->with(
+            'success',
+            'Status Penilaian Audit berhasil ditutup.'
+        );
     }
 
     /*
@@ -478,37 +584,173 @@ public function index()
     |--------------------------------------------------------------------------
     */
 
-    public function destroy(TemuanAmi $temuan)
-    {
+    public function destroy(
+        TemuanAmi $temuan
+    ): RedirectResponse {
         $temuan->load([
             'penerapanStandar',
             'penerapanStandar.standarmutuPeriode',
             'penerapanStandar.standarmutuPeriode.periodeAmi',
+
+            'rekomendasi',
+            'tanggapan',
+            'akarMasalah',
         ]);
 
         $this->pastikanAuditorDitugaskan(
             $temuan->penerapanStandar
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | HAPUS TANGGAPAN TERKAIT
-        |--------------------------------------------------------------------------
-        */
+        DB::transaction(function () use ($temuan) {
+            /*
+            | Rekomendasi harus dihapus manual karena TemuanAmi
+            | menggunakan soft delete.
+            */
 
-        DB::transaction(
-            function () use ($temuan) {
-                $temuan->tanggapan()->delete();
-                $temuan->delete();
+            if ($temuan->rekomendasi) {
+                $temuan->rekomendasi->delete();
             }
-        );
+
+            $temuan->tanggapan()->delete();
+            $temuan->akarMasalah()->delete();
+            $temuan->delete();
+        });
 
         return redirect()
             ->route('auditor.temuan.index')
             ->with(
                 'success',
-                'Temuan Audit berhasil dihapus.'
+                'Penilaian Audit berhasil dihapus.'
             );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATION RULES
+    |--------------------------------------------------------------------------
+    */
+
+    private function validationRules(
+        bool $includePenerapan = true
+    ): array {
+        $rules = [
+            'id_skala_skor' => [
+                'required',
+                'integer',
+                'exists:skala_skor,id',
+            ],
+
+            'jenis_temuan' => [
+                'required',
+                Rule::in([
+                    'sesuai_standar',
+                    'kts',
+                    'ob',
+                ]),
+            ],
+
+            'temuan' => [
+                'nullable',
+                'required_if:jenis_temuan,kts,ob',
+                'string',
+                'max:5000',
+            ],
+
+            'aspek' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'deskripsi' => [
+                'required',
+                'string',
+                'max:5000',
+            ],
+
+            'rekomendasi' => [
+                'required',
+                'string',
+                'max:5000',
+            ],
+
+            'status_temuan' => [
+                'required',
+                Rule::in([
+                    'open',
+                    'closed',
+                ]),
+            ],
+        ];
+
+        if ($includePenerapan) {
+            $rules['id_penerapan_standar'] = [
+                'required',
+                'integer',
+                'exists:penerapan_standar,id',
+            ];
+        }
+
+        return $rules;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATION MESSAGES
+    |--------------------------------------------------------------------------
+    */
+
+    private function validationMessages(): array
+    {
+        return [
+            'id_penerapan_standar.required' =>
+                'Data penerapan standar tidak ditemukan.',
+
+            'id_penerapan_standar.exists' =>
+                'Data penerapan standar tidak valid.',
+
+            'id_skala_skor.required' =>
+                'Skor penilaian wajib dipilih.',
+
+            'id_skala_skor.exists' =>
+                'Skor penilaian tidak valid.',
+
+            'jenis_temuan.required' =>
+                'Jenis temuan wajib dipilih.',
+
+            'jenis_temuan.in' =>
+                'Jenis temuan tidak valid.',
+
+            'temuan.required_if' =>
+                'Isi temuan wajib diisi untuk jenis KTS atau OB.',
+
+            'temuan.max' =>
+                'Isi temuan maksimal 5000 karakter.',
+
+            'aspek.required' =>
+                'Aspek penilaian wajib diisi.',
+
+            'aspek.max' =>
+                'Aspek maksimal 255 karakter.',
+
+            'deskripsi.required' =>
+                'Deskripsi wajib diisi.',
+
+            'deskripsi.max' =>
+                'Deskripsi maksimal 5000 karakter.',
+
+            'rekomendasi.required' =>
+                'Rekomendasi wajib diisi.',
+
+            'rekomendasi.max' =>
+                'Rekomendasi maksimal 5000 karakter.',
+
+            'status_temuan.required' =>
+                'Status penilaian wajib dipilih.',
+
+            'status_temuan.in' =>
+                'Status penilaian tidak valid.',
+        ];
     }
 
     /*
@@ -554,14 +796,8 @@ public function index()
         );
 
         $ditugaskan = DB::table('tim_ami')
-            ->where(
-                'id_user',
-                $idAuditor
-            )
-            ->where(
-                'id_periode_ami',
-                $idPeriode
-            )
+            ->where('id_user', $idAuditor)
+            ->where('id_periode_ami', $idPeriode)
             ->exists();
 
         abort_unless(
@@ -573,7 +809,7 @@ public function index()
 
     /*
     |--------------------------------------------------------------------------
-    | ID USER LOGIN
+    | AMBIL ID USER LOGIN
     |--------------------------------------------------------------------------
     */
 

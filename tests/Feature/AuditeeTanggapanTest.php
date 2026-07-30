@@ -917,11 +917,24 @@ class AuditeeTanggapanTest extends TestCase
             'Tanggapan berhasil dihapus.'
         );
 
-        $this->assertDatabaseMissing(
+        $this->assertSoftDeleted(
             'tanggapan_auditee',
             [
                 'id' => $tanggapan->id,
             ]
+        );
+
+        $this->assertDatabaseHas(
+            'tanggapan_auditee',
+            [
+                'id' => $tanggapan->id,
+            ]
+        );
+
+        $this->assertNotNull(
+            TanggapanAuditee::withTrashed()
+                ->findOrFail($tanggapan->id)
+                ->deleted_at
         );
     }
 

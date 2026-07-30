@@ -1,83 +1,242 @@
 ﻿@extends('layouts.app')
 
+@push('styles')
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/app/17-admin-unit-form.css') }}"
+    >
+@endpush
+
 @section('content')
 
-<div class="content-wrapper">
+<div class="unit-form-page">
 
-    <h3 class="breadcrumb">Dashboard / Edit Unit Kerja</h3>
+    <div class="unit-form-breadcrumb">
+        <a href="{{ route('dashboard') }}">
+            Dashboard
+        </a>
 
-    <div class="form-card">
+        <span>/</span>
 
-        <h2 class="form-title">Form Edit Unit Kerja</h2>
+        <a href="{{ route('unit-kerja.index') }}">
+            Unit Kerja
+        </a>
 
-        <form action="{{ route('unit-kerja.update', $data->id) }}" method="POST">
-            @csrf
-            @method('PUT')
+        <span>/</span>
 
-            <div class="form-group">
-                <label>Nama Unit Kerja</label>
-                <input type="text" name="nama" value="{{ $data->nama }}" required>
-            </div>
-
-            <div class="form-group">
-                <label>Kategori Unit Kerja</label>
-                <select name="kategori_unit_kerja" required>
-                    <option value="Akademik" {{ $data->kategori_unit_kerja == 'Akademik' ? 'selected' : '' }}>
-                        Akademik
-                    </option>
-                    <option value="Non Akademik" {{ $data->kategori_unit_kerja == 'Non Akademik' ? 'selected' : '' }}>
-                        Non Akademik
-                    </option>
-                </select>
-            </div>
-
-            <div class="form-action">
-                <button type="submit" class="btn-save">Simpan</button>
-                <a href="{{ route('unit-kerja.index') }}" class="btn-cancel">Batal</a>
-            </div>
-
-        </form>
-
+        <strong>
+            Edit Data
+        </strong>
     </div>
 
-</div>
+    <div class="unit-form-card">
 
-@endsection@extends('layouts.app')
+        <div class="unit-form-header">
+            <h1>
+                Form Edit Data
+            </h1>
+        </div>
 
-@section('content')
+        @if ($errors->any())
+            <div class="unit-form-alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
 
-<div class="content-wrapper">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>
+                            {{ $error }}
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    <h3 class="breadcrumb">Dashboard / Edit Unit Kerja</h3>
-
-    <div class="form-card">
-
-        <h2 class="form-title">Form Edit Unit Kerja</h2>
-
-        <form action="{{ route('unit-kerja.update', $data->id) }}" method="POST">
+        <form
+            action="{{ route('unit-kerja.update', $data->id) }}"
+            method="POST"
+            id="unitAssignmentForm"
+        >
             @csrf
             @method('PUT')
 
-            <div class="form-group">
-                <label>Nama Unit Kerja</label>
-                <input type="text" name="nama" value="{{ $data->nama }}" required>
-            </div>
+            <input
+                type="hidden"
+                name="id_user_lama"
+                value="{{ old('id_user_lama', $idUserLama) }}"
+            >
 
-            <div class="form-group">
-                <label>Kategori Unit Kerja</label>
-                <select name="kategori_unit_kerja" required>
-                    <option value="Akademik" {{ $data->kategori_unit_kerja == 'Akademik' ? 'selected' : '' }}>
-                        Akademik
+            <div class="unit-form-group">
+
+                <label for="id_user">
+                    Nama User
+                    <span>*</span>
+                </label>
+
+                <select
+                    name="id_user"
+                    id="id_user"
+                    required
+                >
+                    <option value="">
+                        -- Pilih Nama User --
                     </option>
-                    <option value="Non Akademik" {{ $data->kategori_unit_kerja == 'Non Akademik' ? 'selected' : '' }}>
-                        Non Akademik
-                    </option>
+
+                    @foreach ($users as $user)
+                        <option
+                            value="{{ $user->id }}"
+                            @selected(
+                                (string) old(
+                                    'id_user',
+                                    $idUserLama
+                                )
+                                === (string) $user->id
+                            )
+                        >
+                            {{ $user->nama }} — {{ $user->email }}
+                        </option>
+                    @endforeach
                 </select>
+
+                @error('id_user')
+                    <small class="unit-form-error">
+                        {{ $message }}
+                    </small>
+                @enderror
+
             </div>
 
-            <div class="form-action">
-                <button type="submit" class="btn-save">Simpan</button>
-                <a href="{{ route('unit-kerja.index') }}" class="btn-cancel">Batal</a>
+            @php
+                $unitEditTerpilih = array_map(
+                    'intval',
+                    (array) old(
+                        'unit_kerja_ids',
+                        $unitTerpilih
+                    )
+                );
+            @endphp
+
+            <div class="unit-form-group">
+
+                <div class="unit-form-label-row">
+
+                    <div>
+                        <label>
+                            Unit Kerja
+                            <span>*</span>
+                        </label>
+
+                        <small>
+                            Pilih satu atau beberapa Unit Kerja.
+                        </small>
+                    </div>
+
+                    <strong id="jumlahDipilih">
+                        0 Unit dipilih
+                    </strong>
+
+                </div>
+
+                <label class="unit-form-check-all">
+                    <input
+                        type="checkbox"
+                        id="pilihSemua"
+                    >
+
+                    <span>
+                        Pilih Semua Unit Kerja
+                    </span>
+                </label>
+
+                <div class="unit-form-checklist">
+
+                    @forelse ($unitKerja as $unit)
+
+                        <label class="unit-form-check-item">
+
+                            <input
+                                type="checkbox"
+                                name="unit_kerja_ids[]"
+                                value="{{ $unit->id }}"
+                                class="unit-checkbox"
+                                data-owner="{{ $unit->id_user ?? '' }}"
+                                @checked(
+                                    in_array(
+                                        (int) $unit->id,
+                                        $unitEditTerpilih,
+                                        true
+                                    )
+                                )
+                            >
+
+                            <span class="unit-form-checkbox">
+                                <i class="bi bi-check-lg"></i>
+                            </span>
+
+                            <span class="unit-form-check-content">
+
+                                <strong>
+                                    {{ $unit->nama }}
+                                </strong>
+
+                                <span>
+                                    {{ $unit->kategori_unit_kerja }}
+                                </span>
+
+                                @if ($unit->kepalaUnit)
+                                    <small>
+                                        Saat ini:
+                                        {{ $unit->kepalaUnit->nama }}
+                                    </small>
+                                @else
+                                    <small>
+                                        Belum memiliki user
+                                    </small>
+                                @endif
+
+                            </span>
+
+                        </label>
+
+                    @empty
+
+                        <div class="unit-form-empty">
+                            Data Unit Kerja belum tersedia.
+                        </div>
+
+                    @endforelse
+
+                </div>
+
+                @error('unit_kerja_ids')
+                    <small class="unit-form-error">
+                        {{ $message }}
+                    </small>
+                @enderror
+
+                @error('unit_kerja_ids.*')
+                    <small class="unit-form-error">
+                        {{ $message }}
+                    </small>
+                @enderror
+
+            </div>
+
+            <div class="unit-form-actions">
+
+                <button
+                    type="submit"
+                    class="unit-form-btn unit-form-btn-save"
+                >
+                    Simpan Perubahan
+                </button>
+
+                <a
+                    href="{{ route('unit-kerja.index') }}"
+                    class="unit-form-btn unit-form-btn-cancel"
+                >
+                    Batal
+                </a>
+
             </div>
 
         </form>
@@ -88,4 +247,56 @@
 
 @endsection
 
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const pilihSemua =
+            document.getElementById('pilihSemua');
 
+        const jumlahDipilih =
+            document.getElementById('jumlahDipilih');
+
+        const checkboxes = Array.from(
+            document.querySelectorAll('.unit-checkbox')
+        );
+
+        function updateJumlah() {
+            const jumlah = checkboxes.filter(function (checkbox) {
+                return checkbox.checked;
+            }).length;
+
+            jumlahDipilih.textContent =
+                jumlah + ' Unit dipilih';
+
+            pilihSemua.checked =
+                checkboxes.length > 0 &&
+                jumlah === checkboxes.length;
+
+            pilihSemua.indeterminate =
+                jumlah > 0 &&
+                jumlah < checkboxes.length;
+        }
+
+        pilihSemua.addEventListener(
+            'change',
+            function () {
+                checkboxes.forEach(function (checkbox) {
+                    checkbox.checked =
+                        pilihSemua.checked;
+                });
+
+                updateJumlah();
+            }
+        );
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener(
+                'change',
+                updateJumlah
+            );
+        });
+
+        updateJumlah();
+    });
+</script>
+@endpush

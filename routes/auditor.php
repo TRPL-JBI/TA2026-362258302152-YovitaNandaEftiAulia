@@ -206,6 +206,11 @@ Route::middleware([
             [TemuanAuditorController::class, 'update']
         )->name('auditor.temuan.update');
 
+        Route::patch(
+            '/temuan/{temuan}/close',
+            [TemuanAuditorController::class, 'close']
+        )->name('auditor.temuan.close');
+
         Route::delete(
             '/temuan/{temuan}',
             [TemuanAuditorController::class, 'destroy']

@@ -10,31 +10,47 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="csrf-token"
+        content="{{ csrf_token() }}"
+    >
+
     <title>
-        SPMI Auditor
+        @yield('title', 'SPMI Auditor')
     </title>
 
-    {{-- CSS utama --}}
+    {{-- =====================================================
+         BOOTSTRAP ICONS
+    ====================================================== --}}
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    {{-- =====================================================
+         CSS UTAMA SISTEM
+    ====================================================== --}}
+
     <link
         rel="stylesheet"
         href="{{ asset('css/style.css') }}"
     >
 
-    {{-- CSS dropdown profil --}}
+    {{-- =====================================================
+         CSS DROPDOWN PROFIL
+    ====================================================== --}}
+
     <link
         rel="stylesheet"
         href="{{ asset('css/profile-dropdown.css') }}"
     >
 
-    {{-- CSS khusus halaman --}}
+    {{-- =====================================================
+         CSS KHUSUS SETIAP HALAMAN
+    ====================================================== --}}
+
     @stack('styles')
-
-    {{-- Bootstrap Icons --}}
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
-        rel="stylesheet"
-    >
-
 
 </head>
 
@@ -48,7 +64,10 @@
 
     <aside class="sidebar">
 
-        {{-- Logo --}}
+        {{-- =================================================
+             LOGO
+        ================================================== --}}
+
         <div class="logo">
 
             <img
@@ -71,15 +90,21 @@
 
         </div>
 
-        {{-- Menu --}}
+        {{-- =================================================
+             MENU SIDEBAR
+        ================================================== --}}
+
         <ul>
 
-            {{-- Dashboard --}}
+            {{-- =============================================
+                 DASHBOARD
+            ============================================== --}}
+
             <li
                 class="{{
                     request()->routeIs('dashboard.auditor')
-                    ? 'active'
-                    : ''
+                        ? 'active'
+                        : ''
                 }}"
             >
 
@@ -95,14 +120,17 @@
 
             </li>
 
-            {{-- Standar Mutu --}}
+            {{-- =============================================
+                 STANDAR MUTU
+            ============================================== --}}
+
             <li
                 class="{{
                     request()->routeIs('auditor.standarmutu.*')
                     || request()->routeIs('auditor.isi.*')
                     || request()->routeIs('auditor.indikator.*')
-                    ? 'active'
-                    : ''
+                        ? 'active'
+                        : ''
                 }}"
             >
 
@@ -118,12 +146,15 @@
 
             </li>
 
-            {{-- Periode AMI --}}
+            {{-- =============================================
+                 PERIODE AMI
+            ============================================== --}}
+
             <li
                 class="{{
                     request()->routeIs('auditor.periode.*')
-                    ? 'active'
-                    : ''
+                        ? 'active'
+                        : ''
                 }}"
             >
 
@@ -139,12 +170,20 @@
 
             </li>
 
-            {{-- Audit Mutu Internal --}}
+            {{-- =============================================
+                 AUDIT MUTU INTERNAL
+            ============================================== --}}
+
             <li
                 class="{{
                     request()->routeIs('auditor.temuan.*')
-                    ? 'active'
-                    : ''
+                    || request()->routeIs('auditor.tanggapan.*')
+                    || request()->routeIs('auditor.akarmasalah.*')
+                    || request()->routeIs('auditor.rekomendasi.*')
+                    || request()->routeIs('auditor.kesimpulan.*')
+                    || request()->routeIs('auditor.lampiran.*')
+                        ? 'active'
+                        : ''
                 }}"
             >
 
@@ -160,12 +199,15 @@
 
             </li>
 
-            {{-- Laporan AMI --}}
+            {{-- =============================================
+                 LAPORAN AMI
+            ============================================== --}}
+
             <li
                 class="{{
                     request()->routeIs('auditor.laporan.*')
-                    ? 'active'
-                    : ''
+                        ? 'active'
+                        : ''
                 }}"
             >
 
@@ -181,7 +223,10 @@
 
             </li>
 
-            {{-- Logout --}}
+            {{-- =============================================
+                 LOGOUT
+            ============================================== --}}
+
             <li>
 
                 <form
@@ -219,33 +264,47 @@
     </aside>
 
     {{-- =====================================================
-         MAIN
+         KONTEN UTAMA
     ====================================================== --}}
 
     <main class="main">
 
-        {{-- Navbar --}}
+        {{-- =================================================
+             NAVBAR
+        ================================================== --}}
+
         <div class="navbar">
 
-            {{-- Search --}}
+            {{-- =============================================
+                 SEARCH
+            ============================================== --}}
+
             <div class="search-box">
 
                 <i class="bi bi-search"></i>
 
                 <input
                     type="text"
-                    placeholder="Search..."
-                    aria-label="Search"
+                    id="globalSearch"
+                    placeholder="Cari data..."
+                    aria-label="Cari data"
+                    autocomplete="off"
                 >
 
             </div>
 
-            {{-- Dropdown profil baru --}}
+            {{-- =============================================
+                 PROFILE DROPDOWN
+            ============================================== --}}
+
             <x-profile-dropdown />
 
         </div>
 
-        {{-- Content --}}
+        {{-- =================================================
+             CONTENT
+        ================================================== --}}
+
         <div class="content">
 
             @yield('content')
@@ -256,115 +315,186 @@
 
 </div>
 
+{{-- =========================================================
+     JAVASCRIPT DROPDOWN PROFIL
+========================================================== --}}
+
 <script>
+    document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+            const profileButton =
+                document.getElementById('profileBtn');
 
-document.addEventListener(
-    'DOMContentLoaded',
-    function () {
+            const profileMenu =
+                document.getElementById('profileMenu');
 
-        const profileButton =
-            document.getElementById('profileBtn');
+            /*
+            |--------------------------------------------------------------------------
+            | HENTIKAN JIKA ELEMEN PROFILE TIDAK ADA
+            |--------------------------------------------------------------------------
+            */
 
-        const profileMenu =
-            document.getElementById('profileMenu');
+            if (!profileButton || !profileMenu) {
+                return;
+            }
 
-        if (!profileButton || !profileMenu) {
-            return;
-        }
+            /*
+            |--------------------------------------------------------------------------
+            | BUKA ATAU TUTUP PROFILE
+            |--------------------------------------------------------------------------
+            */
 
-        /*
-        |--------------------------------------------------------------------------
-        | BUKA / TUTUP PROFILE
-        |--------------------------------------------------------------------------
-        */
+            profileButton.addEventListener(
+                'click',
+                function (event) {
+                    event.stopPropagation();
 
-        profileButton.addEventListener(
-            'click',
-            function (event) {
+                    const isOpen =
+                        profileMenu.classList.contains(
+                            'is-open'
+                        );
 
-                event.stopPropagation();
+                    profileMenu.classList.toggle(
+                        'is-open',
+                        !isOpen
+                    );
 
-                const isOpen =
-                    profileMenu.classList.contains(
+                    profileButton.setAttribute(
+                        'aria-expanded',
+                        String(!isOpen)
+                    );
+                }
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | CEGAH MENU TERTUTUP SAAT ISINYA DIKLIK
+            |--------------------------------------------------------------------------
+            */
+
+            profileMenu.addEventListener(
+                'click',
+                function (event) {
+                    event.stopPropagation();
+                }
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | TUTUP SAAT KLIK DI LUAR
+            |--------------------------------------------------------------------------
+            */
+
+            document.addEventListener(
+                'click',
+                function () {
+                    profileMenu.classList.remove(
                         'is-open'
                     );
 
-                profileMenu.classList.toggle(
-                    'is-open',
-                    !isOpen
-                );
-
-                profileButton.setAttribute(
-                    'aria-expanded',
-                    String(!isOpen)
-                );
-            }
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | CEGAH MENU TERTUTUP SAAT DIKLIK
-        |--------------------------------------------------------------------------
-        */
-
-        profileMenu.addEventListener(
-            'click',
-            function (event) {
-
-                event.stopPropagation();
-            }
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | TUTUP SAAT KLIK DI LUAR
-        |--------------------------------------------------------------------------
-        */
-
-        document.addEventListener(
-            'click',
-            function () {
-
-                profileMenu.classList.remove(
-                    'is-open'
-                );
-
-                profileButton.setAttribute(
-                    'aria-expanded',
-                    'false'
-                );
-            }
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | TUTUP SAAT TEKAN ESC
-        |--------------------------------------------------------------------------
-        */
-
-        document.addEventListener(
-            'keydown',
-            function (event) {
-
-                if (event.key !== 'Escape') {
-                    return;
+                    profileButton.setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
                 }
+            );
 
-                profileMenu.classList.remove(
-                    'is-open'
-                );
+            /*
+            |--------------------------------------------------------------------------
+            | TUTUP SAAT MENEKAN ESCAPE
+            |--------------------------------------------------------------------------
+            */
 
-                profileButton.setAttribute(
-                    'aria-expanded',
-                    'false'
-                );
-            }
-        );
+            document.addEventListener(
+                'keydown',
+                function (event) {
+                    if (event.key !== 'Escape') {
+                        return;
+                    }
 
-    }
-);
+                    profileMenu.classList.remove(
+                        'is-open'
+                    );
 
+                    profileButton.setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
+
+                    profileButton.focus();
+                }
+            );
+        }
+    );
 </script>
+
+{{-- =========================================================
+     JAVASCRIPT PENCARIAN SEDERHANA
+========================================================== --}}
+
+<script>
+    document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+            const searchInput =
+                document.getElementById('globalSearch');
+
+            if (!searchInput) {
+                return;
+            }
+
+            searchInput.addEventListener(
+                'input',
+                function () {
+                    const keyword =
+                        searchInput.value
+                            .toLowerCase()
+                            .trim();
+
+                    const tableRows =
+                        document.querySelectorAll(
+                            'table tbody tr'
+                        );
+
+                    tableRows.forEach(
+                        function (row) {
+                            /*
+                            |--------------------------------------------------------------------------
+                            | JANGAN SEMBUNYIKAN EMPTY STATE
+                            |--------------------------------------------------------------------------
+                            */
+
+                            if (
+                                row.querySelector(
+                                    '.auditor-empty-state'
+                                )
+                            ) {
+                                return;
+                            }
+
+                            const rowText =
+                                row.textContent
+                                    .toLowerCase()
+                                    .trim();
+
+                            row.style.display =
+                                rowText.includes(keyword)
+                                    ? ''
+                                    : 'none';
+                        }
+                    );
+                }
+            );
+        }
+    );
+</script>
+
+{{-- =========================================================
+     JAVASCRIPT KHUSUS SETIAP HALAMAN
+========================================================== --}}
+
+@stack('scripts')
 
 </body>
 

@@ -437,11 +437,24 @@ class AuditeePenerapanTest extends TestCase
             )
         );
 
-        $this->assertDatabaseMissing(
+        $this->assertSoftDeleted(
             'penerapan_standar',
             [
                 'id' => $penerapan->id,
             ]
+        );
+
+        $this->assertDatabaseHas(
+            'penerapan_standar',
+            [
+                'id' => $penerapan->id,
+            ]
+        );
+
+        $this->assertNotNull(
+            PenerapanStandar::withTrashed()
+                ->findOrFail($penerapan->id)
+                ->deleted_at
         );
     }
 

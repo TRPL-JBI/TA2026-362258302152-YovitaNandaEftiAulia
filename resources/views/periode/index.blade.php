@@ -67,8 +67,28 @@
                     </td>
 
                     <td>
-                        {{ $item->unitKerja->nama ?? '-' }}
-                    </td>
+    @if ($item->unitKerjas->isNotEmpty())
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            @foreach ($item->unitKerjas as $unit)
+                <span style="
+                    display:inline-block;
+                    padding:5px 10px;
+                    border-radius:20px;
+                    background:#eef2ff;
+                    color:#4338ca;
+                    font-size:12px;
+                    font-weight:600;
+                ">
+                    {{ $unit->nama ?? '-' }}
+                </span>
+            @endforeach
+        </div>
+    @elseif ($item->unitKerja)
+        {{ $item->unitKerja->nama ?? '-' }}
+    @else
+        -
+    @endif
+</td>
 
                     <td>
                         {{ $item->tanggal_buka_ami ?? '-' }}

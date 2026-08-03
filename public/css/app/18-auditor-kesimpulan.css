@@ -1,0 +1,593 @@
+/* ==============================
+   HALAMAN FORM KESIMPULAN AUDIT
+================================ */
+
+
+.audit-form-page{
+
+    padding:25px;
+
+}
+
+
+
+/* Breadcrumb */
+
+.audit-form-breadcrumb{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    font-size:14px;
+
+    color:#64748b;
+
+    margin-bottom:25px;
+
+    flex-wrap:wrap;
+
+}
+
+
+.audit-form-breadcrumb strong{
+
+    color:#1e293b;
+
+}
+
+
+
+/* CARD */
+
+.audit-form-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:30px;
+
+    max-width:900px;
+
+    box-shadow:
+    0 10px 25px rgba(15,23,42,.06);
+
+}
+
+
+
+/* HEADER */
+
+.audit-form-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:30px;
+
+}
+
+
+
+.audit-form-label{
+
+    font-size:13px;
+
+    font-weight:700;
+
+    color:#2563eb;
+
+}
+
+
+
+.audit-form-header h2{
+
+    margin:8px 0;
+
+    font-size:28px;
+
+    font-weight:800;
+
+    color:#0f172a;
+
+}
+
+
+
+.audit-form-header p{
+
+    color:#64748b;
+
+    margin:0;
+
+    line-height:1.6;
+
+}
+
+
+
+.audit-form-header-icon{
+
+    width:55px;
+
+    height:55px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:#eff6ff;
+
+    color:#2563eb;
+
+    font-size:25px;
+
+}
+
+
+
+/* FORM */
+
+.audit-form-group{
+
+    margin-bottom:25px;
+
+}
+
+
+
+.audit-form-group label{
+
+    display:block;
+
+    font-weight:700;
+
+    color:#1e293b;
+
+    margin-bottom:10px;
+
+}
+
+
+
+.required-mark{
+
+    color:red;
+
+}
+
+
+
+.audit-form-control{
+
+    width:100%;
+
+    box-sizing:border-box;
+
+    padding:13px 15px;
+
+    border-radius:12px;
+
+    border:1px solid #dbe3ef;
+
+    font-size:15px;
+
+    color:#334155;
+
+    background:white;
+
+}
+
+
+
+.audit-form-control:focus{
+
+    outline:none;
+
+    border-color:#2563eb;
+
+}
+
+
+
+/* TEXTAREA */
+
+textarea.audit-form-control{
+
+    resize:vertical;
+
+    min-height:160px;
+
+}
+
+
+
+/* ERROR */
+
+.audit-form-error{
+
+    display:block;
+
+    margin-top:8px;
+
+    color:#dc2626;
+
+}
+
+
+
+/* BUTTON */
+
+.audit-form-actions{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:12px;
+
+    margin-top:30px;
+
+}
+
+
+
+.audit-form-button{
+
+    padding:12px 22px;
+
+    border-radius:10px;
+
+    text-decoration:none;
+
+    border:none;
+
+    cursor:pointer;
+
+    font-weight:700;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
+
+
+
+.button-back{
+
+    background:#e2e8f0;
+
+    color:#334155;
+
+}
+
+
+
+.button-save{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+/* =========================================================
+   DETAIL KESIMPULAN AUDIT
+========================================================= */
+
+.audit-detail-page {
+    padding: 24px;
+}
+
+.audit-detail-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.audit-detail-breadcrumb a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.audit-detail-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.audit-detail-breadcrumb strong {
+    color: #0f172a;
+}
+
+.audit-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.audit-detail-label {
+    display: inline-block;
+    margin-bottom: 7px;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.audit-detail-header h1 {
+    margin: 0 0 8px;
+    color: #0f172a;
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.audit-detail-header p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.audit-detail-header-icon {
+    width: 58px;
+    height: 58px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 25px;
+}
+
+.audit-detail-card {
+    padding: 28px;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.audit-detail-card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.audit-detail-card-title h2 {
+    margin: 0 0 5px;
+    color: #0f172a;
+    font-size: 21px;
+}
+
+.audit-detail-card-title p {
+    margin: 0;
+    color: #64748b;
+}
+
+.audit-detail-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.audit-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    padding: 25px 0;
+}
+
+.audit-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.audit-detail-item-icon {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #e0e7ff;
+    color: #4f46e5;
+    font-size: 18px;
+}
+
+.audit-detail-item-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.audit-detail-item strong {
+    color: #0f172a;
+    font-size: 15px;
+}
+
+.audit-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.status-berjalan {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-draf {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-ditutup {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.audit-conclusion-section {
+    margin-top: 5px;
+    padding: 24px;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.audit-conclusion-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.audit-conclusion-title > i {
+    color: #2563eb;
+    font-size: 22px;
+}
+
+.audit-conclusion-title span {
+    display: block;
+    margin-bottom: 4px;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+}
+
+.audit-conclusion-title h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 20px;
+}
+
+.audit-conclusion-content {
+    padding: 18px;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #334155;
+    line-height: 1.8;
+    white-space: pre-line;
+}
+
+.audit-detail-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 25px;
+}
+
+.audit-detail-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.audit-detail-actions-right form {
+    margin: 0;
+}
+
+.audit-detail-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button-back {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.button-edit {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.button-delete {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.audit-detail-button:hover {
+    filter: brightness(0.97);
+}
+
+@media (max-width: 768px) {
+    .audit-detail-page {
+        padding: 16px;
+    }
+
+    .audit-detail-header {
+        align-items: flex-start;
+    }
+
+    .audit-detail-header-icon {
+        display: none;
+    }
+
+    .audit-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .audit-detail-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .audit-detail-actions-right {
+        width: 100%;
+    }
+
+    .audit-detail-button,
+    .audit-detail-actions-right form {
+        width: 100%;
+    }
+}

@@ -2,62 +2,43 @@
 
 @section('content')
 
+<link
+    rel="stylesheet"
+    href="{{ asset('css/19-admin-unit-kerja.css') }}"
+>
+
 <div class="unit-page">
 
-    <div class="unit-breadcrumb">
-        <a href="{{ route('dashboard') }}">
-            Dashboard
-        </a>
+    <h3 class="unit-breadcrumb">
+        Dashboard / Daftar Unit Kerja
+    </h3>
 
-        <span>/</span>
-
-        <strong>
-            Daftar Unit Kerja
-        </strong>
-    </div>
-
-    @if (session('success'))
+    @if(session('success'))
         <div class="unit-alert unit-alert-success">
             <i class="bi bi-check-circle-fill"></i>
-
-            <span>
-                {{ session('success') }}
-            </span>
+            {{ session('success') }}
         </div>
     @endif
 
-    @if (session('error'))
+    @if(session('error'))
         <div class="unit-alert unit-alert-danger">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-
-            <span>
-                {{ session('error') }}
-            </span>
+            <i class="bi bi-exclamation-circle-fill"></i>
+            {{ session('error') }}
         </div>
     @endif
 
-    <div class="unit-card">
+    <div class="unit-card unit-list-card">
 
         <div class="unit-card-header">
 
-            <div>
-                <h1>
-                    Daftar Unit Kerja
-                </h1>
-
-                <p>
-                    Data Unit Kerja beserta user yang menjadi
-                    penanggung jawab.
-                </p>
-            </div>
+            <h1>Data Unit Kerja</h1>
 
             <a
                 href="{{ route('unit-kerja.create') }}"
-                class="unit-btn-add"
+                class="unit-primary-button"
             >
-                <i class="bi bi-plus-circle"></i>
-
-                Tambah Data
+                <i class="bi bi-plus-lg"></i>
+                Tambah Unit
             </a>
 
         </div>
@@ -68,7 +49,7 @@
 
                 <thead>
                     <tr>
-                        <th class="unit-col-no">
+                        <th class="unit-number-column">
                             No.
                         </th>
 
@@ -77,14 +58,10 @@
                         </th>
 
                         <th>
-                            Kategori Unit Kerja
+                            Kategori
                         </th>
 
-                        <th>
-                            Nama User
-                        </th>
-
-                        <th class="unit-col-action">
+                        <th class="unit-action-column">
                             Aksi
                         </th>
                     </tr>
@@ -92,105 +69,80 @@
 
                 <tbody>
 
-                    @forelse ($data as $item)
+                    @forelse($data as $item)
 
                         <tr>
-                            <td class="unit-text-center">
+
+                            <td>
                                 {{ $loop->iteration }}
                             </td>
 
                             <td>
-                                <strong class="unit-name">
-                                    {{ $item->nama }}
-                                </strong>
+                                {{ $item->nama }}
                             </td>
 
                             <td>
-                                <span class="unit-category">
-                                    {{ $item->kategori_unit_kerja }}
-                                </span>
+                                {{ ucwords($item->kategori_unit_kerja) }}
                             </td>
 
                             <td>
-                                @if ($item->kepalaUnit)
 
-                                    <div class="unit-user">
-                                        <div class="unit-user-icon">
-                                            <i class="bi bi-person"></i>
-                                        </div>
-
-                                        <div>
-                                            <strong>
-                                                {{ $item->kepalaUnit->nama }}
-                                            </strong>
-
-                                            <small>
-                                                {{ $item->kepalaUnit->email }}
-                                            </small>
-                                        </div>
-                                    </div>
-
-                                @else
-
-                                    <span class="unit-user-empty">
-                                        Belum ditentukan
-                                    </span>
-
-                                @endif
-                            </td>
-
-                            <td>
-                                <div class="unit-actions">
+                                <div class="unit-action-group">
 
                                     <a
                                         href="{{ route('unit-kerja.show', $item->id) }}"
-                                        class="unit-action-btn unit-action-show"
-                                        title="Lihat"
+                                        class="unit-action-button unit-action-view"
+                                        title="Lihat detail"
                                     >
                                         <i class="bi bi-eye"></i>
                                     </a>
 
                                     <a
                                         href="{{ route('unit-kerja.edit', $item->id) }}"
-                                        class="unit-action-btn unit-action-edit"
-                                        title="Edit penugasan"
+                                        class="unit-action-button unit-action-edit"
+                                        title="Edit unit kerja"
                                     >
-                                        <i class="bi bi-pencil-square"></i>
+                                        <i class="bi bi-pencil"></i>
                                     </a>
 
                                     <form
                                         action="{{ route('unit-kerja.destroy', $item->id) }}"
                                         method="POST"
                                         class="unit-delete-form"
-                                        onsubmit="return confirm('Yakin ingin menghapus Unit Kerja ini?')"
+                                        onsubmit="return confirm('Yakin hapus?')"
                                     >
                                         @csrf
                                         @method('DELETE')
 
                                         <button
                                             type="submit"
-                                            class="unit-action-btn unit-action-delete"
-                                            title="Hapus"
+                                            class="unit-action-button unit-action-delete"
+                                            title="Hapus unit kerja"
                                         >
                                             <i class="bi bi-trash"></i>
                                         </button>
+
                                     </form>
 
                                 </div>
+
                             </td>
+
                         </tr>
 
                     @empty
 
                         <tr>
-                            <td colspan="5">
+                            <td colspan="4">
 
-                                <div class="unit-empty">
+                                <div class="unit-empty-state">
+
                                     <i class="bi bi-building"></i>
 
-                                    <strong>
-                                        Data Unit Kerja belum tersedia
-                                    </strong>
+                                    <p>
+                                        Data Unit Kerja belum tersedia.
+                                    </p>
+
                                 </div>
 
                             </td>

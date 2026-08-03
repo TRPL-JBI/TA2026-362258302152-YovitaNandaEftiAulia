@@ -44,8 +44,14 @@ class AuditeeStandarController extends Controller
         | USER AUDITEE
         |--------------------------------------------------------------------------
         */
-        $user = session('user');
+        $user = request()->attributes->get('auth_user')
+            ?? \App\Models\User::find(session('user_id'));
 
+        abort_unless(
+            $user && $user->status === 'aktif',
+            403,
+            'Akun tidak ditemukan atau sudah dinonaktifkan.'
+        );
         $idUser = is_array($user)
             ? ($user['id'] ?? null)
             : ($user->id ?? null);

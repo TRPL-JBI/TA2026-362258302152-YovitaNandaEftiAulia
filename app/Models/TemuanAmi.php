@@ -12,6 +12,12 @@ class TemuanAmi extends Model
 {
     use SoftDeletes;
 
+    /*
+    |--------------------------------------------------------------------------
+    | KONFIGURASI MODEL
+    |--------------------------------------------------------------------------
+    */
+
     protected $table = 'temuan_ami';
 
     public $timestamps = false;
@@ -48,8 +54,8 @@ class TemuanAmi extends Model
     | ALIAS PENERAPAN
     |--------------------------------------------------------------------------
     |
-    | Alias ini dipertahankan agar kode lama yang memakai
-    | $temuan->penerapan tetap dapat digunakan.
+    | Relasi ini digunakan agar kode lama yang memakai
+    | $temuan->penerapan tetap dapat berjalan.
     |
     */
 
@@ -67,9 +73,7 @@ class TemuanAmi extends Model
     | REKOMENDASI
     |--------------------------------------------------------------------------
     |
-    | Satu data temuan memiliki satu rekomendasi.
-    | Rekomendasi dapat berupa rekomendasi peningkatan
-    | maupun rekomendasi perbaikan.
+    | Satu temuan memiliki satu rekomendasi.
     |
     */
 
@@ -86,6 +90,9 @@ class TemuanAmi extends Model
     |--------------------------------------------------------------------------
     | TANGGAPAN AUDITEE
     |--------------------------------------------------------------------------
+    |
+    | Satu temuan dapat memiliki beberapa tanggapan dari auditee.
+    |
     */
 
     public function tanggapan(): HasMany
@@ -101,6 +108,9 @@ class TemuanAmi extends Model
     |--------------------------------------------------------------------------
     | AKAR MASALAH
     |--------------------------------------------------------------------------
+    |
+    | Foreign key pada tabel akar_masalah adalah id_temuan.
+    |
     */
 
     public function akarMasalah(): HasMany
@@ -137,10 +147,23 @@ class TemuanAmi extends Model
     {
         return in_array(
             $this->jenis_temuan,
-            ['kts', 'ob'],
+            [
+                'kts',
+                'ob',
+            ],
             true
         );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | LABEL JENIS TEMUAN
+    |--------------------------------------------------------------------------
+    |
+    | Dapat dipanggil menggunakan:
+    | $temuan->label_jenis_temuan
+    |
+    */
 
     public function getLabelJenisTemuanAttribute(): string
     {

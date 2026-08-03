@@ -3,13 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AkarMasalah extends Model
 {
-    use SoftDeletes;
-
     protected $table = 'akar_masalah';
 
     public $timestamps = false;
@@ -21,22 +18,37 @@ class AkarMasalah extends Model
     ];
 
     protected $casts = [
-        'deleted_at' => 'datetime',
+        'id_temuan' => 'integer',
+        'id_user' => 'integer',
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | TEMUAN AMI
+    |--------------------------------------------------------------------------
+    */
 
     public function temuan(): BelongsTo
     {
         return $this->belongsTo(
             TemuanAmi::class,
-            'id_temuan'
+            'id_temuan',
+            'id'
         );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | USER
+    |--------------------------------------------------------------------------
+    */
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(
             User::class,
-            'id_user'
+            'id_user',
+            'id'
         );
     }
 }

@@ -10,7 +10,7 @@
 @section('content')
 
 @php
-    $sessionUser = session('user');
+    $sessionUser = $authUser;
 
     $namaUser = is_array($sessionUser)
         ? ($sessionUser['nama'] ?? 'Administrator')

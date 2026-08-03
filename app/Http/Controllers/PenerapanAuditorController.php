@@ -185,15 +185,21 @@ class PenerapanAuditorController extends Controller
     | AMBIL ID AUDITOR YANG LOGIN
     |--------------------------------------------------------------------------
     |
-    | Proyek Anda menyimpan data login pada session('user').
+    | Proyek Anda menyimpan data login pada session('user_id').
     | Session dapat berbentuk object atau array.
     |
     */
 
     private function getLoginAuditorId(): int
     {
-        $user = session('user');
+        $user = request()->attributes->get('auth_user')
+            ?? \App\Models\User::find(session('user_id'));
 
+        abort_unless(
+            $user && $user->status === 'aktif',
+            403,
+            'Akun tidak ditemukan atau sudah dinonaktifkan.'
+        );
         abort_if(
             !$user,
             401,

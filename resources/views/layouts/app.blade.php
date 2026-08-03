@@ -31,31 +31,57 @@
         href="{{ asset('css/profile-dropdown.css') }}"
     >
 
-    {{-- CSS form user --}}
+    {{-- =====================================================
+         CSS FORM USER
+    ====================================================== --}}
+
     @php
         $userFormCssPath = public_path(
             'css/app/16-admin-user-form.css'
         );
     @endphp
 
-    @if (file_exists($userFormCssPath))
+    @if(file_exists($userFormCssPath))
         <link
             rel="stylesheet"
             href="{{ asset('css/app/16-admin-user-form.css') }}?v={{ filemtime($userFormCssPath) }}"
         >
     @endif
 
-    {{-- CSS daftar Unit Kerja --}}
+    {{-- =====================================================
+         CSS DAFTAR UNIT KERJA LAMA
+    ====================================================== --}}
+
     @php
         $unitIndexCssPath = public_path(
             'css/app/15-admin-unit-index.css'
         );
     @endphp
 
-    @if (file_exists($unitIndexCssPath))
+    @if(file_exists($unitIndexCssPath))
         <link
             rel="stylesheet"
             href="{{ asset('css/app/15-admin-unit-index.css') }}?v={{ filemtime($unitIndexCssPath) }}"
+        >
+    @endif
+
+    {{-- =====================================================
+         CSS CRUD UNIT KERJA BARU
+    ====================================================== --}}
+
+    @php
+        $unitKerjaCssPath = public_path(
+            'css/app/19-admin-unit-kerja.css'
+        );
+    @endphp
+
+    @if(
+        request()->routeIs('unit-kerja.*')
+        && file_exists($unitKerjaCssPath)
+    )
+        <link
+            rel="stylesheet"
+            href="{{ asset('css/app/19-admin-unit-kerja.css') }}?v={{ filemtime($unitKerjaCssPath) }}"
         >
     @endif
 
@@ -102,12 +128,12 @@
             {{-- Dashboard --}}
             <li
                 class="{{
-                    request()->routeIs('dashboard')
+                    request()->routeIs('dashboard.admin')
                         ? 'active'
                         : ''
                 }}"
             >
-                <a href="{{ route('dashboard') }}">
+                <a href="{{ route('dashboard.admin') }}">
 
                     <i class="bi bi-house-door"></i>
 
@@ -219,8 +245,9 @@
                 </a>
             </li>
 
-            {{-- Logout sidebar --}}
+            {{-- Logout --}}
             <li>
+
                 <form
                     action="{{ route('logout') }}"
                     method="POST"
@@ -237,8 +264,11 @@
                         <span>
                             Logout
                         </span>
+
                     </button>
+
                 </form>
+
             </li>
 
         </ul>
@@ -276,7 +306,9 @@
 
         {{-- Isi halaman --}}
         <div class="content">
+
             @yield('content')
+
         </div>
 
     </main>
@@ -295,6 +327,12 @@
 
             const profileMenu =
                 document.getElementById('profileMenu');
+
+            /*
+            |--------------------------------------------------------------------------
+            | DROPDOWN PROFIL
+            |--------------------------------------------------------------------------
+            */
 
             if (profileButton && profileMenu) {
                 profileButton.addEventListener(
@@ -358,9 +396,11 @@
             }
 
             /*
-             * Search sederhana untuk tabel pada halaman aktif.
-             * Mencari isi seluruh baris tabel.
-             */
+            |--------------------------------------------------------------------------
+            | SEARCH DATA TABEL
+            |--------------------------------------------------------------------------
+            */
+
             const globalSearch =
                 document.getElementById('globalSearch');
 

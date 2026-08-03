@@ -11,20 +11,10 @@ class KesimpulanAudit extends Model
     public $timestamps = false;
 
     protected $fillable = [
-
         'id_periode_ami',
-
         'kesimpulan',
-
-        'id_user'
-
+        'id_user',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | PERIODE AMI
-    |--------------------------------------------------------------------------
-    */
 
     public function periodeAmi()
     {
@@ -33,12 +23,6 @@ class KesimpulanAudit extends Model
             'id_periode_ami'
         );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | USER
-    |--------------------------------------------------------------------------
-    */
 
     public function user()
     {

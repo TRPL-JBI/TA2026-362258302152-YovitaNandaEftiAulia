@@ -2,116 +2,256 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    /**
-     * Menampilkan halaman login.
-     */
-    public function showLogin()
+    /*
+    |--------------------------------------------------------------------------
+    | HALAMAN LOGIN
+    |--------------------------------------------------------------------------
+    |
+    | Method index dipertahankan karena route login saat ini memanggil index.
+    |
+    */
+
+    public function index(): View
     {
-        $loginUser = session('user');
-
-        if ($loginUser) {
-            $role = is_array($loginUser)
-                ? ($loginUser['role'] ?? null)
-                : ($loginUser->role ?? null);
-
-            return match ($role) {
-                'admin' => redirect()->route('dashboard'),
-                'auditee' => redirect()->route('dashboard.auditee'),
-                'auditor' => redirect()->route('dashboard.auditor'),
-                default => view('auth.login'),
-            };
-        }
-
         return view('auth.login');
     }
 
-    /**
-     * Memproses login.
-     */
-    public function login(Request $request)
+    /*
+    |--------------------------------------------------------------------------
+    | ALIAS HALAMAN LOGIN
+    |--------------------------------------------------------------------------
+    |
+    | Method ini tetap disediakan agar route yang memakai showLogin
+    | juga tetap dapat digunakan.
+    |
+    */
+
+    public function showLogin(): View
+    {
+        return view('auth.login');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROSES LOGIN
+    |--------------------------------------------------------------------------
+    */
+
+    public function login(Request $request): RedirectResponse
     {
         $validated = $request->validate(
             [
                 'username' => [
                     'required',
                     'string',
-                    'max:150',
+                    'max:255',
                 ],
+
                 'password' => [
                     'required',
                     'string',
                 ],
             ],
             [
-                'username.required' => 'Username atau email wajib diisi.',
-                'password.required' => 'Password wajib diisi.',
+                'username.required' =>
+                    'Username wajib diisi.',
+
+                'password.required' =>
+                    'Password wajib diisi.',
             ]
         );
 
-        $username = trim($validated['username']);
+        /*
+        |--------------------------------------------------------------------------
+        | CARI PENGGUNA
+        |--------------------------------------------------------------------------
+        |
+        | Form memakai nama input username, tetapi database memakai kolom nama.
+        | Pengguna juga dapat login menggunakan email.
+        |
+        */
 
-        $user = DB::table('users')
-            ->where('status', 'aktif')
-            ->where(function ($query) use ($username) {
-                $query
-                    ->where('nama', $username)
-                    ->orWhere('email', $username);
-            })
+        $username = strtolower(
+            trim($validated['username'])
+        );
+
+        $user = User::query()
+            ->whereRaw(
+                'LOWER(TRIM(nama)) = ?',
+                [$username]
+            )
+            ->orWhereRaw(
+                'LOWER(TRIM(email)) = ?',
+                [$username]
+            )
             ->first();
 
+        /*
+        |--------------------------------------------------------------------------
+        | PERIKSA PASSWORD
+        |--------------------------------------------------------------------------
+        */
+
         if (
-            !$user ||
-            !Hash::check($validated['password'], $user->password)
+            !$user
+            || !Hash::check(
+                $validated['password'],
+                $user->password
+            )
         ) {
             return back()
-                ->withInput($request->only('username'))
-                ->with('error', 'Username atau password salah.');
+                ->withInput(
+                    $request->only('username')
+                )
+                ->withErrors([
+                    'username' =>
+                        'Username atau password salah.',
+                ]);
         }
 
-        // Mencegah session fixation.
+        /*
+        |--------------------------------------------------------------------------
+        | NORMALISASI STATUS DAN ROLE
+        |--------------------------------------------------------------------------
+        */
+
+        $status = strtolower(
+            trim((string) $user->status)
+        );
+
+        $role = strtolower(
+            trim((string) $user->role)
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | PERIKSA STATUS AKUN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($status !== 'aktif') {
+            return back()
+                ->withInput(
+                    $request->only('username')
+                )
+                ->withErrors([
+                    'username' =>
+                        'Akun Anda sedang tidak aktif.',
+                ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PERIKSA ROLE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !in_array(
+                $role,
+                [
+                    'admin',
+                    'auditor',
+                    'auditee',
+                ],
+                true
+            )
+        ) {
+            return back()
+                ->withInput(
+                    $request->only('username')
+                )
+                ->withErrors([
+                    'username' =>
+                        'Role pengguna tidak valid.',
+                ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | HAPUS SESSION LAMA
+        |--------------------------------------------------------------------------
+        */
+
+        $request->session()->forget([
+            'user',
+            'role',
+            'nama',
+            'username',
+            'email',
+            'id_unit_kerja',
+            'user_id',
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | SIMPAN SESSION BARU
+        |--------------------------------------------------------------------------
+        |
+        | Sesuai revisi dosen, session hanya menyimpan user_id.
+        |
+        */
+
         $request->session()->regenerate();
 
-        $request->session()->put('user', $user);
+        $request->session()->put(
+            'user_id',
+            $user->id
+        );
 
-        return match ($user->role) {
-            'admin' => redirect()->route('dashboard'),
-            'auditee' => redirect()->route('dashboard.auditee'),
-            'auditor' => redirect()->route('dashboard.auditor'),
-            default => $this->logoutInvalidRole($request),
+        /*
+        |--------------------------------------------------------------------------
+        | REDIRECT BERDASARKAN ROLE
+        |--------------------------------------------------------------------------
+        */
+
+        return match ($role) {
+            'admin' => redirect()
+                ->route('dashboard.admin'),
+
+            'auditor' => redirect()
+                ->route('dashboard.auditor'),
+
+            'auditee' => redirect()
+                ->route('dashboard.auditee'),
+
+            default => redirect()
+                ->route('login')
+                ->withErrors([
+                    'username' =>
+                        'Role pengguna tidak dikenali.',
+                ]),
         };
     }
 
-    /**
-     * Memproses logout.
-     */
-    public function logout(Request $request)
-    {
-        $request->session()->forget('user');
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    /*
+    |--------------------------------------------------------------------------
+    | LOGOUT
+    |--------------------------------------------------------------------------
+    */
 
-        return redirect()
-            ->route('landing')
-            ->with('success', 'Anda berhasil logout.');
-    }
+    public function logout(
+        Request $request
+    ): RedirectResponse {
+        $request->session()->flush();
 
-    /**
-     * Menangani role yang tidak valid.
-     */
-    private function logoutInvalidRole(Request $request)
-    {
-        $request->session()->forget('user');
         $request->session()->invalidate();
+
         $request->session()->regenerateToken();
 
         return redirect()
             ->route('login')
-            ->with('error', 'Role pengguna tidak valid.');
+            ->with(
+                'success',
+                'Anda berhasil logout.'
+            );
     }
 }

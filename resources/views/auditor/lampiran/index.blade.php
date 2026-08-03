@@ -1,7 +1,13 @@
 ﻿@extends('layouts.auditor')
 
-@section('content')
+@push('styles')
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/app/18-auditor-kesimpulan.css') }}"
+    >
+@endpush
 
+@section('content')
 <!-- ===========================================================
     BREADCRUMB
 =========================================================== -->
@@ -56,61 +62,6 @@
 
     </div>
 
-    <!-- =======================================================
-    TAB MENU
-======================================================= -->
-
-<div class="temuan-tab">
-
-    <a
-        href="{{ route('auditor.temuan.index') }}"
-        class="{{ request()->routeIs('auditor.temuan.*') ? 'active' : '' }}">
-
-        Temuan Audit
-
-    </a>
-
-    <a
-        href="{{ route('auditor.tanggapan.index') }}"
-        class="{{ request()->routeIs('auditor.tanggapan.*') ? 'active' : '' }}">
-
-        Tanggapan Auditee
-
-    </a>
-
-    <a
-        href="{{ route('auditor.akarmasalah.index') }}"
-        class="{{ request()->routeIs('auditor.akarmasalah.*') ? 'active' : '' }}">
-
-        Akar Masalah
-
-    </a>
-
-    <a
-        href="{{ route('auditor.rekomendasi.index') }}"
-        class="{{ request()->routeIs('auditor.rekomendasi.*') ? 'active' : '' }}">
-
-        Rekomendasi
-
-    </a>
-
-    <a
-        href="{{ route('auditor.kesimpulan.index') }}"
-        class="{{ request()->routeIs('auditor.kesimpulan.*') ? 'active' : '' }}">
-
-        Kesimpulan
-
-    </a>
-
-    <a
-        href="{{ route('auditor.lampiran.index') }}"
-        class="{{ request()->routeIs('auditor.lampiran.*') ? 'active' : '' }}">
-
-        Lampiran
-
-    </a>
-
-</div>
 
     <!-- =======================================================
         TABLE

@@ -15,15 +15,15 @@ return new class extends Migration
          * rekomendasi belum terhubung langsung ke temuan.
          */
         DB::statement("
-            UPDATE rekomendasi_peningkatan AS rp
-            SET rp.id_temuan = (
+            UPDATE rekomendasi_peningkatan
+            SET id_temuan = (
                 SELECT MIN(ta.id)
                 FROM temuan_ami AS ta
                 WHERE ta.id_penerapan_standar =
-                      rp.id_penerapan_standar
-                  AND ta.deleted_at IS NULL
+                    rekomendasi_peningkatan.id_penerapan_standar
+                AND ta.deleted_at IS NULL
             )
-            WHERE rp.id_temuan IS NULL
+            WHERE id_temuan IS NULL
         ");
     }
 

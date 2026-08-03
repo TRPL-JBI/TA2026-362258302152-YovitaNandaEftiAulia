@@ -1,0 +1,492 @@
+/*
+|--------------------------------------------------------------------------
+| ADMIN UNIT KERJA
+|--------------------------------------------------------------------------
+*/
+
+.unit-page,
+.unit-page * {
+    box-sizing: border-box;
+}
+
+.unit-page {
+    width: 100%;
+    min-height: calc(100vh - 90px);
+    padding: 24px 24px 40px;
+    color: #0f172a;
+    font-family: inherit;
+}
+
+/*
+|--------------------------------------------------------------------------
+| BREADCRUMB
+|--------------------------------------------------------------------------
+*/
+
+.unit-page .unit-breadcrumb {
+    display: block;
+    margin: 0 0 20px;
+    padding: 0;
+    color: #475569;
+    background: transparent;
+    border: 0;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+/*
+|--------------------------------------------------------------------------
+| CARD
+|--------------------------------------------------------------------------
+*/
+
+.unit-page .unit-card {
+    width: 100%;
+    margin: 0;
+    background: #ffffff;
+    border: 0;
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.unit-page .unit-list-card {
+    padding: 26px 28px 30px;
+}
+
+.unit-page .unit-form-card,
+.unit-page .unit-detail-card {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 42px 36px 36px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| HEADER
+|--------------------------------------------------------------------------
+*/
+
+.unit-page .unit-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.unit-page .unit-card-header h1,
+.unit-page .unit-form-title {
+    margin: 0;
+    padding: 0;
+    color: #0f172a;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.unit-page .unit-form-title {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/*
+|--------------------------------------------------------------------------
+| BUTTON
+|--------------------------------------------------------------------------
+*/
+
+.unit-page .unit-primary-button,
+.unit-page .unit-save-button,
+.unit-page .unit-cancel-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 136px;
+    min-height: 46px;
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.unit-page .unit-primary-button,
+.unit-page .unit-save-button {
+    color: #ffffff !important;
+    background: #4f46e5;
+    box-shadow: 0 8px 18px rgba(79, 70, 229, 0.18);
+}
+
+.unit-page .unit-primary-button:hover,
+.unit-page .unit-save-button:hover {
+    background: #4338ca;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+.unit-page .unit-cancel-button {
+    color: #ffffff !important;
+    background: #ef4444;
+    box-shadow: 0 8px 18px rgba(239, 68, 68, 0.16);
+}
+
+.unit-page .unit-cancel-button:hover {
+    background: #dc2626;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+/*
+|--------------------------------------------------------------------------
+| TABLE
+|--------------------------------------------------------------------------
+*/
+
+.unit-page .unit-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.unit-page .unit-table {
+    width: 100%;
+    min-width: 720px;
+    margin: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.unit-page .unit-table thead {
+    background: #eef2ff;
+}
+
+.unit-page .unit-table th {
+    padding: 18px 18px;
+    color: #0f172a;
+    background: #eef2ff;
+    border: 0;
+    border-bottom: 1px solid #dbe3ff;
+    font-size: 15px;
+    font-weight: 800;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.unit-page .unit-table td {
+    padding: 18px 18px;
+    color: #172033;
+    background: #ffffff;
+    border: 0;
+    border-bottom: 1px solid #edf0f5;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.unit-page .unit-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.unit-page .unit-table tbody tr:hover td {
+    background: #fafbff;
+}
+
+.unit-page .unit-number-column {
+    width: 12%;
+}
+
+.unit-page .unit-action-column {
+    width: 18%;
+}
+
+/*
+|--------------------------------------------------------------------------
+| ACTION BUTTONS
+|--------------------------------------------------------------------------
+*/
+
+.unit-page .unit-action-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.unit-page .unit-delete-form {
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+}
+
+.unit-page .unit-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 11px;
+    font-size: 18px;
+    line-height: 1;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: 0.18s ease;
+}
+
+.unit-page .unit-action-button:hover {
+    transform: translateY(-1px);
+    filter: brightness(0.98);
+}
+
+.unit-page .unit-action-view {
+    color: #2563eb !important;
+    background: #dbeafe;
+}
+
+.unit-page .unit-action-edit {
+    color: #d97706 !important;
+    background: #fef3c7;
+}
+
+.unit-page .unit-action-delete {
+    color: #dc2626 !important;
+    background: #fee2e2;
+}
+
+/*
+|--------------------------------------------------------------------------
+| FORM
+|--------------------------------------------------------------------------
+*/
+
+.unit-page .unit-form {
+    display: block;
+    width: 100%;
+    margin: 0;
+}
+
+.unit-page .unit-form-group {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.unit-page .unit-form-group label {
+    display: block;
+    margin: 0 0 8px;
+    padding: 0;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.unit-page .unit-input,
+.unit-page .unit-select {
+    display: block;
+    width: 100%;
+    height: 52px;
+    margin: 0;
+    padding: 0 16px;
+    color: #0f172a;
+    background: #ffffff;
+    border: 1px solid #cfd6e2;
+    border-radius: 10px;
+    outline: none;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: normal;
+    transition: 0.18s ease;
+}
+
+.unit-page .unit-select {
+    background-color: #f8fafc;
+    cursor: pointer;
+}
+
+.unit-page .unit-input::placeholder {
+    color: #8b93a3;
+    opacity: 1;
+}
+
+.unit-page .unit-input:focus,
+.unit-page .unit-select:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+}
+
+.unit-page .unit-input-error {
+    border-color: #ef4444 !important;
+}
+
+.unit-page .unit-error-text {
+    display: block;
+    margin-top: 6px;
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.unit-page .unit-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    width: 100%;
+    margin-top: 26px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| DETAIL
+|--------------------------------------------------------------------------
+*/
+
+.unit-page .unit-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+}
+
+.unit-page .unit-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: auto;
+    padding: 18px 20px;
+    background: #fafbff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.unit-page .unit-detail-label {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.unit-page .unit-detail-value {
+    display: block;
+    color: #0f172a;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.unit-page .unit-detail-actions {
+    margin-top: 26px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| ALERT
+|--------------------------------------------------------------------------
+*/
+
+.unit-page .unit-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 0 0 18px;
+    padding: 13px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.unit-page .unit-alert-success {
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+}
+
+.unit-page .unit-alert-danger {
+    color: #991b1b;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+}
+
+/*
+|--------------------------------------------------------------------------
+| EMPTY STATE
+|--------------------------------------------------------------------------
+*/
+
+.unit-page .unit-empty-state {
+    padding: 34px 20px;
+    color: #64748b;
+    text-align: center;
+}
+
+.unit-page .unit-empty-state i {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.unit-page .unit-empty-state p {
+    margin: 0;
+    font-size: 15px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| RESPONSIVE
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 992px) {
+    .unit-page {
+        padding: 20px 18px 32px;
+    }
+
+    .unit-page .unit-list-card {
+        padding: 22px 20px 24px;
+    }
+
+    .unit-page .unit-form-card,
+    .unit-page .unit-detail-card {
+        padding: 32px 22px 28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .unit-page .unit-card-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .unit-page .unit-card-header h1,
+    .unit-page .unit-form-title {
+        font-size: 22px;
+    }
+
+    .unit-page .unit-primary-button {
+        width: 100%;
+    }
+
+    .unit-page .unit-form-actions {
+        flex-direction: column;
+    }
+
+    .unit-page .unit-form-actions .unit-save-button,
+    .unit-page .unit-form-actions .unit-cancel-button {
+        width: 100%;
+    }
+}

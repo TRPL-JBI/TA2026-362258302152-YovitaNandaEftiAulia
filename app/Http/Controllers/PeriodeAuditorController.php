@@ -3,32 +3,87 @@
 namespace App\Http\Controllers;
 
 use App\Models\PeriodeAmi;
+use App\Models\PenerapanStandar;
 
 class PeriodeAuditorController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | DAFTAR PERIODE AMI AUDITOR
-    |--------------------------------------------------------------------------
-    |
-    | Auditor hanya boleh melihat periode AMI tempat dirinya terdaftar
-    | sebagai anggota Tim AMI.
-    |
-    */
+    /**
+     * Mengambil ID auditor dari session.
+     */
+    private function getAuditorId(): int
+    {
+        $auditorId = session('user_id');
 
+        abort_if(
+            empty($auditorId),
+            403,
+            'Sesi auditor tidak ditemukan. Silakan login kembali.'
+        );
+
+        return (int) $auditorId;
+    }
+
+    /**
+     * Menampilkan daftar periode AMI
+     * yang menjadi penugasan auditor.
+     */
     public function index()
     {
-        $auditorId = $this->getLoginAuditorId();
+        $auditorId = $this->getAuditorId();
 
         $data = PeriodeAmi::with([
             'standarMutu',
             'unitKerja',
             'user',
-            'tim',
             'tim.user',
         ])
+            ->whereHas('tim', function ($query) use ($auditorId) {
+                $query->where('id_user', $auditorId);
+            })
+            ->orderByDesc('tahun')
+            ->orderByDesc('id')
+            ->get();
+
+        return view(
+            'auditor.periode.index',
+            compact('data')
+        );
+    }
+
+    /**
+     * Menampilkan detail periode AMI
+     * beserta daftar penerapan standar.
+     */
+    public function detail($id)
+    {
+        $auditorId = $this->getAuditorId();
+
+        $periode = PeriodeAmi::with([
+            'standarMutu',
+            'unitKerja',
+            'user',
+            'tim.user',
+        ])
+            ->whereHas('tim', function ($query) use ($auditorId) {
+                $query->where('id_user', $auditorId);
+            })
+            ->findOrFail($id);
+
+        $data = PenerapanStandar::with([
+            'user',
+            'standarmutuPeriode.standarMutu',
+        ])
             ->whereHas(
-                'tim',
+                'standarmutuPeriode',
+                function ($query) use ($id) {
+                    $query->where(
+                        'id_periode_ami',
+                        $id
+                    );
+                }
+            )
+            ->whereHas(
+                'standarmutuPeriode.periodeAmi.tim',
                 function ($query) use ($auditorId) {
                     $query->where(
                         'id_user',
@@ -40,39 +95,47 @@ class PeriodeAuditorController extends Controller
             ->get();
 
         return view(
-            'auditor.periode.index',
-            compact('data')
+            'auditor.periode.show',
+            compact(
+                'periode',
+                'data'
+            )
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DETAIL PERIODE AMI AUDITOR
-    |--------------------------------------------------------------------------
-    |
-    | Detail periode hanya dapat dibuka apabila Auditor sedang ditugaskan
-    | pada periode tersebut.
-    |
-    | Apabila Auditor mencoba mengganti ID pada URL ke periode lain,
-    | Laravel akan menghasilkan halaman 404.
-    |
-    */
-
-    public function show($id)
+    /**
+     * Menampilkan detail satu penerapan standar.
+     */
+    public function show($id, $penerapan)
     {
-        $auditorId = $this->getLoginAuditorId();
+        $auditorId = $this->getAuditorId();
 
         $periode = PeriodeAmi::with([
             'standarMutu',
             'unitKerja',
             'user',
-            'tim',
             'tim.user',
-            'jadwal',
-            'standarMutuPeriode',
+        ])
+            ->whereHas('tim', function ($query) use ($auditorId) {
+                $query->where('id_user', $auditorId);
+            })
+            ->findOrFail($id);
+
+        $data = PenerapanStandar::with([
+            'user',
+            'standarmutuPeriode.standarMutu',
         ])
             ->whereHas(
-                'tim',
+                'standarmutuPeriode',
+                function ($query) use ($id) {
+                    $query->where(
+                        'id_periode_ami',
+                        $id
+                    );
+                }
+            )
+            ->whereHas(
+                'standarmutuPeriode.periodeAmi.tim',
                 function ($query) use ($auditorId) {
                     $query->where(
                         'id_user',
@@ -80,54 +143,14 @@ class PeriodeAuditorController extends Controller
                     );
                 }
             )
-            ->findOrFail($id);
+            ->findOrFail($penerapan);
 
         return view(
             'auditor.periode.show',
-            compact('periode')
+            compact(
+                'periode',
+                'data'
+            )
         );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | AMBIL ID AUDITOR YANG LOGIN
-    |--------------------------------------------------------------------------
-    |
-    | Sistem login proyek menyimpan data user pada session('user').
-    | Nilainya bisa berupa object atau array, sehingga keduanya ditangani.
-    |
-    */
-
-    private function getLoginAuditorId(): int
-    {
-        $user = session('user');
-
-        abort_if(
-            !$user,
-            401,
-            'Sesi pengguna tidak ditemukan. Silakan login kembali.'
-        );
-
-        $userId = is_array($user)
-            ? ($user['id'] ?? null)
-            : ($user->id ?? null);
-
-        $role = is_array($user)
-            ? ($user['role'] ?? null)
-            : ($user->role ?? null);
-
-        abort_if(
-            !$userId,
-            401,
-            'ID pengguna pada sesi tidak ditemukan.'
-        );
-
-        abort_unless(
-            $role === 'auditor',
-            403,
-            'Halaman ini hanya dapat diakses oleh Auditor.'
-        );
-
-        return (int) $userId;
     }
 }

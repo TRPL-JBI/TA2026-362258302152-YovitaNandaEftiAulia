@@ -10,6 +10,12 @@ class Rekomendasi extends Model
 {
     use SoftDeletes;
 
+    /*
+    |--------------------------------------------------------------------------
+    | KONFIGURASI MODEL
+    |--------------------------------------------------------------------------
+    */
+
     protected $table = 'rekomendasi';
 
     public $timestamps = false;
@@ -45,8 +51,11 @@ class Rekomendasi extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | USER / AUDITOR
+    | USER
     |--------------------------------------------------------------------------
+    |
+    | Menunjukkan auditor yang mengisi rekomendasi.
+    |
     */
 
     public function user(): BelongsTo

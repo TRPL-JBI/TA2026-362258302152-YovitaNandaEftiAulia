@@ -1,220 +1,103 @@
 ﻿@extends('layouts.app')
 
-@push('styles')
-    <link
-        rel="stylesheet"
-        href="{{ asset('css/app/17-admin-unit-form.css') }}"
-    >
-@endpush
-
 @section('content')
 
-<div class="unit-form-page">
+<link
+    rel="stylesheet"
+    href="{{ asset('css/19-admin-unit-kerja.css') }}"
+>
 
-    <div class="unit-form-breadcrumb">
-        <a href="{{ route('dashboard') }}">
-            Dashboard
-        </a>
+<div class="unit-page">
 
-        <span>/</span>
+    <h3 class="unit-breadcrumb">
+        Dashboard / Edit Unit Kerja
+    </h3>
 
-        <a href="{{ route('unit-kerja.index') }}">
-            Unit Kerja
-        </a>
+    <div class="unit-card unit-form-card">
 
-        <span>/</span>
-
-        <strong>
-            Edit Data
-        </strong>
-    </div>
-
-    <div class="unit-form-card">
-
-        <div class="unit-form-header">
-            <h1>
-                Form Edit Data
-            </h1>
-        </div>
-
-        @if ($errors->any())
-            <div class="unit-form-alert">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>
-                            {{ $error }}
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <h1 class="unit-form-title">
+            Form Edit Unit Kerja
+        </h1>
 
         <form
-            action="{{ route('unit-kerja.update', $data->id) }}"
+            action="{{ route('unit-kerja.update', $unitKerja->id) }}"
             method="POST"
-            id="unitAssignmentForm"
+            class="unit-form"
         >
             @csrf
             @method('PUT')
 
-            <input
-                type="hidden"
-                name="id_user_lama"
-                value="{{ old('id_user_lama', $idUserLama) }}"
-            >
-
             <div class="unit-form-group">
 
-                <label for="id_user">
-                    Nama User
-                    <span>*</span>
+                <label for="nama">
+                    Nama Unit Kerja
                 </label>
 
-                <select
-                    name="id_user"
-                    id="id_user"
-                    required
+                <input
+                    type="text"
+                    id="nama"
+                    name="nama"
+                    value="{{ old('nama', $unitKerja->nama) }}"
+                    placeholder="Masukkan nama unit kerja"
+                    class="unit-input @error('nama') unit-input-error @enderror"
+                    autocomplete="off"
                 >
-                    <option value="">
-                        -- Pilih Nama User --
-                    </option>
 
-                    @foreach ($users as $user)
-                        <option
-                            value="{{ $user->id }}"
-                            @selected(
-                                (string) old(
-                                    'id_user',
-                                    $idUserLama
-                                )
-                                === (string) $user->id
-                            )
-                        >
-                            {{ $user->nama }} — {{ $user->email }}
-                        </option>
-                    @endforeach
-                </select>
-
-                @error('id_user')
-                    <small class="unit-form-error">
+                @error('nama')
+                    <small class="unit-error-text">
                         {{ $message }}
                     </small>
                 @enderror
 
             </div>
 
-            @php
-                $unitEditTerpilih = array_map(
-                    'intval',
-                    (array) old(
-                        'unit_kerja_ids',
-                        $unitTerpilih
-                    )
-                );
-            @endphp
-
             <div class="unit-form-group">
 
-                <div class="unit-form-label-row">
-
-                    <div>
-                        <label>
-                            Unit Kerja
-                            <span>*</span>
-                        </label>
-
-                        <small>
-                            Pilih satu atau beberapa Unit Kerja.
-                        </small>
-                    </div>
-
-                    <strong id="jumlahDipilih">
-                        0 Unit dipilih
-                    </strong>
-
-                </div>
-
-                <label class="unit-form-check-all">
-                    <input
-                        type="checkbox"
-                        id="pilihSemua"
-                    >
-
-                    <span>
-                        Pilih Semua Unit Kerja
-                    </span>
+                <label for="kategori_unit_kerja">
+                    Kategori Unit Kerja
                 </label>
 
-                <div class="unit-form-checklist">
+                <select
+                    id="kategori_unit_kerja"
+                    name="kategori_unit_kerja"
+                    class="unit-select @error('kategori_unit_kerja') unit-input-error @enderror"
+                >
+                    <option value="">
+                        -- Pilih Kategori --
+                    </option>
 
-                    @forelse ($unitKerja as $unit)
+                    <option
+                        value="akademik"
+                        {{
+                            old(
+                                'kategori_unit_kerja',
+                                $unitKerja->kategori_unit_kerja
+                            ) === 'akademik'
+                                ? 'selected'
+                                : ''
+                        }}
+                    >
+                        Akademik
+                    </option>
 
-                        <label class="unit-form-check-item">
+                    <option
+                        value="non akademik"
+                        {{
+                            old(
+                                'kategori_unit_kerja',
+                                $unitKerja->kategori_unit_kerja
+                            ) === 'non akademik'
+                                ? 'selected'
+                                : ''
+                        }}
+                    >
+                        Non Akademik
+                    </option>
 
-                            <input
-                                type="checkbox"
-                                name="unit_kerja_ids[]"
-                                value="{{ $unit->id }}"
-                                class="unit-checkbox"
-                                data-owner="{{ $unit->id_user ?? '' }}"
-                                @checked(
-                                    in_array(
-                                        (int) $unit->id,
-                                        $unitEditTerpilih,
-                                        true
-                                    )
-                                )
-                            >
+                </select>
 
-                            <span class="unit-form-checkbox">
-                                <i class="bi bi-check-lg"></i>
-                            </span>
-
-                            <span class="unit-form-check-content">
-
-                                <strong>
-                                    {{ $unit->nama }}
-                                </strong>
-
-                                <span>
-                                    {{ $unit->kategori_unit_kerja }}
-                                </span>
-
-                                @if ($unit->kepalaUnit)
-                                    <small>
-                                        Saat ini:
-                                        {{ $unit->kepalaUnit->nama }}
-                                    </small>
-                                @else
-                                    <small>
-                                        Belum memiliki user
-                                    </small>
-                                @endif
-
-                            </span>
-
-                        </label>
-
-                    @empty
-
-                        <div class="unit-form-empty">
-                            Data Unit Kerja belum tersedia.
-                        </div>
-
-                    @endforelse
-
-                </div>
-
-                @error('unit_kerja_ids')
-                    <small class="unit-form-error">
-                        {{ $message }}
-                    </small>
-                @enderror
-
-                @error('unit_kerja_ids.*')
-                    <small class="unit-form-error">
+                @error('kategori_unit_kerja')
+                    <small class="unit-error-text">
                         {{ $message }}
                     </small>
                 @enderror
@@ -225,14 +108,14 @@
 
                 <button
                     type="submit"
-                    class="unit-form-btn unit-form-btn-save"
+                    class="unit-save-button"
                 >
-                    Simpan Perubahan
+                    Simpan
                 </button>
 
                 <a
                     href="{{ route('unit-kerja.index') }}"
-                    class="unit-form-btn unit-form-btn-cancel"
+                    class="unit-cancel-button"
                 >
                     Batal
                 </a>
@@ -246,57 +129,3 @@
 </div>
 
 @endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const pilihSemua =
-            document.getElementById('pilihSemua');
-
-        const jumlahDipilih =
-            document.getElementById('jumlahDipilih');
-
-        const checkboxes = Array.from(
-            document.querySelectorAll('.unit-checkbox')
-        );
-
-        function updateJumlah() {
-            const jumlah = checkboxes.filter(function (checkbox) {
-                return checkbox.checked;
-            }).length;
-
-            jumlahDipilih.textContent =
-                jumlah + ' Unit dipilih';
-
-            pilihSemua.checked =
-                checkboxes.length > 0 &&
-                jumlah === checkboxes.length;
-
-            pilihSemua.indeterminate =
-                jumlah > 0 &&
-                jumlah < checkboxes.length;
-        }
-
-        pilihSemua.addEventListener(
-            'change',
-            function () {
-                checkboxes.forEach(function (checkbox) {
-                    checkbox.checked =
-                        pilihSemua.checked;
-                });
-
-                updateJumlah();
-            }
-        );
-
-        checkboxes.forEach(function (checkbox) {
-            checkbox.addEventListener(
-                'change',
-                updateJumlah
-            );
-        });
-
-        updateJumlah();
-    });
-</script>
-@endpush

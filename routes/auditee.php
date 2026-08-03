@@ -15,7 +15,7 @@ use App\Http\Controllers\AuditeeMasterAuditController;
 */
 
 Route::middleware([
-    'auth.session',
+    'check.session',
     'auditee',
 ])
     ->prefix('auditee')

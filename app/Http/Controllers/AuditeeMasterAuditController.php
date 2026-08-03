@@ -139,8 +139,14 @@ class AuditeeMasterAuditController extends Controller
      */
     private function currentUser(): array
     {
-        $sessionUser = session('user');
+        $sessionUser = request()->attributes->get('auth_user')
+            ?? \App\Models\User::find(session('user_id'));
 
+        abort_unless(
+            $sessionUser && $sessionUser->status === 'aktif',
+            403,
+            'Akun tidak ditemukan atau sudah dinonaktifkan.'
+        );
         abort_unless(
             $sessionUser,
             401,

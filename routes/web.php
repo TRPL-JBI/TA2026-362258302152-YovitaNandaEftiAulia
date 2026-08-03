@@ -14,14 +14,18 @@ Route::view('/', 'welcome')
 
 /*
 |--------------------------------------------------------------------------
-| AUTH
+| AUTHENTICATION
 |--------------------------------------------------------------------------
+|
+| Aplikasi menggunakan session('user_id') sebagai autentikasi manual.
+| Oleh karena itu, route login tidak menggunakan middleware guest
+| bawaan Laravel.
+|
 */
 
-// Login
 Route::get(
     '/login',
-    [AuthController::class, 'showLogin']
+    [AuthController::class, 'index']
 )->name('login');
 
 Route::post(
@@ -29,7 +33,6 @@ Route::post(
     [AuthController::class, 'login']
 )->name('login.process');
 
-// Logout
 Route::post(
     '/logout',
     [AuthController::class, 'logout']
@@ -41,8 +44,8 @@ Route::post(
 |--------------------------------------------------------------------------
 */
 
-require __DIR__.'/admin.php';
+require __DIR__ . '/admin.php';
 
-require __DIR__.'/auditee.php';
+require __DIR__ . '/auditee.php';
 
-require __DIR__.'/auditor.php';
+require __DIR__ . '/auditor.php';

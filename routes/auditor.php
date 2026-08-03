@@ -13,7 +13,6 @@ use App\Http\Controllers\PenerapanAuditorController;
 use App\Http\Controllers\TemuanAuditorController;
 use App\Http\Controllers\TanggapanAuditorController;
 use App\Http\Controllers\AkarMasalahAuditorController;
-use App\Http\Controllers\RekomendasiAuditorController;
 use App\Http\Controllers\KesimpulanAuditorController;
 use App\Http\Controllers\LampiranAuditorController;
 use App\Http\Controllers\LaporanAuditorController;
@@ -25,7 +24,7 @@ use App\Http\Controllers\LaporanAuditorController;
 */
 
 Route::middleware([
-    'auth.session',
+    'check.session',
     'auditor',
 ])
     ->prefix('auditor')
@@ -81,7 +80,7 @@ Route::middleware([
 
         /*
         |--------------------------------------------------------------------------
-        | INDIKATOR
+        | INDIKATOR STANDAR
         |--------------------------------------------------------------------------
         */
 
@@ -106,9 +105,14 @@ Route::middleware([
             [PeriodeAuditorController::class, 'index']
         )->name('auditor.periode.index');
 
+        /*
+         * Halaman index memanggil route auditor.periode.show.
+         * Method controller tetap menggunakan detail().
+         */
+
         Route::get(
             '/periode/{id}',
-            [PeriodeAuditorController::class, 'show']
+            [PeriodeAuditorController::class, 'detail']
         )->name('auditor.periode.show');
 
         /*
@@ -148,8 +152,8 @@ Route::middleware([
         | PENERAPAN STANDAR
         |--------------------------------------------------------------------------
         |
-        | Auditor hanya melihat penerapan Auditee.
-        | Auditor tidak boleh menambah, mengubah, atau menghapus penerapan.
+        | Auditor hanya dapat melihat penerapan standar milik periode
+        | AMI yang menjadi penugasannya.
         |
         */
 
@@ -158,22 +162,20 @@ Route::middleware([
             [PenerapanAuditorController::class, 'index']
         )->name('auditor.penerapan.index');
 
+        /*
+         * Method show menggunakan PeriodeAuditorController agar penerapan
+         * diperiksa berdasarkan periode pada URL dan penugasan auditor.
+         */
+
         Route::get(
             '/periode/{id}/penerapan/{penerapan}',
-            [PenerapanAuditorController::class, 'show']
+            [PeriodeAuditorController::class, 'show']
         )->name('auditor.penerapan.show');
 
         /*
         |--------------------------------------------------------------------------
         | TEMUAN AUDIT
         |--------------------------------------------------------------------------
-        |
-        | Halaman index menampilkan struktur yang sama dengan Penerapan Standar.
-        |
-        | Temuan hanya dapat dibuat berdasarkan Penerapan Standar yang:
-        | 1. Sudah mempunyai deskripsi hasil.
-        | 2. Sudah mempunyai link bukti.
-        |
         */
 
         Route::get(
@@ -215,6 +217,40 @@ Route::middleware([
             '/temuan/{temuan}',
             [TemuanAuditorController::class, 'destroy']
         )->name('auditor.temuan.destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | REKOMENDASI TEMUAN
+        |--------------------------------------------------------------------------
+        |
+        | Rekomendasi tetap dikelola melalui TemuanAuditorController.
+        |
+        */
+
+        Route::get(
+            '/rekomendasi/{rekomendasi}',
+            [TemuanAuditorController::class, 'showRekomendasi']
+        )->name('auditor.rekomendasi.show');
+
+        Route::get(
+            '/rekomendasi/{rekomendasi}/edit',
+            [TemuanAuditorController::class, 'editRekomendasi']
+        )->name('auditor.rekomendasi.edit');
+
+        Route::put(
+            '/rekomendasi/{rekomendasi}',
+            [TemuanAuditorController::class, 'updateRekomendasi']
+        )->name('auditor.rekomendasi.update');
+
+        Route::put(
+            '/temuan/{temuan}/rekomendasi',
+            [TemuanAuditorController::class, 'simpanRekomendasi']
+        )->name('auditor.temuan.rekomendasi.simpan');
+
+        Route::delete(
+            '/temuan/{temuan}/rekomendasi',
+            [TemuanAuditorController::class, 'hapusRekomendasi']
+        )->name('auditor.temuan.rekomendasi.hapus');
 
         /*
         |--------------------------------------------------------------------------
@@ -272,47 +308,6 @@ Route::middleware([
             '/akar-masalah/{id}',
             [AkarMasalahAuditorController::class, 'destroy']
         )->name('auditor.akarmasalah.destroy');
-
-        /*
-        |--------------------------------------------------------------------------
-        | REKOMENDASI PENINGKATAN
-        |--------------------------------------------------------------------------
-        */
-
-        Route::get(
-            '/rekomendasi',
-            [RekomendasiAuditorController::class, 'index']
-        )->name('auditor.rekomendasi.index');
-
-        Route::get(
-            '/rekomendasi/create',
-            [RekomendasiAuditorController::class, 'create']
-        )->name('auditor.rekomendasi.create');
-
-        Route::post(
-            '/rekomendasi',
-            [RekomendasiAuditorController::class, 'store']
-        )->name('auditor.rekomendasi.store');
-
-        Route::get(
-            '/rekomendasi/{id}',
-            [RekomendasiAuditorController::class, 'show']
-        )->name('auditor.rekomendasi.show');
-
-        Route::get(
-            '/rekomendasi/{id}/edit',
-            [RekomendasiAuditorController::class, 'edit']
-        )->name('auditor.rekomendasi.edit');
-
-        Route::put(
-            '/rekomendasi/{id}',
-            [RekomendasiAuditorController::class, 'update']
-        )->name('auditor.rekomendasi.update');
-
-        Route::delete(
-            '/rekomendasi/{id}',
-            [RekomendasiAuditorController::class, 'destroy']
-        )->name('auditor.rekomendasi.destroy');
 
         /*
         |--------------------------------------------------------------------------

@@ -439,8 +439,14 @@ class LaporanAuditorController extends Controller
 
     private function getLoginUserId(): int
     {
-        $user = session('user');
+        $user = request()->attributes->get('auth_user')
+            ?? \App\Models\User::find(session('user_id'));
 
+        abort_unless(
+            $user && $user->status === 'aktif',
+            403,
+            'Akun tidak ditemukan atau sudah dinonaktifkan.'
+        );
         abort_if(
             !$user,
             401,

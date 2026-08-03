@@ -6,37 +6,33 @@
     Dashboard / Detail Periode AMI
 </h3>
 
-<!-- TAB MENU -->
 <div class="tab-menu">
 
-    <a href="{{ route('periode-ami.show',$periode->id) }}"
+    <a href="{{ route('periode-ami.show', $periode->id) }}"
        class="active">
         Detail Periode AMI
     </a>
 
-    <a href="{{ route('penerapan.index',$periode->id) }}">
+    <a href="{{ route('penerapan.index', $periode->id) }}">
         Penerapan Standar
     </a>
 
-    <a href="{{ route('tim-ami.index',$periode->id) }}">
+    <a href="{{ route('tim-ami.index', $periode->id) }}">
         Tim AMI
     </a>
 
-    <a href="{{ route('jadwal.index',$periode->id) }}">
-    Jadwal AMI
+    <a href="{{ route('jadwal.index', $periode->id) }}">
+        Jadwal AMI
     </a>
 
 </div>
 
 <div class="card">
 
-    <!-- HEADER -->
     <div class="card-header periode-header">
 
         <div class="header-left">
-
             <h4>Detail Periode AMI</h4>
-
         </div>
 
         <div class="header-right">
@@ -53,7 +49,6 @@
 
     </div>
 
-    <!-- TABLE -->
     <div class="table-wrapper">
 
         <table class="custom-table">
@@ -61,7 +56,6 @@
             <thead>
 
                 <tr>
-
                     <th>No.</th>
                     <th>Tahun AMI</th>
                     <th>Standar Mutu</th>
@@ -69,10 +63,10 @@
                     <th>Ketua AMI</th>
                     <th>Tujuan Audit</th>
                     <th>Lingkup Audit</th>
+                    <th>Waktu Audit</th>
                     <th>Tanggal Audit</th>
                     <th>Status</th>
                     <th>Aksi</th>
-
                 </tr>
 
             </thead>
@@ -85,20 +79,68 @@
 
                     <td>{{ $periode->tahun }}</td>
 
-                    <td>{{ $periode->standarMutu->nama_standar_mutu ?? '-' }}</td>
-
-                    <td>{{ $periode->unitKerja->nama ?? '-' }}</td>
-
-                    <td>{{ $periode->user->nama ?? '-' }}</td>
-
-                    <td>{{ $periode->tujuan_audit }}</td>
-
-                    <td>{{ $periode->lingkup_audit }}</td>
+                    <td>
+                        {{ $periode->standarMutu->nama_standar_mutu ?? '-' }}
+                    </td>
 
                     <td>
-                        {{ $periode->tanggal_buka_ami }}
+                        @if ($periode->unitKerjas->isNotEmpty())
+
+                            <div style="
+                                display:flex;
+                                flex-wrap:wrap;
+                                gap:6px;
+                            ">
+
+                                @foreach ($periode->unitKerjas as $unit)
+
+                                    <span style="
+                                        display:inline-block;
+                                        padding:5px 10px;
+                                        border-radius:20px;
+                                        background:#eef2ff;
+                                        color:#4338ca;
+                                        font-size:12px;
+                                        font-weight:600;
+                                    ">
+                                        {{ $unit->nama ?? '-' }}
+                                    </span>
+
+                                @endforeach
+
+                            </div>
+
+                        @elseif ($periode->unitKerja)
+
+                            {{ $periode->unitKerja->nama ?? '-' }}
+
+                        @else
+
+                            -
+
+                        @endif
+                    </td>
+
+                    <td>
+                        {{ $periode->user->nama ?? '-' }}
+                    </td>
+
+                    <td>
+                        {{ $periode->tujuan_audit ?? '-' }}
+                    </td>
+
+                    <td>
+                        {{ $periode->lingkup_audit ?? '-' }}
+                    </td>
+
+                    <td>
+                        {{ $periode->waktu_audit ?? '-' }}
+                    </td>
+
+                    <td>
+                        {{ $periode->tanggal_buka_ami ?? '-' }}
                         -
-                        {{ $periode->tanggal_tutup_ami }}
+                        {{ $periode->tanggal_tutup_ami ?? '-' }}
                     </td>
 
                     <td>
@@ -129,33 +171,34 @@
 
                         <div class="action-buttons">
 
-                            <!-- DETAIL -->
-                            <a href="{{ route('periode-ami.show',$periode->id) }}"
+                            <a href="{{ route('periode-ami.show', $periode->id) }}"
                                class="btn-icon btn-detail">
 
                                 <i class="bi bi-eye"></i>
 
                             </a>
 
-                            <!-- EDIT -->
-                            <a href="{{ route('periode-ami.edit',$periode->id) }}"
+                            <a href="{{ route('periode-ami.edit', $periode->id) }}"
                                class="btn-icon btn-edit">
 
                                 <i class="bi bi-pencil"></i>
 
                             </a>
 
-                            <!-- DELETE -->
-                            <form action="{{ route('periode-ami.destroy',$periode->id) }}"
-                                  method="POST"
-                                  style="display:inline;">
+                            <form
+                                action="{{ route('periode-ami.destroy', $periode->id) }}"
+                                method="POST"
+                                style="display:inline;"
+                            >
 
                                 @csrf
                                 @method('DELETE')
 
-                                <button type="submit"
-                                        class="btn-icon btn-delete"
-                                        onclick="return confirm('Yakin hapus data?')">
+                                <button
+                                    type="submit"
+                                    class="btn-icon btn-delete"
+                                    onclick="return confirm('Yakin hapus data?')"
+                                >
 
                                     <i class="bi bi-trash"></i>
 

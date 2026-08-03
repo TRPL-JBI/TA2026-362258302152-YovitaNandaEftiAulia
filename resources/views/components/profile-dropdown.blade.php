@@ -1,5 +1,5 @@
-@php
-    $sessionUser = session('user');
+﻿@php
+    $sessionUser = $authUser;
 
     $nama = is_array($sessionUser)
         ? ($sessionUser['nama'] ?? 'Pengguna')

@@ -2,16 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\JadwalAmi;
 use App\Models\PeriodeAmi;
+use App\Traits\ChecksPeriodeAmiStatus;
+use Illuminate\Http\Request;
 
 class JadwalAmiController extends Controller
 {
+    use ChecksPeriodeAmiStatus;
+
     /**
      * ==========================
      * INDEX
      * ==========================
+     *
+     * Daftar jadwal tetap dapat dilihat meskipun periode AMI
+     * sudah ditutup.
      */
     public function index($periode)
     {
@@ -19,8 +25,10 @@ class JadwalAmiController extends Controller
 
         $data = JadwalAmi::where(
             'id_periode_ami',
-            $periode
-        )->get();
+            $periodeAmi->id
+        )
+            ->orderBy('id')
+            ->get();
 
         return view(
             'jadwal_ami.index',
@@ -35,10 +43,15 @@ class JadwalAmiController extends Controller
      * ==========================
      * CREATE
      * ==========================
+     *
+     * Form tambah tidak dapat dibuka jika periode AMI
+     * sudah ditutup.
      */
     public function create($periode)
     {
         $periodeAmi = PeriodeAmi::findOrFail($periode);
+
+        $this->abortIfPeriodeClosed($periodeAmi);
 
         return view(
             'jadwal_ami.create',
@@ -50,26 +63,64 @@ class JadwalAmiController extends Controller
      * ==========================
      * STORE
      * ==========================
+     *
+     * Jadwal tidak dapat ditambahkan jika periode AMI
+     * sudah ditutup.
      */
     public function store(Request $request, $periode)
     {
-        $request->validate([
-            'kegiatan' => 'required',
-            'waktu'    => 'required'
-        ]);
+        $periodeAmi = PeriodeAmi::findOrFail($periode);
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK STATUS PERIODE SEBELUM STORE
+        |--------------------------------------------------------------------------
+        */
+
+        $this->abortIfPeriodeClosed($periodeAmi);
+
+        $validated = $request->validate(
+            [
+                'kegiatan' => [
+                    'required',
+                    'string',
+                ],
+
+                'waktu' => [
+                    'required',
+                    'string',
+                ],
+            ],
+            [
+                'kegiatan.required' =>
+                    'Kegiatan wajib diisi.',
+
+                'kegiatan.string' =>
+                    'Kegiatan harus berupa teks.',
+
+                'waktu.required' =>
+                    'Waktu kegiatan wajib diisi.',
+
+                'waktu.string' =>
+                    'Waktu kegiatan harus berupa teks.',
+            ]
+        );
 
         JadwalAmi::create([
+            'id_periode_ami' =>
+                $periodeAmi->id,
 
-            'id_periode_ami' => $periode,
-            'kegiatan'       => $request->kegiatan,
-            'waktu'          => $request->waktu
+            'kegiatan' =>
+                $validated['kegiatan'],
 
+            'waktu' =>
+                $validated['waktu'],
         ]);
 
         return redirect()
             ->route(
                 'jadwal.index',
-                $periode
+                $periodeAmi->id
             )
             ->with(
                 'success',
@@ -81,6 +132,9 @@ class JadwalAmiController extends Controller
      * ==========================
      * DETAIL
      * ==========================
+     *
+     * Detail tetap dapat dilihat meskipun periode AMI
+     * sudah ditutup.
      */
     public function show($id)
     {
@@ -96,10 +150,25 @@ class JadwalAmiController extends Controller
      * ==========================
      * EDIT
      * ==========================
+     *
+     * Form edit tidak dapat dibuka jika periode AMI
+     * sudah ditutup.
      */
     public function edit($id)
     {
         $jadwal = JadwalAmi::findOrFail($id);
+
+        $periodeAmi = PeriodeAmi::findOrFail(
+            $jadwal->id_periode_ami
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK STATUS PERIODE SEBELUM MEMBUKA FORM EDIT
+        |--------------------------------------------------------------------------
+        */
+
+        $this->abortIfPeriodeClosed($periodeAmi);
 
         return view(
             'jadwal_ami.edit',
@@ -111,27 +180,65 @@ class JadwalAmiController extends Controller
      * ==========================
      * UPDATE
      * ==========================
+     *
+     * Jadwal tidak dapat diperbarui jika periode AMI
+     * sudah ditutup.
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'kegiatan' => 'required',
-            'waktu'    => 'required'
-        ]);
-
         $jadwal = JadwalAmi::findOrFail($id);
 
+        $periodeAmi = PeriodeAmi::findOrFail(
+            $jadwal->id_periode_ami
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK STATUS PERIODE SEBELUM UPDATE
+        |--------------------------------------------------------------------------
+        */
+
+        $this->abortIfPeriodeClosed($periodeAmi);
+
+        $validated = $request->validate(
+            [
+                'kegiatan' => [
+                    'required',
+                    'string',
+                ],
+
+                'waktu' => [
+                    'required',
+                    'string',
+                ],
+            ],
+            [
+                'kegiatan.required' =>
+                    'Kegiatan wajib diisi.',
+
+                'kegiatan.string' =>
+                    'Kegiatan harus berupa teks.',
+
+                'waktu.required' =>
+                    'Waktu kegiatan wajib diisi.',
+
+                'waktu.string' =>
+                    'Waktu kegiatan harus berupa teks.',
+            ]
+        );
+
         $jadwal->update([
+            'kegiatan' =>
+                $validated['kegiatan'],
 
-            'kegiatan' => $request->kegiatan,
-            'waktu'    => $request->waktu
-
+            'waktu' =>
+                $validated['waktu'],
         ]);
 
         return redirect()
             ->route(
                 'jadwal.index',
-                $jadwal->id_periode_ami
+                $periodeAmi->id
             )
             ->with(
                 'success',
@@ -140,37 +247,67 @@ class JadwalAmiController extends Controller
     }
 
     /**
- * ==========================
- * DELETE PAGE
- * ==========================
- */
-public function delete($id)
-{
-    $jadwal = JadwalAmi::findOrFail($id);
+     * ==========================
+     * DELETE PAGE
+     * ==========================
+     *
+     * Halaman konfirmasi hapus tidak dapat dibuka jika
+     * periode AMI sudah ditutup.
+     */
+    public function delete($id)
+    {
+        $jadwal = JadwalAmi::findOrFail($id);
 
-    return view(
-        'jadwal_ami.delete',
-        compact('jadwal')
-    );
-}
+        $periodeAmi = PeriodeAmi::findOrFail(
+            $jadwal->id_periode_ami
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK STATUS PERIODE SEBELUM MEMBUKA HALAMAN DELETE
+        |--------------------------------------------------------------------------
+        */
+
+        $this->abortIfPeriodeClosed($periodeAmi);
+
+        return view(
+            'jadwal_ami.delete',
+            compact('jadwal')
+        );
+    }
 
     /**
      * ==========================
      * DELETE
      * ==========================
+     *
+     * Jadwal tidak dapat dihapus jika periode AMI
+     * sudah ditutup.
      */
     public function destroy($id)
     {
         $jadwal = JadwalAmi::findOrFail($id);
 
-        $periode = $jadwal->id_periode_ami;
+        $periodeAmi = PeriodeAmi::findOrFail(
+            $jadwal->id_periode_ami
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK STATUS PERIODE SEBELUM DELETE
+        |--------------------------------------------------------------------------
+        */
+
+        $this->abortIfPeriodeClosed($periodeAmi);
+
+        $periodeId = $periodeAmi->id;
 
         $jadwal->delete();
 
         return redirect()
             ->route(
                 'jadwal.index',
-                $periode
+                $periodeId
             )
             ->with(
                 'success',

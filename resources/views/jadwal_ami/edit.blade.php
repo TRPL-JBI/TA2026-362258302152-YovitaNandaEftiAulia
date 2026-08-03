@@ -9,24 +9,34 @@
 <!-- TAB MENU -->
 <div class="tab-menu">
 
-    <a href="{{ route('periode-ami.show',$jadwal->id_periode_ami) }}">
+    <a href="{{ route(
+        'periode-ami.show',
+        $jadwal->id_periode_ami
+    ) }}">
         Detail Periode AMI
     </a>
 
-    <a href="{{ route('penerapan.index',$jadwal->id_periode_ami) }}">
+    <a href="{{ route(
+        'penerapan.index',
+        $jadwal->id_periode_ami
+    ) }}">
         Penerapan Standar
     </a>
 
-    <a href="{{ route('penerapan.index') }}">
-        Penerapan Standar
-    </a>
-
-    <a href="{{ route('tim-ami.index',$jadwal->id_periode_ami) }}">
+    <a href="{{ route(
+        'tim-ami.index',
+        $jadwal->id_periode_ami
+    ) }}">
         Tim AMI
     </a>
 
-    <a href="{{ route('jadwal.index',$jadwal->id_periode_ami) }}"
-       class="active">
+    <a
+        href="{{ route(
+            'jadwal.index',
+            $jadwal->id_periode_ami
+        ) }}"
+        class="active"
+    >
         Jadwal AMI
     </a>
 
@@ -40,40 +50,97 @@
             Edit Jadwal AMI
         </h3>
 
-        <form action="{{ route('jadwal.update',$jadwal->id) }}"
-              method="POST">
+        {{-- PESAN VALIDASI --}}
+        @if ($errors->any())
+
+            <div class="alert alert-danger">
+
+                <strong>
+                    Data belum dapat disimpan.
+                </strong>
+
+                <ul style="margin: 8px 0 0 18px;">
+
+                    @foreach ($errors->all() as $error)
+
+                        <li>
+                            {{ $error }}
+                        </li>
+
+                    @endforeach
+
+                </ul>
+
+            </div>
+
+        @endif
+
+        <form
+            action="{{ route(
+                'jadwal.update',
+                $jadwal->id
+            ) }}"
+            method="POST"
+        >
 
             @csrf
             @method('PUT')
 
-            <!-- Nama Kegiatan -->
+            <!-- NAMA KEGIATAN -->
             <div class="form-group">
 
-                <label>
+                <label for="kegiatan">
                     Nama Kegiatan
                 </label>
 
                 <input
                     type="text"
                     name="kegiatan"
-                    value="{{ old('kegiatan',$jadwal->kegiatan) }}"
-                    required>
+                    id="kegiatan"
+                    value="{{ old(
+                        'kegiatan',
+                        $jadwal->kegiatan
+                    ) }}"
+                    placeholder="Masukkan nama kegiatan"
+                    required
+                >
+
+                @error('kegiatan')
+
+                    <span class="error-text">
+                        {{ $message }}
+                    </span>
+
+                @enderror
 
             </div>
 
-            <!-- Waktu -->
+            <!-- WAKTU -->
             <div class="form-group">
 
-                <label>
+                <label for="waktu">
                     Waktu
                 </label>
 
                 <input
                     type="text"
                     name="waktu"
-                    value="{{ old('waktu',$jadwal->waktu) }}"
-                    placeholder="Contoh : 08.00 - 09.00"
-                    required>
+                    id="waktu"
+                    value="{{ old(
+                        'waktu',
+                        $jadwal->waktu
+                    ) }}"
+                    placeholder="Contoh: 08.00 - 09.00 WIB"
+                    required
+                >
+
+                @error('waktu')
+
+                    <span class="error-text">
+                        {{ $message }}
+                    </span>
+
+                @enderror
 
             </div>
 
@@ -81,17 +148,19 @@
 
                 <button
                     type="submit"
-                    class="btn-save">
-
+                    class="btn-save"
+                >
                     Simpan
-
                 </button>
 
-                <a href="{{ route('jadwal.index',$jadwal->id_periode_ami) }}"
-                   class="btn-cancel">
-
+                <a
+                    href="{{ route(
+                        'jadwal.index',
+                        $jadwal->id_periode_ami
+                    ) }}"
+                    class="btn-cancel"
+                >
                     Batal
-
                 </a>
 
             </div>
@@ -103,6 +172,3 @@
 </div>
 
 @endsection
-
-
-

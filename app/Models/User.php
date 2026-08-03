@@ -133,4 +133,28 @@ class User extends Authenticatable
     {
         return $this->unitKerjaKepala;
     }
+
+    /**
+ * Unit kerja tempat user ditempatkan.
+ */
+public function unitKerja()
+{
+    return $this->belongsTo(
+        UnitKerja::class,
+        'id_unit_kerja',
+        'id'
+    );
+}
+
+/**
+ * Daftar unit kerja yang dipimpin oleh user.
+ */
+public function unitKerjaYangDipimpin()
+{
+    return $this->hasMany(
+        UnitKerja::class,
+        'id_user',
+        'id'
+    );
+}
 }

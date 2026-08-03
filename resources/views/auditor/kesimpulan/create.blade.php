@@ -1,183 +1,274 @@
 ﻿@extends('layouts.auditor')
 
+@push('styles')
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/app/18-auditor-kesimpulan.css') }}"
+    >
+@endpush
+
 @section('content')
 
-<!-- ===========================================================
-    BREADCRUMB
-=========================================================== -->
+<div class="audit-form-page">
 
-<h3 class="breadcrumb">
+    {{-- =====================================================
+         BREADCRUMB
+    ====================================================== --}}
 
-    Dashboard /
+    <div class="audit-form-breadcrumb">
 
-    Audit Mutu Internal /
+        <span>
+            Dashboard
+        </span>
 
-    Kesimpulan Audit /
+        <i class="bi bi-chevron-right"></i>
 
-    Tambah
+        <span>
+            Audit Mutu Internal
+        </span>
 
-</h3>
+        <i class="bi bi-chevron-right"></i>
 
-<div class="card">
+        <span>
+            Kesimpulan Audit
+        </span>
 
-    <!-- =======================================================
-        HEADER
-    ======================================================== -->
+        <i class="bi bi-chevron-right"></i>
 
-    <div class="temuan-header">
+        <strong>
+            Tambah
+        </strong>
 
-        <div>
+    </div>
 
-            <h4>
+    {{-- =====================================================
+         CARD FORM
+    ====================================================== --}}
 
-                Tambah Kesimpulan Audit
+    <section class="audit-form-card">
 
-            </h4>
+        <div class="audit-form-header">
 
-            <small>
+            <div>
 
-                Form Tambah Kesimpulan Audit
+                <span class="audit-form-label">
+                    KESIMPULAN AUDIT
+                </span>
 
-            </small>
+                <h2>
+                    Tambah Kesimpulan Audit
+                </h2>
+
+                <p>
+                    Isi kesimpulan hasil pelaksanaan Audit Mutu Internal
+                    berdasarkan periode yang dipilih.
+                </p>
+
+            </div>
+
+            <div class="audit-form-header-icon">
+
+                <i class="bi bi-file-earmark-check"></i>
+
+            </div>
 
         </div>
 
-    </div>
+        {{-- =================================================
+             ERROR VALIDASI
+        ================================================== --}}
 
-    <!-- =======================================================
-        TAB MENU
-    ======================================================== -->
+        @if($errors->any())
 
-    <div class="temuan-tab">
+            <div class="audit-form-alert">
 
-        <a href="{{ route('auditor.temuan.index') }}">
+                <i class="bi bi-exclamation-circle-fill"></i>
 
-            Temuan Audit
+                <div>
 
-        </a>
+                    <strong>
+                        Data belum dapat disimpan.
+                    </strong>
 
-        <a href="{{ route('auditor.tanggapan.index') }}">
+                    <ul>
 
-            Tanggapan Auditee
+                        @foreach($errors->all() as $error)
 
-        </a>
+                            <li>
+                                {{ $error }}
+                            </li>
 
-        <a href="{{ route('auditor.akarmasalah.index') }}">
+                        @endforeach
 
-            Akar Masalah
+                    </ul>
 
-        </a>
+                </div>
 
-        <a href="{{ route('auditor.rekomendasi.index') }}">
+            </div>
 
-            Rekomendasi
+        @endif
 
-        </a>
+        {{-- =================================================
+             FORM
+        ================================================== --}}
 
-        <a href="{{ route('auditor.kesimpulan.index') }}"
-           class="active">
+        <form
+            action="{{ route('auditor.kesimpulan.store') }}"
+            method="POST"
+        >
 
-            Kesimpulan
+            @csrf
 
-        </a>
+            {{-- PERIODE AMI --}}
 
-        <a href="#">
+            <div class="audit-form-group">
 
-            Lampiran
+                <label for="id_periode_ami">
 
-        </a>
+                    Periode AMI
 
-    </div>
+                    <span class="required-mark">
+                        *
+                    </span>
 
-    <!-- =======================================================
-        FORM
-    ======================================================== -->
+                </label>
 
-    <form
-        action="{{ route('auditor.kesimpulan.store') }}"
-        method="POST">
+                <select
+                    name="id_periode_ami"
+                    id="id_periode_ami"
+                    class="audit-form-control"
+                    required
+                >
 
-        @csrf
-
-        <!-- PERIODE -->
-
-        <div class="form-group">
-
-            <label>
-
-                Periode AMI
-
-            </label>
-
-            <select
-                name="id_periode_ami"
-                class="form-control"
-                required>
-
-                <option value="">
-
-                    -- Pilih Periode AMI --
-
-                </option>
-
-                @foreach($periode as $item)
-
-                    <option value="{{ $item->id }}">
-
-                        {{ $item->tahun }}
-
+                    <option value="">
+                        -- Pilih Periode AMI --
                     </option>
 
-                @endforeach
+                    @forelse($periodeAmi as $periode)
 
-            </select>
+                        @php
+                            $nilaiPeriodeTerpilih = old(
+                                'id_periode_ami',
+                                $periodeTerpilih
+                                    ?? request('id_periode_ami')
+                            );
+                        @endphp
 
-        </div>
+                        <option
+                            value="{{ $periode->id }}"
+                            {{
+                                (string) $nilaiPeriodeTerpilih
+                                === (string) $periode->id
+                                    ? 'selected'
+                                    : ''
+                            }}
+                        >
 
-        <!-- KESIMPULAN -->
+                            Periode {{ $periode->tahun }}
 
-        <div class="form-group">
+                            @if(
+                                trim(
+                                    (string) (
+                                        $periode->status
+                                        ?? ''
+                                    )
+                                ) !== ''
+                            )
 
-            <label>
+                                -
+                                {{ ucfirst($periode->status) }}
 
-                Kesimpulan Audit
+                            @endif
 
-            </label>
+                        </option>
 
-            <textarea
-                name="kesimpulan"
-                rows="8"
-                class="form-control"
-                required></textarea>
+                    @empty
 
-        </div>
+                        <option
+                            value=""
+                            disabled
+                        >
+                            Data Periode AMI belum tersedia
+                        </option>
 
-        <!-- BUTTON -->
+                    @endforelse
 
-        <div class="form-action">
+                </select>
 
-            <a href="{{ route('auditor.kesimpulan.index') }}"
-               class="btn-back">
+                @error('id_periode_ami')
 
-                <i class="bi bi-arrow-left"></i>
+                    <small class="audit-form-error">
+                        {{ $message }}
+                    </small>
 
-                Kembali
+                @enderror
 
-            </a>
+            </div>
 
-            <button
-                type="submit"
-                class="btn-save">
+            {{-- KESIMPULAN AUDIT --}}
 
-                <i class="bi bi-check-lg"></i>
+            <div class="audit-form-group">
 
-                Simpan
+                <label for="kesimpulan">
 
-            </button>
+                    Kesimpulan Audit
 
-        </div>
+                    <span class="required-mark">
+                        *
+                    </span>
 
-    </form>
+                </label>
+
+                <textarea
+                    name="kesimpulan"
+                    id="kesimpulan"
+                    rows="7"
+                    class="audit-form-control"
+                    placeholder="Tuliskan kesimpulan hasil Audit Mutu Internal..."
+                    required
+                >{{ old('kesimpulan') }}</textarea>
+
+                @error('kesimpulan')
+
+                    <small class="audit-form-error">
+                        {{ $message }}
+                    </small>
+
+                @enderror
+
+            </div>
+
+            {{-- TOMBOL --}}
+
+            <div class="audit-form-actions">
+
+                <a
+                    href="{{ route('auditor.temuan.index') }}"
+                    class="audit-form-button button-back"
+                >
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Kembali
+
+                </a>
+
+                <button
+                    type="submit"
+                    class="audit-form-button button-save"
+                >
+
+                    <i class="bi bi-check-lg"></i>
+
+                    Simpan
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
 
 </div>
 

@@ -2,34 +2,73 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminOnly
 {
-    /**
-     * Handle an incoming request.
-     */
-    public function handle(Request $request, Closure $next): Response
-    {
-        if (!session()->has('user')) {
+    /*
+    |--------------------------------------------------------------------------
+    | KHUSUS ADMIN
+    |--------------------------------------------------------------------------
+    */
 
-            return redirect('/login');
+    public function handle(
+        Request $request,
+        Closure $next
+    ): Response {
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL USER LANGSUNG DARI DATABASE
+        |--------------------------------------------------------------------------
+        */
 
-        }
+        $user = User::find(
+            $request->session()->get('user_id')
+        );
 
-        $user = session('user');
+        /*
+        |--------------------------------------------------------------------------
+        | PERIKSA USER DAN STATUS
+        |--------------------------------------------------------------------------
+        */
 
-        $role = is_array($user)
-            ? $user['role']
-            : $user->role;
+        abort_unless(
+            $user &&
+            $user->status === 'aktif',
+            403,
+            'Akun tidak ditemukan atau sudah dinonaktifkan.'
+        );
 
-        if ($role !== 'admin') {
+        /*
+        |--------------------------------------------------------------------------
+        | PERIKSA ROLE
+        |--------------------------------------------------------------------------
+        */
 
-            abort(403, 'Anda tidak memiliki hak akses.');
+        abort_unless(
+            $user->role === 'admin',
+            403,
+            'Halaman ini hanya dapat diakses oleh admin.'
+        );
 
-        }
+        /*
+        |--------------------------------------------------------------------------
+        | BAGIKAN USER KE REQUEST DAN VIEW
+        |--------------------------------------------------------------------------
+        */
+
+        $request->attributes->set(
+            'auth_user',
+            $user
+        );
+
+        view()->share(
+            'authUser',
+            $user
+        );
 
         return $next($request);
     }

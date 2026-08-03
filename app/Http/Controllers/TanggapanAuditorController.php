@@ -3,46 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Models\TanggapanAuditee;
+use App\Models\User;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class TanggapanAuditorController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | DAFTAR TANGGAPAN AUDITEE
+    | INDEX
     |--------------------------------------------------------------------------
     |
-    | Auditor hanya dapat melihat tanggapan yang berasal dari periode
-    | tempat dirinya terdaftar sebagai Tim AMI.
+    | Menampilkan seluruh tanggapan yang berasal dari periode AMI
+    | tempat auditor login ditugaskan.
     |
     */
 
-    public function index()
+    public function index(): View
     {
-        $auditorId = $this->getLoginAuditorId();
+        $auditorId = $this->getAuditorId();
 
-        $data = TanggapanAuditee::with([
-            'user',
+        $temuanIds = $this->getTemuanIdsAuditor(
+            $auditorId
+        );
 
-            'temuan',
-            'temuan.penerapanStandar',
-            'temuan.penerapanStandar.user',
-            'temuan.penerapanStandar.indikator',
-
-            'temuan.penerapanStandar.standarmutuPeriode',
-            'temuan.penerapanStandar.standarmutuPeriode.standarMutu',
-            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi',
-            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.unitKerja',
-            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim',
-            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim.user',
-        ])
-            ->whereHas(
-                'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim',
-                function ($query) use ($auditorId) {
-                    $query->where(
-                        'id_user',
-                        $auditorId
-                    );
-                }
+        $data = TanggapanAuditee::query()
+            ->with([
+                'temuan',
+                'user',
+            ])
+            ->whereIn(
+                'id_temuan_ami',
+                $temuanIds
             )
             ->orderByDesc('id')
             ->get();
@@ -55,41 +48,32 @@ class TanggapanAuditorController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | DETAIL TANGGAPAN AUDITEE
+    | SHOW
     |--------------------------------------------------------------------------
     |
-    | Auditor tidak dapat membuka detail tanggapan dari periode lain hanya
-    | dengan mengganti ID pada URL.
+    | Menampilkan detail satu tanggapan Auditee.
+    | Auditor hanya dapat membuka tanggapan dari periode penugasannya.
     |
     */
 
-    public function show($id)
+    public function show($id): View
     {
-        $auditorId = $this->getLoginAuditorId();
+        $auditorId = $this->getAuditorId();
 
-        $tanggapan = TanggapanAuditee::with([
-            'user',
+        $temuanIds = $this->getTemuanIdsAuditor(
+            $auditorId
+        );
 
-            'temuan',
-            'temuan.penerapanStandar',
-            'temuan.penerapanStandar.user',
-            'temuan.penerapanStandar.indikator',
-
-            'temuan.penerapanStandar.standarmutuPeriode',
-            'temuan.penerapanStandar.standarmutuPeriode.standarMutu',
-            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi',
-            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.unitKerja',
-            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim',
-            'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim.user',
-        ])
-            ->whereHas(
-                'temuan.penerapanStandar.standarmutuPeriode.periodeAmi.tim',
-                function ($query) use ($auditorId) {
-                    $query->where(
-                        'id_user',
-                        $auditorId
-                    );
-                }
+        $tanggapan = TanggapanAuditee::query()
+            ->with([
+                'temuan',
+                'temuan.penerapan',
+                'temuan.penerapan.indikator',
+                'user',
+            ])
+            ->whereIn(
+                'id_temuan_ami',
+                $temuanIds
             )
             ->findOrFail($id);
 
@@ -101,44 +85,122 @@ class TanggapanAuditorController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | AMBIL ID AUDITOR YANG LOGIN
+    | MENGAMBIL ID TEMUAN SESUAI PENUGASAN AUDITOR
     |--------------------------------------------------------------------------
     |
-    | Sistem proyek menyimpan data login pada session('user').
-    | Session dapat berbentuk object ataupun array.
+    | Alur tabel:
+    |
+    | temuan_ami
+    |     -> penerapan_standar
+    |     -> standarmutu_periodeami
+    |     -> tim_ami
     |
     */
 
-    private function getLoginAuditorId(): int
+    private function getTemuanIdsAuditor(
+        int $auditorId
+    ): Collection {
+        return DB::table('temuan_ami as temuan')
+            ->join(
+                'penerapan_standar as penerapan',
+                'penerapan.id',
+                '=',
+                'temuan.id_penerapan_standar'
+            )
+            ->join(
+                'standarmutu_periodeami as standar_periode',
+                'standar_periode.id',
+                '=',
+                'penerapan.id_standarmutu_periodeami'
+            )
+            ->join(
+                'tim_ami as tim',
+                'tim.id_periode_ami',
+                '=',
+                'standar_periode.id_periode_ami'
+            )
+            ->where(
+                'tim.id_user',
+                $auditorId
+            )
+            ->select('temuan.id')
+            ->distinct()
+            ->pluck('temuan.id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | MENGAMBIL ID AUDITOR LOGIN
+    |--------------------------------------------------------------------------
+    */
+
+    private function getAuditorId(): int
     {
-        $user = session('user');
+        $auditorId = session('user_id');
+
+        /*
+         * Cadangan apabila session menyimpan data user
+         * dalam bentuk object atau array.
+         */
+
+        if (!$auditorId) {
+            $sessionUser = session('user');
+
+            if (is_array($sessionUser)) {
+                $auditorId =
+                    $sessionUser['id']
+                    ?? null;
+            }
+
+            if (is_object($sessionUser)) {
+                $auditorId =
+                    $sessionUser->id
+                    ?? null;
+            }
+        }
+
+        /*
+         * Cadangan dari request attribute middleware.
+         */
+
+        if (!$auditorId) {
+            $requestUser = request()
+                ->attributes
+                ->get('auth_user');
+
+            if (is_array($requestUser)) {
+                $auditorId =
+                    $requestUser['id']
+                    ?? null;
+            }
+
+            if (is_object($requestUser)) {
+                $auditorId =
+                    $requestUser->id
+                    ?? null;
+            }
+        }
 
         abort_if(
-            !$user,
+            !$auditorId,
             401,
-            'Sesi pengguna tidak ditemukan. Silakan login kembali.'
+            'Sesi auditor tidak ditemukan. Silakan login kembali.'
         );
 
-        $userId = is_array($user)
-            ? ($user['id'] ?? null)
-            : ($user->id ?? null);
-
-        $role = is_array($user)
-            ? ($user['role'] ?? null)
-            : ($user->role ?? null);
-
-        abort_if(
-            !$userId,
-            401,
-            'ID pengguna pada sesi tidak ditemukan.'
-        );
+        $auditor = User::query()
+            ->find($auditorId);
 
         abort_unless(
-            $role === 'auditor',
+            $auditor
+            && strtolower(
+                trim(
+                    (string) $auditor->status
+                )
+            ) === 'aktif',
             403,
-            'Halaman ini hanya dapat diakses oleh Auditor.'
+            'Akun auditor tidak ditemukan atau sudah dinonaktifkan.'
         );
 
-        return (int) $userId;
+        return (int) $auditorId;
     }
 }

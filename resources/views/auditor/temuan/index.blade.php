@@ -1754,22 +1754,37 @@
 
                                         @if($penerapan)
 
-                                            <a
-                                                href="{{
-                                                    route(
-                                                        'auditor.rekomendasi.create',
-                                                        [
-                                                            'id_penerapan_standar'
-                                                                =>
-                                                                $penerapan->id,
-                                                        ]
-                                                    )
-                                                }}"
-                                                class="
-                                                    audit-flow-button
-                                                    button-create
-                                                "
-                                            >
+                                            @if($penerapan)
+
+    @php
+        $temuanRekomendasi = $penerapan->temuan;
+
+        if ($temuanRekomendasi instanceof \Illuminate\Support\Collection) {
+            $temuanRekomendasi = $temuanRekomendasi
+                ->sortByDesc('id')
+                ->first();
+        }
+    @endphp
+
+    @if($temuanRekomendasi)
+
+        <a
+            href="{{ route('auditor.temuan.show', $temuanRekomendasi->id) }}"
+            class="audit-flow-button button-create"
+        >
+            <i class="bi bi-lightbulb"></i>
+            Kelola Rekomendasi
+        </a>
+
+    @else
+
+        <span class="audit-flow-empty">
+            Menunggu Temuan
+        </span>
+
+    @endif
+
+@endif
 
                                                 <i class="bi bi-plus-circle"></i>
 

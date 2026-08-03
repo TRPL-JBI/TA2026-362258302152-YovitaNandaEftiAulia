@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\PeriodeAmi;
 use App\Models\StandarMutu;
 use App\Models\UnitKerja;
+use App\Models\User;
+use App\Traits\ChecksPeriodeAmiStatus;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PeriodeAmiController extends Controller
 {
+    use ChecksPeriodeAmiStatus;
+
     // =========================
     // INDEX
     // =========================
@@ -17,25 +22,40 @@ class PeriodeAmiController extends Controller
         $data = PeriodeAmi::with([
             'standarMutu',
             'unitKerja',
-            'user'
-        ])->get();
+            'unitKerjas',
+            'user',
+        ])
+            ->orderByDesc('tahun')
+            ->orderByDesc('id')
+            ->get();
 
-        return view('periode.index', compact('data'));
+        return view(
+            'periode.index',
+            compact('data')
+        );
     }
 
     // =========================
     // CREATE
     // =========================
-    public function create()
+    public function create(Request $request)
     {
-        $standarMutu = StandarMutu::all();
-        $unitKerja = UnitKerja::all();
+        $standarMutu = StandarMutu::query()
+            ->orderBy('id')
+            ->get();
+
+        $unitKerja = UnitKerja::query()
+            ->orderBy('id')
+            ->get();
+
+        $userLogin = $this->getLoggedInUser($request);
 
         return view(
             'periode.create',
             compact(
                 'standarMutu',
-                'unitKerja'
+                'unitKerja',
+                'userLogin'
             )
         );
     }
@@ -45,57 +65,89 @@ class PeriodeAmiController extends Controller
     // =========================
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $this->validatePeriode($request);
 
-            'tahun' => 'required|integer|min:2025|max:2035',
+        $userLogin = $this->getLoggedInUser($request);
 
-            'id_standar_mutu' => 'required|exists:standar_mutu,id',
+        $statusUser = strtolower(
+            trim((string) $userLogin->status)
+        );
 
-            'id_unit_kerja' => 'required|exists:unit_kerja,id',
+        abort_unless(
+            $statusUser === 'aktif',
+            403,
+            'Akun tidak ditemukan atau sudah dinonaktifkan.'
+        );
 
-            'tujuan_audit' => 'required|string',
+        DB::transaction(function () use (
+            $validated,
+            $userLogin
+        ) {
+            $unitKerjaDipilih = array_values(
+                $validated['unit_kerja']
+            );
 
-            'lingkup_audit' => 'required|string',
+            $periode = new PeriodeAmi([
+                'tahun' =>
+                    $validated['tahun'],
 
-            'waktu_audit' => 'required|string',
+                'id_standar_mutu' =>
+                    $validated['id_standar_mutu'],
 
-            'tanggal_buka_ami' => 'required|date',
+                /*
+                | Unit pertama tetap disimpan pada kolom lama.
+                */
+                'id_unit_kerja' =>
+                    $unitKerjaDipilih[0],
 
-            'tanggal_tutup_ami' => 'required|date|after_or_equal:tanggal_buka_ami',
+                'id_user' =>
+                    $userLogin->id,
 
-            'status' => 'required|in:draft,berjalan,ditutup',
+                'tujuan_audit' =>
+                    $validated['tujuan_audit'],
 
-        ]);
+                'lingkup_audit' =>
+                    $validated['lingkup_audit'],
 
-        $user = session('user');
+                /*
+                | Dua input jam digabung ke satu kolom waktu_audit.
+                */
+                'waktu_audit' =>
+                    $this->formatWaktuAudit(
+                        $validated['waktu_mulai'],
+                        $validated['waktu_selesai']
+                    ),
 
-        $idUser = is_array($user)
-            ? $user['id']
-            : $user->id;
+                'tanggal_buka_ami' =>
+                    $validated['tanggal_buka_ami'],
 
-        PeriodeAmi::create([
+                'tanggal_tutup_ami' =>
+                    $validated['tanggal_tutup_ami'],
 
-            'tahun' => $request->tahun,
+                'status' =>
+                    $validated['status'],
+            ]);
 
-            'id_standar_mutu' => $request->id_standar_mutu,
+            /*
+            |--------------------------------------------------------------------------
+            | PERIODE BARU TIDAK BOLEH LANGSUNG DITUTUP
+            |--------------------------------------------------------------------------
+            */
 
-            'id_unit_kerja' => $request->id_unit_kerja,
+            $this->abortIfPeriodeClosed($periode);
 
-            'id_user' => $idUser,
+            $periode->save();
 
-            'tujuan_audit' => $request->tujuan_audit,
+            /*
+            |--------------------------------------------------------------------------
+            | SIMPAN SEMUA UNIT KERJA
+            |--------------------------------------------------------------------------
+            */
 
-            'lingkup_audit' => $request->lingkup_audit,
-
-            'waktu_audit' => $request->waktu_audit,
-
-            'tanggal_buka_ami' => $request->tanggal_buka_ami,
-
-            'tanggal_tutup_ami' => $request->tanggal_tutup_ami,
-
-            'status' => $request->status
-
-        ]);
+            $periode
+                ->unitKerjas()
+                ->sync($unitKerjaDipilih);
+        });
 
         return redirect()
             ->route('periode-ami.index')
@@ -113,7 +165,8 @@ class PeriodeAmiController extends Controller
         $periode = PeriodeAmi::with([
             'standarMutu',
             'unitKerja',
-            'user'
+            'unitKerjas',
+            'user',
         ])->findOrFail($id);
 
         return view(
@@ -125,20 +178,78 @@ class PeriodeAmiController extends Controller
     // =========================
     // EDIT
     // =========================
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $data = PeriodeAmi::findOrFail($id);
+        $data = PeriodeAmi::with([
+            'unitKerjas',
+        ])->findOrFail($id);
 
-        $standarMutu = StandarMutu::all();
+        $this->abortIfPeriodeClosed($data);
 
-        $unitKerja = UnitKerja::all();
+        $standarMutu = StandarMutu::query()
+            ->orderBy('id')
+            ->get();
+
+        $unitKerja = UnitKerja::query()
+            ->orderBy('id')
+            ->get();
+
+        $userLogin = $this->getLoggedInUser($request);
+
+        /*
+        |--------------------------------------------------------------------------
+        | UNIT KERJA YANG SUDAH DIPILIH
+        |--------------------------------------------------------------------------
+        */
+
+        $unitKerjaTerpilih = $data
+            ->unitKerjas
+            ->pluck('id')
+            ->map(
+                fn ($idUnit) => (string) $idUnit
+            )
+            ->toArray();
+
+        /*
+        | Digunakan untuk data lama yang belum masuk ke tabel penghubung.
+        */
+
+        if (
+            count($unitKerjaTerpilih) === 0
+            && $data->id_unit_kerja
+        ) {
+            $unitKerjaTerpilih = [
+                (string) $data->id_unit_kerja,
+            ];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PECAH WAKTU AUDIT LAMA
+        |--------------------------------------------------------------------------
+        |
+        | Contoh nilai database:
+        | 08.00 - 15.00 WIB
+        |
+        */
+
+        $waktu = $this->parseWaktuAudit(
+            $data->waktu_audit
+        );
+
+        $waktuMulai = $waktu['mulai'];
+        $waktuSelesai = $waktu['selesai'];
 
         return view(
             'periode.edit',
             compact(
                 'data',
                 'standarMutu',
-                'unitKerja'
+                'unitKerja',
+                'unitKerjaTerpilih',
+                'userLogin',
+                'waktuMulai',
+                'waktuSelesai'
             )
         );
     }
@@ -148,51 +259,59 @@ class PeriodeAmiController extends Controller
     // =========================
     public function update(Request $request, $id)
     {
-        $request->validate([
-
-            'tahun' => 'required|integer|min:2025|max:2035',
-
-            'id_standar_mutu' => 'required|exists:standar_mutu,id',
-
-            'id_unit_kerja' => 'required|exists:unit_kerja,id',
-
-            'tujuan_audit' => 'required|string',
-
-            'lingkup_audit' => 'required|string',
-
-            'waktu_audit' => 'required|string',
-
-            'tanggal_buka_ami' => 'required|date',
-
-            'tanggal_tutup_ami' => 'required|date|after_or_equal:tanggal_buka_ami',
-
-            'status' => 'required|in:draft,berjalan,ditutup',
-
-        ]);
-
         $data = PeriodeAmi::findOrFail($id);
 
-        $data->update([
+        $this->abortIfPeriodeClosed($data);
 
-            'tahun' => $request->tahun,
+        $validated = $this->validatePeriode($request);
 
-            'id_standar_mutu' => $request->id_standar_mutu,
+        DB::transaction(function () use (
+            $data,
+            $validated
+        ) {
+            $unitKerjaDipilih = array_values(
+                $validated['unit_kerja']
+            );
 
-            'id_unit_kerja' => $request->id_unit_kerja,
+            $data->update([
+                'tahun' =>
+                    $validated['tahun'],
 
-            'tujuan_audit' => $request->tujuan_audit,
+                'id_standar_mutu' =>
+                    $validated['id_standar_mutu'],
 
-            'lingkup_audit' => $request->lingkup_audit,
+                /*
+                | Unit pertama tetap disimpan di kolom lama.
+                */
+                'id_unit_kerja' =>
+                    $unitKerjaDipilih[0],
 
-            'waktu_audit' => $request->waktu_audit,
+                'tujuan_audit' =>
+                    $validated['tujuan_audit'],
 
-            'tanggal_buka_ami' => $request->tanggal_buka_ami,
+                'lingkup_audit' =>
+                    $validated['lingkup_audit'],
 
-            'tanggal_tutup_ami' => $request->tanggal_tutup_ami,
+                'waktu_audit' =>
+                    $this->formatWaktuAudit(
+                        $validated['waktu_mulai'],
+                        $validated['waktu_selesai']
+                    ),
 
-            'status' => $request->status
+                'tanggal_buka_ami' =>
+                    $validated['tanggal_buka_ami'],
 
-        ]);
+                'tanggal_tutup_ami' =>
+                    $validated['tanggal_tutup_ami'],
+
+                'status' =>
+                    $validated['status'],
+            ]);
+
+            $data
+                ->unitKerjas()
+                ->sync($unitKerjaDipilih);
+        });
 
         return redirect()
             ->route('periode-ami.index')
@@ -210,8 +329,11 @@ class PeriodeAmiController extends Controller
         $data = PeriodeAmi::with([
             'standarMutu',
             'unitKerja',
-            'user'
+            'unitKerjas',
+            'user',
         ])->findOrFail($id);
+
+        $this->abortIfPeriodeClosed($data);
 
         return view(
             'periode.delete',
@@ -220,11 +342,18 @@ class PeriodeAmiController extends Controller
     }
 
     // =========================
-    // DELETE
+    // DESTROY
     // =========================
     public function destroy($id)
     {
-        PeriodeAmi::destroy($id);
+        $data = PeriodeAmi::findOrFail($id);
+
+        $this->abortIfPeriodeClosed($data);
+
+        DB::transaction(function () use ($data) {
+            $data->unitKerjas()->detach();
+            $data->delete();
+        });
 
         return redirect()
             ->route('periode-ami.index')
@@ -232,5 +361,239 @@ class PeriodeAmiController extends Controller
                 'success',
                 'Periode AMI berhasil dihapus.'
             );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI
+    |--------------------------------------------------------------------------
+    */
+
+    private function validatePeriode(
+        Request $request
+    ): array {
+        return $request->validate(
+            [
+                'tahun' => [
+                    'required',
+                    'integer',
+                    'min:2025',
+                    'max:2035',
+                ],
+
+                'id_standar_mutu' => [
+                    'required',
+                    'exists:standar_mutu,id',
+                ],
+
+                'unit_kerja' => [
+                    'required',
+                    'array',
+                    'min:1',
+                ],
+
+                'unit_kerja.*' => [
+                    'required',
+                    'distinct',
+                    'exists:unit_kerja,id',
+                ],
+
+                'tujuan_audit' => [
+                    'required',
+                    'string',
+                    'max:2000',
+                ],
+
+                'lingkup_audit' => [
+                    'required',
+                    'string',
+                    'max:2000',
+                ],
+
+                'waktu_mulai' => [
+                    'required',
+                    'date_format:H:i',
+                ],
+
+                'waktu_selesai' => [
+                    'required',
+                    'date_format:H:i',
+                    'after:waktu_mulai',
+                ],
+
+                'tanggal_buka_ami' => [
+                    'required',
+                    'date',
+                ],
+
+                'tanggal_tutup_ami' => [
+                    'required',
+                    'date',
+                    'after_or_equal:tanggal_buka_ami',
+                ],
+
+                'status' => [
+                    'required',
+                    'in:draft,berjalan,ditutup',
+                ],
+            ],
+            [
+                'tahun.required' =>
+                    'Tahun wajib dipilih.',
+
+                'id_standar_mutu.required' =>
+                    'Standar mutu wajib dipilih.',
+
+                'unit_kerja.required' =>
+                    'Pilih minimal satu unit kerja.',
+
+                'unit_kerja.array' =>
+                    'Pilihan unit kerja tidak valid.',
+
+                'unit_kerja.min' =>
+                    'Pilih minimal satu unit kerja.',
+
+                'unit_kerja.*.exists' =>
+                    'Salah satu unit kerja tidak ditemukan.',
+
+                'tujuan_audit.required' =>
+                    'Tujuan audit wajib diisi.',
+
+                'lingkup_audit.required' =>
+                    'Lingkup audit wajib diisi.',
+
+                'waktu_mulai.required' =>
+                    'Waktu mulai wajib diisi.',
+
+                'waktu_mulai.date_format' =>
+                    'Format waktu mulai tidak valid.',
+
+                'waktu_selesai.required' =>
+                    'Waktu selesai wajib diisi.',
+
+                'waktu_selesai.date_format' =>
+                    'Format waktu selesai tidak valid.',
+
+                'waktu_selesai.after' =>
+                    'Waktu selesai harus lebih akhir daripada waktu mulai.',
+
+                'tanggal_buka_ami.required' =>
+                    'Tanggal buka audit wajib diisi.',
+
+                'tanggal_tutup_ami.required' =>
+                    'Tanggal tutup audit wajib diisi.',
+
+                'tanggal_tutup_ami.after_or_equal' =>
+                    'Tanggal tutup tidak boleh sebelum tanggal buka.',
+
+                'status.required' =>
+                    'Status wajib dipilih.',
+            ]
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL USER LOGIN
+    |--------------------------------------------------------------------------
+    */
+
+    private function getLoggedInUser(
+        Request $request
+    ): User {
+        $user = $request
+            ->attributes
+            ->get('auth_user');
+
+        if (!$user instanceof User) {
+            $user = User::query()->find(
+                session('user_id')
+            );
+        }
+
+        abort_unless(
+            $user,
+            401,
+            'Sesi pengguna tidak ditemukan. Silakan login kembali.'
+        );
+
+        return $user;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT WAKTU UNTUK DATABASE
+    |--------------------------------------------------------------------------
+    */
+
+    private function formatWaktuAudit(
+        string $waktuMulai,
+        string $waktuSelesai
+    ): string {
+        $mulai = str_replace(
+            ':',
+            '.',
+            $waktuMulai
+        );
+
+        $selesai = str_replace(
+            ':',
+            '.',
+            $waktuSelesai
+        );
+
+        return $mulai
+            . ' - '
+            . $selesai
+            . ' WIB';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PECAH WAKTU DARI DATABASE
+    |--------------------------------------------------------------------------
+    */
+
+    private function parseWaktuAudit(
+        ?string $waktuAudit
+    ): array {
+        $hasil = [
+            'mulai' => '08:00',
+            'selesai' => '15:00',
+        ];
+
+        if (!$waktuAudit) {
+            return $hasil;
+        }
+
+        preg_match(
+            '/(\d{1,2})[.:](\d{2})\s*-\s*(\d{1,2})[.:](\d{2})/',
+            $waktuAudit,
+            $cocok
+        );
+
+        if (count($cocok) >= 5) {
+            $hasil['mulai'] =
+                str_pad(
+                    $cocok[1],
+                    2,
+                    '0',
+                    STR_PAD_LEFT
+                )
+                . ':'
+                . $cocok[2];
+
+            $hasil['selesai'] =
+                str_pad(
+                    $cocok[3],
+                    2,
+                    '0',
+                    STR_PAD_LEFT
+                )
+                . ':'
+                . $cocok[4];
+        }
+
+        return $hasil;
     }
 }

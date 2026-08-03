@@ -7,20 +7,21 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class UnitKerjaController extends Controller
 {
-    /**
-     * Menampilkan daftar Unit Kerja.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | INDEX
+    |--------------------------------------------------------------------------
+    */
+
     public function index(): View
     {
         $data = UnitKerja::query()
-            ->with('kepalaUnit')
-            ->orderBy('id', 'desc')
+            ->orderBy('nama')
             ->get();
 
         return view(
@@ -29,442 +30,277 @@ class UnitKerjaController extends Controller
         );
     }
 
-    /**
-     * Menampilkan form penugasan Unit Kerja.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE
+    |--------------------------------------------------------------------------
+    */
+
     public function create(): View
     {
-        $users = User::query()
-            ->where('role', 'auditee')
-            ->where('status', 'aktif')
-            ->orderBy('nama')
-            ->get();
-
-        $unitKerja = UnitKerja::query()
-            ->with('kepalaUnit')
-            ->orderBy('nama')
-            ->get();
-
-        return view(
-            'unit.create',
-            compact(
-                'users',
-                'unitKerja'
-            )
-        );
+        return view('unit.create');
     }
 
-    /**
-     * Menyimpan penugasan Unit Kerja kepada user.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | STORE
+    |--------------------------------------------------------------------------
+    */
+
     public function store(
         Request $request
     ): RedirectResponse {
         $validated = $request->validate(
             [
-                'id_user' => [
+                'nama' => [
                     'required',
-                    'integer',
+                    'string',
+                    'max:255',
 
-                    Rule::exists('users', 'id')
-                        ->where(function ($query) {
-                            $query
-                                ->where('role', 'auditee')
-                                ->where('status', 'aktif');
-                        }),
+                    Rule::unique(
+                        'unit_kerja',
+                        'nama'
+                    ),
                 ],
 
-                'unit_kerja_ids' => [
+                'kategori_unit_kerja' => [
                     'required',
-                    'array',
-                    'min:1',
-                ],
+                    'string',
 
-                'unit_kerja_ids.*' => [
-                    'required',
-                    'integer',
-                    'distinct',
-                    'exists:unit_kerja,id',
+                    Rule::in([
+                        'akademik',
+                        'non akademik',
+                    ]),
                 ],
             ],
             [
-                'id_user.required' =>
-                    'Nama User wajib dipilih.',
+                'nama.required' =>
+                    'Nama unit kerja wajib diisi.',
 
-                'id_user.integer' =>
-                    'Nama User tidak valid.',
+                'nama.string' =>
+                    'Nama unit kerja harus berupa teks.',
 
-                'id_user.exists' =>
-                    'User Auditee tidak ditemukan atau tidak aktif.',
+                'nama.max' =>
+                    'Nama unit kerja maksimal 255 karakter.',
 
-                'unit_kerja_ids.required' =>
-                    'Pilih minimal satu Unit Kerja.',
+                'nama.unique' =>
+                    'Nama unit kerja tersebut sudah digunakan.',
 
-                'unit_kerja_ids.array' =>
-                    'Pilihan Unit Kerja tidak valid.',
+                'kategori_unit_kerja.required' =>
+                    'Kategori unit kerja wajib dipilih.',
 
-                'unit_kerja_ids.min' =>
-                    'Pilih minimal satu Unit Kerja.',
+                'kategori_unit_kerja.string' =>
+                    'Kategori unit kerja tidak valid.',
 
-                'unit_kerja_ids.*.integer' =>
-                    'Pilihan Unit Kerja tidak valid.',
-
-                'unit_kerja_ids.*.distinct' =>
-                    'Unit Kerja tidak boleh dipilih dua kali.',
-
-                'unit_kerja_ids.*.exists' =>
-                    'Salah satu Unit Kerja tidak ditemukan.',
+                'kategori_unit_kerja.in' =>
+                    'Kategori hanya boleh Akademik atau Non Akademik.',
             ]
         );
 
-        $idUser = (int) $validated['id_user'];
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL USER LOGIN
+        |--------------------------------------------------------------------------
+        */
 
-        $unitKerjaIds = collect(
-            $validated['unit_kerja_ids']
-        )
-            ->map(fn ($id) => (int) $id)
-            ->unique()
-            ->values()
-            ->all();
+        $user = request()
+            ->attributes
+            ->get('auth_user');
 
-        DB::transaction(function () use (
-            $idUser,
-            $unitKerjaIds
-        ) {
-            /*
-             * Lepaskan Unit Kerja lama milik user yang
-             * tidak dipilih lagi.
-             */
-            UnitKerja::query()
-                ->where('id_user', $idUser)
-                ->whereNotIn('id', $unitKerjaIds)
-                ->update([
-                    'id_user' => null,
-                ]);
+        if (!$user instanceof User) {
+            $user = User::query()->find(
+                session('user_id')
+            );
+        }
 
-            /*
-             * Simpan seluruh Unit Kerja yang dipilih.
-             */
-            UnitKerja::query()
-                ->whereIn('id', $unitKerjaIds)
-                ->update([
-                    'id_user' => $idUser,
-                ]);
+        abort_unless(
+            $user,
+            401,
+            'Sesi pengguna tidak ditemukan. Silakan login kembali.'
+        );
 
-            /*
-             * Kolom lama users.id_unit_kerja tetap diisi
-             * menggunakan Unit Kerja pertama.
-             */
-            User::query()
-                ->where('id', $idUser)
-                ->update([
-                    'id_unit_kerja' =>
-                        $unitKerjaIds[0] ?? null,
-                ]);
-        });
+        $statusUser = strtolower(
+            trim(
+                (string) $user->status
+            )
+        );
 
-        $user = User::find($idUser);
+        abort_unless(
+            $statusUser === 'aktif',
+            403,
+            'Akun tidak ditemukan atau sudah dinonaktifkan.'
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | SIMPAN UNIT KERJA
+        |--------------------------------------------------------------------------
+        */
+
+        UnitKerja::create([
+            'nama' =>
+                trim($validated['nama']),
+
+            'kategori_unit_kerja' =>
+                $validated['kategori_unit_kerja'],
+
+            'id_user' =>
+                $user->id,
+        ]);
 
         return redirect()
             ->route('unit-kerja.index')
             ->with(
                 'success',
-                'Penugasan Unit Kerja untuk ' .
-                ($user?->nama ?? 'user') .
-                ' berhasil disimpan.'
+                'Unit kerja berhasil ditambahkan.'
             );
     }
 
-    /**
-     * Menampilkan detail Unit Kerja.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | SHOW
+    |--------------------------------------------------------------------------
+    */
+
     public function show(
-        int|string $id
+        int $id
     ): View {
-        $data = UnitKerja::query()
-            ->with('kepalaUnit')
+        $unitKerja = UnitKerja::with('user')
             ->findOrFail($id);
 
         return view(
             'unit.show',
-            compact('data')
+            compact('unitKerja')
         );
     }
 
-    /**
-     * Menampilkan form edit penugasan user.
-     *
-     * Parameter ID yang diterima adalah ID Unit Kerja.
-     * Dari Unit Kerja tersebut sistem mengambil user
-     * yang saat ini menjadi Kepala Unit.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT
+    |--------------------------------------------------------------------------
+    */
+
     public function edit(
-        int|string $id
+        int $id
     ): View {
-        $data = UnitKerja::query()
-            ->with('kepalaUnit')
-            ->findOrFail($id);
-
-        $users = User::query()
-            ->where('role', 'auditee')
-            ->where('status', 'aktif')
-            ->orderBy('nama')
-            ->get();
-
-        $unitKerja = UnitKerja::query()
-            ->with('kepalaUnit')
-            ->orderBy('nama')
-            ->get();
-
-        $idUserLama = $data->id_user;
-
-        $unitTerpilih = [];
-
-        if ($idUserLama) {
-            $unitTerpilih = UnitKerja::query()
-                ->where('id_user', $idUserLama)
-                ->pluck('id')
-                ->map(fn ($id) => (int) $id)
-                ->all();
-        } else {
-            $unitTerpilih = [
-                (int) $data->id,
-            ];
-        }
+        $unitKerja = UnitKerja::findOrFail($id);
 
         return view(
             'unit.edit',
-            compact(
-                'data',
-                'users',
-                'unitKerja',
-                'idUserLama',
-                'unitTerpilih'
-            )
+            compact('unitKerja')
         );
     }
 
-    /**
-     * Memperbarui penugasan Unit Kerja.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
+
     public function update(
         Request $request,
-        int|string $id
+        int $id
     ): RedirectResponse {
-        $unitAwal = UnitKerja::findOrFail($id);
+        $unitKerja = UnitKerja::findOrFail($id);
 
         $validated = $request->validate(
             [
-                'id_user' => [
+                'nama' => [
                     'required',
-                    'integer',
+                    'string',
+                    'max:255',
 
-                    Rule::exists('users', 'id')
-                        ->where(function ($query) {
-                            $query
-                                ->where('role', 'auditee')
-                                ->where('status', 'aktif');
-                        }),
+                    Rule::unique(
+                        'unit_kerja',
+                        'nama'
+                    )->ignore(
+                        $unitKerja->id
+                    ),
                 ],
 
-                'id_user_lama' => [
-                    'nullable',
-                    'integer',
-                    'exists:users,id',
-                ],
-
-                'unit_kerja_ids' => [
+                'kategori_unit_kerja' => [
                     'required',
-                    'array',
-                    'min:1',
-                ],
+                    'string',
 
-                'unit_kerja_ids.*' => [
-                    'required',
-                    'integer',
-                    'distinct',
-                    'exists:unit_kerja,id',
+                    Rule::in([
+                        'akademik',
+                        'non akademik',
+                    ]),
                 ],
             ],
             [
-                'id_user.required' =>
-                    'Nama User wajib dipilih.',
+                'nama.required' =>
+                    'Nama unit kerja wajib diisi.',
 
-                'id_user.integer' =>
-                    'Nama User tidak valid.',
+                'nama.string' =>
+                    'Nama unit kerja harus berupa teks.',
 
-                'id_user.exists' =>
-                    'User Auditee tidak ditemukan atau tidak aktif.',
+                'nama.max' =>
+                    'Nama unit kerja maksimal 255 karakter.',
 
-                'unit_kerja_ids.required' =>
-                    'Pilih minimal satu Unit Kerja.',
+                'nama.unique' =>
+                    'Nama unit kerja tersebut sudah digunakan.',
 
-                'unit_kerja_ids.array' =>
-                    'Pilihan Unit Kerja tidak valid.',
+                'kategori_unit_kerja.required' =>
+                    'Kategori unit kerja wajib dipilih.',
 
-                'unit_kerja_ids.min' =>
-                    'Pilih minimal satu Unit Kerja.',
+                'kategori_unit_kerja.string' =>
+                    'Kategori unit kerja tidak valid.',
 
-                'unit_kerja_ids.*.integer' =>
-                    'Pilihan Unit Kerja tidak valid.',
-
-                'unit_kerja_ids.*.distinct' =>
-                    'Unit Kerja tidak boleh dipilih dua kali.',
-
-                'unit_kerja_ids.*.exists' =>
-                    'Salah satu Unit Kerja tidak ditemukan.',
+                'kategori_unit_kerja.in' =>
+                    'Kategori hanya boleh Akademik atau Non Akademik.',
             ]
         );
 
-        $idUserBaru = (int) $validated['id_user'];
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE UNIT KERJA
+        |--------------------------------------------------------------------------
+        */
 
-        $idUserLama = isset($validated['id_user_lama'])
-            ? (int) $validated['id_user_lama']
-            : (int) ($unitAwal->id_user ?? 0);
+        $unitKerja->update([
+            'nama' =>
+                trim($validated['nama']),
 
-        $unitKerjaIds = collect(
-            $validated['unit_kerja_ids']
-        )
-            ->map(fn ($unitId) => (int) $unitId)
-            ->unique()
-            ->values()
-            ->all();
-
-        DB::transaction(function () use (
-            $idUserBaru,
-            $idUserLama,
-            $unitKerjaIds
-        ) {
-            /*
-             * Jika user lama tersedia, lepaskan semua unit
-             * milik user lama terlebih dahulu.
-             */
-            if ($idUserLama > 0) {
-                UnitKerja::query()
-                    ->where('id_user', $idUserLama)
-                    ->update([
-                        'id_user' => null,
-                    ]);
-
-                User::query()
-                    ->where('id', $idUserLama)
-                    ->update([
-                        'id_unit_kerja' => null,
-                    ]);
-            }
-
-            /*
-             * Jika user baru sebelumnya mempunyai unit lain,
-             * lepaskan unit yang tidak dipilih lagi.
-             */
-            UnitKerja::query()
-                ->where('id_user', $idUserBaru)
-                ->whereNotIn('id', $unitKerjaIds)
-                ->update([
-                    'id_user' => null,
-                ]);
-
-            /*
-             * Pasangkan seluruh unit terpilih kepada user baru.
-             */
-            UnitKerja::query()
-                ->whereIn('id', $unitKerjaIds)
-                ->update([
-                    'id_user' => $idUserBaru,
-                ]);
-
-            User::query()
-                ->where('id', $idUserBaru)
-                ->update([
-                    'id_unit_kerja' =>
-                        $unitKerjaIds[0] ?? null,
-                ]);
-        });
-
-        $user = User::find($idUserBaru);
+            'kategori_unit_kerja' =>
+                $validated['kategori_unit_kerja'],
+        ]);
 
         return redirect()
             ->route('unit-kerja.index')
             ->with(
                 'success',
-                'Penugasan Unit Kerja untuk ' .
-                ($user?->nama ?? 'user') .
-                ' berhasil diperbarui.'
+                'Unit kerja berhasil diperbarui.'
             );
     }
 
-    /**
-     * Menampilkan konfirmasi hapus Unit Kerja.
-     */
-    public function delete(
-        int|string $id
-    ): View {
-        $data = UnitKerja::findOrFail($id);
+    /*
+    |--------------------------------------------------------------------------
+    | DESTROY
+    |--------------------------------------------------------------------------
+    */
 
-        $sedangDigunakan = DB::table('periode_ami')
-            ->where('id_unit_kerja', $data->id)
-            ->exists();
-
-        return view(
-            'unit.delete',
-            compact(
-                'data',
-                'sedangDigunakan'
-            )
-        );
-    }
-
-    /**
-     * Menghapus data Unit Kerja.
-     */
     public function destroy(
-        int|string $id
+        int $id
     ): RedirectResponse {
-        $data = UnitKerja::findOrFail($id);
-
-        $dipakaiPadaPeriode = DB::table('periode_ami')
-            ->where('id_unit_kerja', $data->id)
-            ->exists();
-
-        if ($dipakaiPadaPeriode) {
-            return redirect()
-                ->route('unit-kerja.index')
-                ->with(
-                    'error',
-                    'Unit Kerja tidak dapat dihapus karena sudah digunakan pada Periode AMI.'
-                );
-        }
+        $unitKerja = UnitKerja::findOrFail($id);
 
         try {
-            $data->delete();
-
-            return redirect()
-                ->route('unit-kerja.index')
-                ->with(
-                    'success',
-                    'Unit Kerja berhasil dihapus.'
-                );
+            $unitKerja->delete();
         } catch (QueryException $exception) {
-            if (
-                (string) $exception->getCode()
-                === '23000'
-            ) {
-                return redirect()
-                    ->route('unit-kerja.index')
-                    ->with(
-                        'error',
-                        'Unit Kerja tidak dapat dihapus karena masih digunakan oleh data lain.'
-                    );
-            }
-
-            report($exception);
-
             return redirect()
                 ->route('unit-kerja.index')
                 ->with(
                     'error',
-                    'Terjadi kesalahan saat menghapus Unit Kerja.'
+                    'Unit kerja tidak dapat dihapus karena masih digunakan pada data lain.'
                 );
         }
+
+        return redirect()
+            ->route('unit-kerja.index')
+            ->with(
+                'success',
+                'Unit kerja berhasil dihapus.'
+            );
     }
 }

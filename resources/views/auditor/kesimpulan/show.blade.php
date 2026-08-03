@@ -1,179 +1,256 @@
 ﻿@extends('layouts.auditor')
 
+@push('styles')
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/app/18-auditor-kesimpulan.css') }}"
+    >
+@endpush
+
 @section('content')
 
-<!-- ===========================================================
-    BREADCRUMB
-=========================================================== -->
+<div class="audit-detail-page">
 
-<h3 class="breadcrumb">
+    {{-- BREADCRUMB --}}
+    <div class="audit-detail-breadcrumb">
 
-    Dashboard /
+        <a href="{{ route('dashboard.auditor') }}">
+            Dashboard
+        </a>
 
-    Audit Mutu Internal /
+        <i class="bi bi-chevron-right"></i>
 
-    Kesimpulan Audit /
+        <a href="{{ route('auditor.temuan.index') }}">
+            Audit Mutu Internal
+        </a>
 
-    Detail
+        <i class="bi bi-chevron-right"></i>
 
-</h3>
+        <a href="{{ route('auditor.kesimpulan.index') }}">
+            Kesimpulan Audit
+        </a>
 
-<!-- ===========================================================
-    CARD
-=========================================================== -->
+        <i class="bi bi-chevron-right"></i>
 
-<div class="card">
+        <strong>
+            Detail
+        </strong>
 
-    <!-- =======================================================
-        HEADER
-    ======================================================== -->
+    </div>
 
-    <div class="temuan-header">
+    {{-- HEADER --}}
+    <div class="audit-detail-header">
 
         <div>
+            <span class="audit-detail-label">
+                KESIMPULAN AUDIT
+            </span>
 
-            <h4>
-
+            <h1>
                 Detail Kesimpulan Audit
+            </h1>
 
-            </h4>
+            <p>
+                Informasi kesimpulan hasil pelaksanaan Audit Mutu Internal
+                pada periode yang dipilih.
+            </p>
+        </div>
 
-            <small>
-
-                Informasi Kesimpulan Audit Mutu Internal
-
-            </small>
-
+        <div class="audit-detail-header-icon">
+            <i class="bi bi-file-earmark-check"></i>
         </div>
 
     </div>
 
-    <!-- =======================================================
-        TAB MENU
-    ======================================================== -->
+    {{-- CARD INFORMASI --}}
+    <section class="audit-detail-card">
 
-    <div class="temuan-tab">
+        <div class="audit-detail-card-title">
 
-        <a href="{{ route('auditor.temuan.index') }}">
+            <div>
+                <h2>
+                    Informasi Kesimpulan
+                </h2>
 
-            Temuan Audit
+                <p>
+                    Detail periode dan hasil kesimpulan audit.
+                </p>
+            </div>
 
-        </a>
+            <span class="audit-detail-badge">
+                <i class="bi bi-eye"></i>
+                Detail
+            </span>
 
-        <a href="{{ route('auditor.tanggapan.index') }}">
+        </div>
 
-            Tanggapan Auditee
+        <div class="audit-detail-grid">
 
-        </a>
+            {{-- PERIODE --}}
+            <div class="audit-detail-item">
 
-        <a href="{{ route('auditor.akarmasalah.index') }}">
+                <div class="audit-detail-item-icon">
+                    <i class="bi bi-calendar3"></i>
+                </div>
 
-            Akar Masalah
+                <div>
+                    <span class="audit-detail-item-label">
+                        Periode AMI
+                    </span>
 
-        </a>
+                    <strong>
+                        Periode {{ $kesimpulan->periodeAmi->tahun ?? '-' }}
+                    </strong>
+                </div>
 
-        <a href="{{ route('auditor.rekomendasi.index') }}">
+            </div>
 
-            Rekomendasi
+            {{-- STATUS --}}
+            <div class="audit-detail-item">
 
-        </a>
+                <div class="audit-detail-item-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
 
-        <a href="{{ route('auditor.kesimpulan.index') }}"
-           class="active">
+                <div>
+                    <span class="audit-detail-item-label">
+                        Status Periode
+                    </span>
 
-            Kesimpulan
+                    @php
+                        $status = strtolower(
+                            trim(
+                                (string) (
+                                    $kesimpulan->periodeAmi->status
+                                    ?? '-'
+                                )
+                            )
+                        );
+                    @endphp
 
-        </a>
+                    <span class="audit-status-badge status-{{ $status }}">
+                        {{ ucfirst($status) }}
+                    </span>
+                </div>
 
-        <a href="#">
+            </div>
 
-            Lampiran
+            {{-- DIBUAT OLEH --}}
+            <div class="audit-detail-item">
 
-        </a>
+                <div class="audit-detail-item-icon">
+                    <i class="bi bi-person"></i>
+                </div>
 
-    </div>
+                <div>
+                    <span class="audit-detail-item-label">
+                        Dibuat Oleh
+                    </span>
 
-    <!-- =======================================================
-        DETAIL
-    ======================================================== -->
+                    <strong>
+                        {{ $kesimpulan->user->nama ?? 'Auditor' }}
+                    </strong>
+                </div>
 
-    <table class="detail-table">
+            </div>
 
-        <tr>
+            {{-- JENIS DOKUMEN --}}
+            <div class="audit-detail-item">
 
-            <th width="220">
+                <div class="audit-detail-item-icon">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
 
-                Periode AMI
+                <div>
+                    <span class="audit-detail-item-label">
+                        Jenis Dokumen
+                    </span>
 
-            </th>
+                    <strong>
+                        Kesimpulan Audit
+                    </strong>
+                </div>
 
-            <td>
+            </div>
 
-                {{ $data->periodeAmi->tahun ?? '-' }}
+        </div>
 
-            </td>
+        {{-- HASIL KESIMPULAN --}}
+        <div class="audit-conclusion-section">
 
-        </tr>
+            <div class="audit-conclusion-title">
+                <i class="bi bi-card-text"></i>
 
-        <tr>
+                <div>
+                    <span>
+                        HASIL KESIMPULAN
+                    </span>
 
-            <th>
+                    <h2>
+                        Kesimpulan Audit
+                    </h2>
+                </div>
+            </div>
 
-                Kesimpulan Audit
+            <div class="audit-conclusion-content">
+                {{ $kesimpulan->kesimpulan ?? '-' }}
+            </div>
 
-            </th>
+        </div>
 
-            <td>
+        {{-- TOMBOL --}}
+        <div class="audit-detail-actions">
 
-                {!! nl2br(e($data->kesimpulan)) !!}
+            <a
+                href="{{ route('auditor.kesimpulan.index') }}"
+                class="audit-detail-button button-back"
+            >
+                <i class="bi bi-arrow-left"></i>
+                Kembali
+            </a>
 
-            </td>
+            <div class="audit-detail-actions-right">
 
-        </tr>
+                <a
+                    href="{{ route(
+                        'auditor.kesimpulan.edit',
+                        $kesimpulan->id
+                    ) }}"
+                    class="audit-detail-button button-edit"
+                >
+                    <i class="bi bi-pencil-square"></i>
+                    Edit
+                </a>
 
-        <tr>
+                <form
+                    action="{{ route(
+                        'auditor.kesimpulan.destroy',
+                        $kesimpulan->id
+                    ) }}"
+                    method="POST"
+                    onsubmit="
+                        return confirm(
+                            'Apakah Anda yakin ingin menghapus kesimpulan ini?'
+                        );
+                    "
+                >
+                    @csrf
+                    @method('DELETE')
 
-            <th>
+                    <button
+                        type="submit"
+                        class="audit-detail-button button-delete"
+                    >
+                        <i class="bi bi-trash"></i>
+                        Hapus
+                    </button>
+                </form>
 
-                Dibuat Oleh
+            </div>
 
-            </th>
+        </div>
 
-            <td>
-
-                {{ $data->user->nama ?? '-' }}
-
-            </td>
-
-        </tr>
-
-    </table>
-
-    <!-- =======================================================
-        BUTTON
-    ======================================================== -->
-
-    <div class="form-action">
-
-        <a href="{{ route('auditor.kesimpulan.index') }}"
-           class="btn-back">
-
-            <i class="bi bi-arrow-left"></i>
-
-            Kembali
-
-        </a>
-
-        <a href="{{ route('auditor.kesimpulan.edit',$data->id) }}"
-           class="btn-save">
-
-            <i class="bi bi-pencil"></i>
-
-            Edit
-
-        </a>
-
-    </div>
+    </section>
 
 </div>
 

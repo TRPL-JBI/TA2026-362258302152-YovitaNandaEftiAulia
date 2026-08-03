@@ -1,262 +1,277 @@
 ﻿@extends('layouts.auditor')
 
+@push('styles')
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/app/18-auditor-kesimpulan.css') }}"
+    >
+@endpush
+
 @section('content')
 
-<!-- ===========================================================
-    BREADCRUMB
-=========================================================== -->
+<div class="audit-list-page">
 
-<h3 class="breadcrumb">
+    {{-- BREADCRUMB --}}
 
-    Dashboard /
+    <div class="audit-list-breadcrumb">
 
-    Audit Mutu Internal /
-
-    Kesimpulan Audit
-
-</h3>
-
-<!-- ===========================================================
-    CARD
-=========================================================== -->
-
-<div class="card">
-
-    <!-- =======================================================
-        HEADER
-    ======================================================== -->
-
-    <div class="temuan-header">
-
-        <div>
-
-            <h4>
-
-                Daftar Kesimpulan Audit
-
-            </h4>
-
-            <small>
-
-                Data Kesimpulan Audit Mutu Internal
-
-            </small>
-
-        </div>
-
-        <a href="{{ route('auditor.kesimpulan.create') }}"
-           class="btn-add">
-
-            <i class="bi bi-plus-lg"></i>
-
-            Tambah Kesimpulan
-
+        <a href="{{ url('/auditor') }}">
+            Dashboard
         </a>
+
+        <span>/</span>
+
+        <a href="{{ route('auditor.temuan.index') }}">
+            Audit Mutu Internal
+        </a>
+
+        <span>/</span>
+
+        <strong>
+            Kesimpulan Audit
+        </strong>
 
     </div>
 
-   <!-- =======================================================
-    TAB MENU
-======================================================= -->
+    {{-- CARD DAFTAR --}}
 
-<div class="temuan-tab">
+    <section class="audit-list-card">
 
-    <a
-        href="{{ route('auditor.temuan.index') }}"
-        class="{{ request()->routeIs('auditor.temuan.*') ? 'active' : '' }}">
+        <div class="audit-list-header">
 
-        Temuan Audit
+            <div>
 
-    </a>
+                <h2>
+                    Daftar Kesimpulan Audit
+                </h2>
 
-    <a
-        href="{{ route('auditor.tanggapan.index') }}"
-        class="{{ request()->routeIs('auditor.tanggapan.*') ? 'active' : '' }}">
+                <p>
+                    Data Kesimpulan Audit Mutu Internal
+                </p>
 
-        Tanggapan Auditee
+            </div>
 
-    </a>
+            <a
+                href="{{ route('auditor.kesimpulan.create') }}"
+                class="audit-list-add-button"
+            >
 
-    <a
-        href="{{ route('auditor.akarmasalah.index') }}"
-        class="{{ request()->routeIs('auditor.akarmasalah.*') ? 'active' : '' }}">
+                <i class="bi bi-plus-lg"></i>
 
-        Akar Masalah
+                Tambah Kesimpulan
 
-    </a>
-
-    <a
-        href="{{ route('auditor.rekomendasi.index') }}"
-        class="{{ request()->routeIs('auditor.rekomendasi.*') ? 'active' : '' }}">
-
-        Rekomendasi
-
-    </a>
-
-    <a
-        href="{{ route('auditor.kesimpulan.index') }}"
-        class="{{ request()->routeIs('auditor.kesimpulan.*') ? 'active' : '' }}">
-
-        Kesimpulan
-
-    </a>
-
-    <a
-        href="{{ route('auditor.lampiran.index') }}"
-        class="{{ request()->routeIs('auditor.lampiran.*') ? 'active' : '' }}">
-
-        Lampiran
-
-    </a>
-
-</div>
-    
-
-    <!-- =======================================================
-        TABLE
-    ======================================================== -->
-
-    <table>
-
-        <thead>
-
-            <tr>
-
-                <th width="70">
-
-                    No
-
-                </th>
-
-                <th>
-
-                    Periode AMI
-
-                </th>
-
-                <th>
-
-                    Kesimpulan Audit
-
-                </th>
-
-                <th>
-
-                    Dibuat Oleh
-
-                </th>
-
-                <th width="180">
-
-                    Aksi
-
-                </th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-        @forelse($data as $item)
-
-            <tr>
-
-                <td>
-
-                    {{ $loop->iteration }}
-
-                </td>
-
-                <td>
-
-                    {{ $item->periodeAmi->tahun ?? '-' }}
-
-                </td>
-
-                <td>
-
-                    {{ \Illuminate\Support\Str::limit($item->kesimpulan,100) }}
-
-                </td>
-
-                <td>
-
-                    {{ $item->user->nama ?? '-' }}
-
-                </td>
-
-                <td>
-
-                    <div class="action-buttons">
-
-                        <a href="{{ route('auditor.kesimpulan.show',$item->id) }}"
-                           class="btn-icon btn-detail">
-
-                            <i class="bi bi-eye"></i>
-
-                        </a>
-
-                        <a href="{{ route('auditor.kesimpulan.edit',$item->id) }}"
-                           class="btn-icon btn-edit">
-
-                            <i class="bi bi-pencil"></i>
-
-                        </a>
-
-                        <form
-                            action="{{ route('auditor.kesimpulan.destroy',$item->id) }}"
-                            method="POST"
-                            style="display:inline;">
-
-                            @csrf
-
-                            @method('DELETE')
-
-                            <button
-                                class="btn-icon btn-delete"
-                                onclick="return confirm('Yakin ingin menghapus data ini?')">
-
-                                <i class="bi bi-trash"></i>
-
-                            </button>
-
-                        </form>
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-        @empty
-
-            <tr>
-
-                <td colspan="5"
-                    class="table-empty">
-
-                    Belum ada Data Kesimpulan Audit.
-
-                </td>
-
-            </tr>
-
-        @endforelse
-
-        </tbody>
-
-    </table>
-
-    @if(session('success'))
-
-        <div class="alert-success">
-
-            {{ session('success') }}
+            </a>
 
         </div>
 
-    @endif
+        {{-- PESAN SUKSES --}}
+
+        @if(session('success'))
+
+            <div class="audit-list-alert-success">
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                <span>
+                    {{ session('success') }}
+                </span>
+
+            </div>
+
+        @endif
+
+        {{-- TABEL --}}
+
+        <div class="audit-list-table-wrapper">
+
+            <table class="audit-list-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th class="column-number">
+                            No
+                        </th>
+
+                        <th>
+                            Periode AMI
+                        </th>
+
+                        <th>
+                            Kesimpulan Audit
+                        </th>
+
+                        <th>
+                            Dibuat Oleh
+                        </th>
+
+                        <th class="column-action">
+                            Aksi
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @forelse($data as $item)
+
+                        <tr>
+
+                            <td class="column-number">
+                                {{ $loop->iteration }}
+                            </td>
+
+                            <td>
+
+                                <strong>
+                                    {{ $item->periodeAmi?->tahun ?? '-' }}
+                                </strong>
+
+                            </td>
+
+                            <td>
+
+                                <div
+                                    class="audit-list-text"
+                                    title="{{ $item->kesimpulan }}"
+                                >
+                                    {{
+                                        \Illuminate\Support\Str::limit(
+                                            $item->kesimpulan ?? '-',
+                                            100
+                                        )
+                                    }}
+                                </div>
+
+                            </td>
+
+                            <td>
+
+                                {{ $item->user?->nama ?? '-' }}
+
+                            </td>
+
+                            <td>
+
+                                <div class="audit-list-actions">
+
+                                    {{-- LIHAT --}}
+
+                                    <a
+                                        href="{{
+                                            route(
+                                                'auditor.kesimpulan.show',
+                                                $item->id
+                                            )
+                                        }}"
+                                        class="
+                                            audit-list-action-button
+                                            action-view
+                                        "
+                                        title="Lihat"
+                                    >
+
+                                        <i class="bi bi-eye"></i>
+
+                                    </a>
+
+                                    {{-- EDIT --}}
+
+                                    <a
+                                        href="{{
+                                            route(
+                                                'auditor.kesimpulan.edit',
+                                                $item->id
+                                            )
+                                        }}"
+                                        class="
+                                            audit-list-action-button
+                                            action-edit
+                                        "
+                                        title="Edit"
+                                    >
+
+                                        <i class="bi bi-pencil"></i>
+
+                                    </a>
+
+                                    {{-- HAPUS --}}
+
+                                    <form
+                                        action="{{
+                                            route(
+                                                'auditor.kesimpulan.destroy',
+                                                $item->id
+                                            )
+                                        }}"
+                                        method="POST"
+                                        onsubmit="
+                                            return confirm(
+                                                'Yakin ingin menghapus kesimpulan ini?'
+                                            );
+                                        "
+                                    >
+
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button
+                                            type="submit"
+                                            class="
+                                                audit-list-action-button
+                                                action-delete
+                                            "
+                                            title="Hapus"
+                                        >
+
+                                            <i class="bi bi-trash"></i>
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                class="audit-list-empty"
+                            >
+
+                                <i class="bi bi-file-earmark-x"></i>
+
+                                <strong>
+                                    Belum ada Kesimpulan Audit
+                                </strong>
+
+                                <span>
+                                    Klik tombol Tambah Kesimpulan
+                                    untuk membuat data baru.
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
 
 </div>
 

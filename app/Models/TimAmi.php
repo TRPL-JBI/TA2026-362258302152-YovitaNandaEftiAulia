@@ -40,11 +40,12 @@ class TimAmi extends Model
     |
     */
 
-    public function periodeAmi(): BelongsTo
+    public function periodeAmi()
     {
         return $this->belongsTo(
             PeriodeAmi::class,
-            'id_periode_ami'
+            'id_periode_ami',
+            'id'
         );
     }
 

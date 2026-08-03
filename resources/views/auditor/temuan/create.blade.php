@@ -126,36 +126,59 @@
         );
 
     $namaIsi = function ($isi) {
-        return $isi?->nama_isi_standar
-            ?? $isi?->nama
-            ?? $isi?->isi_standar
-            ?? null;
+        if (!$isi) {
+            return null;
+        }
+
+        $nama = trim(
+            (string) (
+                $isi->nama_standar
+                ?? $isi->nama_isi_standar
+                ?? $isi->nama
+                ?? $isi->isi_standar
+                ?? ''
+            )
+        );
+
+        return $nama !== ''
+            ? $nama
+            : null;
     };
 
     $parent1 = $isiStandar?->parent;
     $parent2 = $parent1?->parent;
     $parent3 = $parent2?->parent;
 
+    /*
+    |--------------------------------------------------------------------------
+    | HIERARKI ISI STANDAR
+    |--------------------------------------------------------------------------
+    |
+    | Urutan dibaca dari parent paling atas sampai isi standar
+    | yang terhubung langsung dengan indikator.
+    |
+    */
+
     $hierarkiIsi = collect([
-        $namaIsi($parent3),
-        $namaIsi($parent2),
-        $namaIsi($parent1),
-        $namaIsi($isiStandar),
+        $parent3,
+        $parent2,
+        $parent1,
+        $isiStandar,
     ])
-        ->filter(
-            fn ($value) =>
-                !empty(
-                    trim(
-                        (string) $value
-                    )
-                )
-        )
+        ->filter()
+        ->unique('id')
+        ->map(function ($isi) use ($namaIsi) {
+            return $namaIsi($isi);
+        })
+        ->filter(function ($nama) {
+            return $nama !== null
+                && trim((string) $nama) !== '';
+        })
         ->values();
 
-    $teksHierarki =
-        $hierarkiIsi->isNotEmpty()
-            ? $hierarkiIsi->implode(' → ')
-            : '-';
+    $teksHierarki = $hierarkiIsi->isNotEmpty()
+        ? $hierarkiIsi->implode(' → ')
+        : '-';
 
     $jenisTemuanTerpilih =
         old('jenis_temuan', '');
@@ -873,63 +896,29 @@
 
                 </div>
 
+                {{-- =====================================================
+                     STATUS TEMUAN OTOMATIS
+                ====================================================== --}}
+
                 <div class="auditor-form-group">
 
-                    <label for="status_temuan">
-
+                    <label>
                         Status
-
-                        <span class="required-mark">
-                            *
-                        </span>
-
                     </label>
 
-                    <select
-                        name="status_temuan"
-                        id="status_temuan"
-                        required
+                    <input
+                        type="text"
+                        value="Open"
+                        readonly
+                        style="
+                            background-color: #f3f6fb;
+                            cursor: not-allowed;
+                        "
                     >
 
-                        <option value="">
-                            Pilih status
-                        </option>
-
-                        <option
-                            value="open"
-                            {{
-                                old('status_temuan', 'open') === 'open'
-                                    ? 'selected'
-                                    : ''
-                            }}
-                        >
-                            Open
-                        </option>
-
-                        <option
-                            value="closed"
-                            {{
-                                old('status_temuan') === 'closed'
-                                    ? 'selected'
-                                    : ''
-                            }}
-                        >
-                            Closed
-                        </option>
-
-                    </select>
-
-                    <small id="bantuanStatus">
-                        Open berarti masih membutuhkan tindak lanjut.
+                    <small class="auditor-field-help">
+                        Status temuan otomatis menjadi Open saat data disimpan.
                     </small>
-
-                    @error('status_temuan')
-
-                        <span class="auditor-field-error">
-                            {{ $message }}
-                        </span>
-
-                    @enderror
 
                 </div>
 

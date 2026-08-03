@@ -18,50 +18,7 @@
 
 </h3>
 
-<!-- ===========================================================
-    TAB MENU
-=========================================================== -->
 
-<div class="temuan-tab">
-
-    <a href="{{ route('auditor.temuan.index') }}">
-
-        Temuan Audit
-
-    </a>
-
-    <a href="{{ route('auditor.tanggapan.index') }}">
-
-        Tanggapan Auditee
-
-    </a>
-
-    <a href="{{ route('auditor.akarmasalah.index') }}"
-       class="active">
-
-        Akar Masalah
-
-    </a>
-
-    <a href="#">
-
-        Rekomendasi
-
-    </a>
-
-    <a href="#">
-
-        Kesimpulan
-
-    </a>
-
-    <a href="#">
-
-        Lampiran
-
-    </a>
-
-</div>
 
 <!-- ===========================================================
     CARD

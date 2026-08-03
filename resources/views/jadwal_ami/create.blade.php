@@ -9,24 +9,22 @@
 <!-- TAB MENU -->
 <div class="tab-menu">
 
-    <a href="{{ route('periode-ami.show',$periodeAmi->id) }}">
+    <a href="{{ route('periode-ami.show', $periodeAmi->id) }}">
         Detail Periode AMI
     </a>
 
-    <a href="{{ route('penerapan.index',$periodeAmi->id) }}">
+    <a href="{{ route('penerapan.index', $periodeAmi->id) }}">
         Penerapan Standar
     </a>
 
-    <a href="{{ route('penerapan.index') }}">
-        Penerapan Standar
-    </a>
-
-    <a href="{{ route('tim-ami.index',$periodeAmi->id) }}">
+    <a href="{{ route('tim-ami.index', $periodeAmi->id) }}">
         Tim AMI
     </a>
 
-    <a href="{{ route('jadwal.index',$periodeAmi->id) }}"
-       class="active">
+    <a
+        href="{{ route('jadwal.index', $periodeAmi->id) }}"
+        class="active"
+    >
         Jadwal AMI
     </a>
 
@@ -40,39 +38,87 @@
             Tambah Jadwal AMI
         </h3>
 
-        <form action="{{ route('jadwal.store',$periodeAmi->id) }}"
-              method="POST">
+        {{-- PESAN ERROR VALIDASI --}}
+        @if ($errors->any())
+
+            <div class="alert alert-danger">
+
+                <strong>
+                    Data belum dapat disimpan.
+                </strong>
+
+                <ul style="margin: 8px 0 0 18px;">
+
+                    @foreach ($errors->all() as $error)
+
+                        <li>
+                            {{ $error }}
+                        </li>
+
+                    @endforeach
+
+                </ul>
+
+            </div>
+
+        @endif
+
+        <form
+            action="{{ route('jadwal.store', $periodeAmi->id) }}"
+            method="POST"
+        >
 
             @csrf
 
             <!-- KEGIATAN -->
             <div class="form-group">
 
-                <label>
+                <label for="kegiatan">
                     Nama Kegiatan
                 </label>
 
                 <input
                     type="text"
                     name="kegiatan"
+                    id="kegiatan"
                     value="{{ old('kegiatan') }}"
-                    required>
+                    placeholder="Masukkan nama kegiatan"
+                    required
+                >
+
+                @error('kegiatan')
+
+                    <span class="error-text">
+                        {{ $message }}
+                    </span>
+
+                @enderror
 
             </div>
 
             <!-- WAKTU -->
             <div class="form-group">
 
-                <label>
+                <label for="waktu">
                     Waktu
                 </label>
 
                 <input
                     type="text"
                     name="waktu"
-                    placeholder="Contoh : 08.00 - 09.00"
+                    id="waktu"
+                    placeholder="Contoh: 08.00 - 09.00 WIB"
                     value="{{ old('waktu') }}"
-                    required>
+                    required
+                >
+
+                @error('waktu')
+
+                    <span class="error-text">
+                        {{ $message }}
+                    </span>
+
+                @enderror
 
             </div>
 
@@ -80,17 +126,16 @@
 
                 <button
                     type="submit"
-                    class="btn-save">
-
+                    class="btn-save"
+                >
                     Simpan
-
                 </button>
 
-                <a href="{{ route('jadwal.index',$periodeAmi->id) }}"
-                   class="btn-cancel">
-
+                <a
+                    href="{{ route('jadwal.index', $periodeAmi->id) }}"
+                    class="btn-cancel"
+                >
                     Batal
-
                 </a>
 
             </div>
@@ -102,6 +147,3 @@
 </div>
 
 @endsection
-
-
-

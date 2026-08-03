@@ -1,5 +1,12 @@
 ﻿@extends('layouts.auditor')
 
+@push('styles')
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/app/18-auditor-kesimpulan.css') }}"
+    >
+@endpush
+
 @section('content')
 
 <!-- ===========================================================
@@ -48,51 +55,6 @@
 
     </div>
 
-    <!-- =======================================================
-        TAB MENU
-    ======================================================== -->
-
-    <div class="temuan-tab">
-
-        <a href="{{ route('auditor.temuan.index') }}">
-
-            Temuan Audit
-
-        </a>
-
-        <a href="{{ route('auditor.tanggapan.index') }}">
-
-            Tanggapan Auditee
-
-        </a>
-
-        <a href="{{ route('auditor.akarmasalah.index') }}">
-
-            Akar Masalah
-
-        </a>
-
-        <a href="{{ route('auditor.rekomendasi.index') }}">
-
-            Rekomendasi
-
-        </a>
-
-        <a href="{{ route('auditor.kesimpulan.index') }}">
-
-            Kesimpulan
-
-        </a>
-
-        <a
-            href="{{ route('auditor.lampiran.index') }}"
-            class="active">
-
-            Lampiran
-
-        </a>
-
-    </div>
 
     <!-- =======================================================
         FORM

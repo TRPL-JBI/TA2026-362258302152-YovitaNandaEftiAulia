@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
 
@@ -36,7 +36,7 @@
 
         <div style="display:flex;align-items:center;gap:10px;">
 
-            <a href="{{ route('dashboard') }}"
+            <a href="{{ route('dashboard.admin') }}"
                class="btn-back">
 
                 <i class="bi bi-arrow-left"></i>

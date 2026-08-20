@@ -13,49 +13,43 @@ class TimAmiController extends Controller
 {
     use ChecksPeriodeAmiStatus;
 
-    /**
-     * Menampilkan daftar Tim AMI.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | INDEX
+    |--------------------------------------------------------------------------
+    */
+
     public function index($periode)
     {
         $periodeAmi = PeriodeAmi::findOrFail($periode);
 
         $data = TimAmi::with('user')
-            ->where(
-                'id_periode_ami',
-                $periodeAmi->id
-            )
-            ->orderBy('role')
+            ->where('id_periode_ami', $periodeAmi->id)
+            ->orderByRaw("
+                CASE
+                    WHEN LOWER(TRIM(role)) = 'ketua auditor' THEN 1
+                    WHEN LOWER(TRIM(role)) = 'auditor' THEN 2
+                    WHEN LOWER(TRIM(role)) = 'auditee' THEN 3
+                    ELSE 4
+                END
+            ")
             ->orderBy('id')
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | INFORMASI KELENGKAPAN KOMPOSISI TIM
-        |--------------------------------------------------------------------------
-        */
+        $jumlahKetuaAuditor = $this->jumlahRoleDalamPeriode(
+            $periodeAmi->id,
+            'ketua auditor'
+        );
 
-        $jumlahKetuaAuditor = TimAmi::query()
-            ->where(
-                'id_periode_ami',
-                $periodeAmi->id
-            )
-            ->whereRaw(
-                'LOWER(TRIM(role)) = ?',
-                ['ketua auditor']
-            )
-            ->count();
+        $jumlahAuditor = $this->jumlahRoleDalamPeriode(
+            $periodeAmi->id,
+            'auditor'
+        );
 
-        $jumlahAuditee = TimAmi::query()
-            ->where(
-                'id_periode_ami',
-                $periodeAmi->id
-            )
-            ->whereRaw(
-                'LOWER(TRIM(role)) = ?',
-                ['auditee']
-            )
-            ->count();
+        $jumlahAuditee = $this->jumlahRoleDalamPeriode(
+            $periodeAmi->id,
+            'auditee'
+        );
 
         $komposisiLengkap =
             $jumlahKetuaAuditor > 0
@@ -67,33 +61,109 @@ class TimAmiController extends Controller
                 'periodeAmi',
                 'data',
                 'jumlahKetuaAuditor',
+                'jumlahAuditor',
                 'jumlahAuditee',
                 'komposisiLengkap'
             )
         );
     }
 
-    /**
-     * Menampilkan form tambah anggota Tim AMI.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE
+    |--------------------------------------------------------------------------
+    */
+
     public function create($periode)
     {
         $periodeAmi = PeriodeAmi::findOrFail($periode);
 
-        $this->abortIfPeriodeClosed(
-            $periodeAmi
-        );
+        $this->abortIfPeriodeClosed($periodeAmi);
 
         /*
         |--------------------------------------------------------------------------
-        | HANYA MENAMPILKAN USER AKTIF
+        | ID USER YANG SUDAH MASUK TIM
         |--------------------------------------------------------------------------
+        */
+
+        $idUserSudahDipakai = TimAmi::query()
+            ->where('id_periode_ami', $periodeAmi->id)
+            ->pluck('id_user')
+            ->toArray();
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAMA USER YANG SUDAH MASUK TIM
+        |--------------------------------------------------------------------------
+        |
+        | Ini diperlukan karena pada database bisa saja terdapat
+        | dua ID user berbeda tetapi mempunyai nama yang sama.
+        |
+        */
+
+        $namaSudahDipakai = TimAmi::query()
+            ->join(
+                'users',
+                'users.id',
+                '=',
+                'tim_ami.id_user'
+            )
+            ->where(
+                'tim_ami.id_periode_ami',
+                $periodeAmi->id
+            )
+            ->selectRaw(
+                'LOWER(TRIM(users.nama)) AS nama_normal'
+            )
+            ->pluck('nama_normal')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        /*
+        |--------------------------------------------------------------------------
+        | USER YANG BOLEH DIPILIH
+        |--------------------------------------------------------------------------
+        |
+        | Syarat:
+        | - aktif
+        | - ID belum digunakan
+        | - nama belum digunakan
+        |
         */
 
         $users = User::query()
             ->whereRaw(
                 'LOWER(TRIM(status)) = ?',
                 ['aktif']
+            )
+            ->when(
+                !empty($idUserSudahDipakai),
+                function ($query) use ($idUserSudahDipakai) {
+                    $query->whereNotIn(
+                        'id',
+                        $idUserSudahDipakai
+                    );
+                }
+            )
+            ->when(
+                !empty($namaSudahDipakai),
+                function ($query) use ($namaSudahDipakai) {
+                    $placeholders = implode(
+                        ',',
+                        array_fill(
+                            0,
+                            count($namaSudahDipakai),
+                            '?'
+                        )
+                    );
+
+                    $query->whereRaw(
+                        "LOWER(TRIM(nama)) NOT IN ($placeholders)",
+                        $namaSudahDipakai
+                    );
+                }
             )
             ->orderBy('nama')
             ->get();
@@ -107,20 +177,19 @@ class TimAmiController extends Controller
         );
     }
 
-    /**
-     * Menyimpan anggota Tim AMI.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | STORE
+    |--------------------------------------------------------------------------
+    */
+
     public function store(
         Request $request,
         $periode
     ) {
-        $periodeAmi = PeriodeAmi::findOrFail(
-            $periode
-        );
+        $periodeAmi = PeriodeAmi::findOrFail($periode);
 
-        $this->abortIfPeriodeClosed(
-            $periodeAmi
-        );
+        $this->abortIfPeriodeClosed($periodeAmi);
 
         $validated = $request->validate(
             [
@@ -144,9 +213,7 @@ class TimAmiController extends Controller
                         'tim_ami',
                         'id_user'
                     )->where(
-                        function ($query) use (
-                            $periodeAmi
-                        ) {
+                        function ($query) use ($periodeAmi) {
                             $query->where(
                                 'id_periode_ami',
                                 $periodeAmi->id
@@ -170,24 +237,67 @@ class TimAmiController extends Controller
                 'id_user.required' =>
                     'Pengguna wajib dipilih.',
 
-                'id_user.integer' =>
-                    'Pengguna yang dipilih tidak valid.',
-
                 'id_user.exists' =>
                     'Pengguna tidak ditemukan atau sudah tidak aktif.',
 
                 'id_user.unique' =>
-                    'Pengguna tersebut sudah terdaftar dalam Tim AMI pada periode ini.',
+                    'Pengguna tersebut sudah berada di Tim AMI.',
 
                 'role.required' =>
-                    'Role anggota Tim AMI wajib dipilih.',
-
-                'role.string' =>
-                    'Role anggota Tim AMI tidak valid.',
+                    'Role wajib dipilih.',
 
                 'role.in' =>
                     'Role hanya boleh Ketua Auditor, Auditor, atau Auditee.',
             ]
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL USER YANG DIPILIH
+        |--------------------------------------------------------------------------
+        */
+
+        $userDipilih = User::findOrFail(
+            $validated['id_user']
+        );
+
+        $namaDipilih = strtolower(
+            trim(
+                (string) $userDipilih->nama
+            )
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK NAMA YANG SAMA
+        |--------------------------------------------------------------------------
+        |
+        | Walaupun ID user berbeda, nama yang sama
+        | tidak boleh masuk dua kali dalam periode yang sama.
+        |
+        */
+
+        $namaSudahAda = TimAmi::query()
+            ->join(
+                'users',
+                'users.id',
+                '=',
+                'tim_ami.id_user'
+            )
+            ->where(
+                'tim_ami.id_periode_ami',
+                $periodeAmi->id
+            )
+            ->whereRaw(
+                'LOWER(TRIM(users.nama)) = ?',
+                [$namaDipilih]
+            )
+            ->exists();
+
+        abort_if(
+            $namaSudahAda,
+            422,
+            'Nama pengguna tersebut sudah terdaftar dalam Tim AMI pada periode ini.'
         );
 
         TimAmi::create([
@@ -195,10 +305,14 @@ class TimAmiController extends Controller
                 $periodeAmi->id,
 
             'id_user' =>
-                $validated['id_user'],
+                $userDipilih->id,
 
             'role' =>
-                $validated['role'],
+                strtolower(
+                    trim(
+                        $validated['role']
+                    )
+                ),
         ]);
 
         return redirect()
@@ -208,13 +322,16 @@ class TimAmiController extends Controller
             )
             ->with(
                 'success',
-                'Tim AMI berhasil ditambahkan.'
+                'Anggota Tim AMI berhasil ditambahkan.'
             );
     }
 
-    /**
-     * Menampilkan detail anggota Tim AMI.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | SHOW
+    |--------------------------------------------------------------------------
+    */
+
     public function show($id)
     {
         $tim = TimAmi::with([
@@ -228,25 +345,142 @@ class TimAmiController extends Controller
         );
     }
 
-    /**
-     * Menampilkan form edit anggota Tim AMI.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT
+    |--------------------------------------------------------------------------
+    */
+
     public function edit($id)
     {
-        $tim = TimAmi::findOrFail($id);
+        $tim = TimAmi::with('user')
+            ->findOrFail($id);
 
         $periodeAmi = PeriodeAmi::findOrFail(
             $tim->id_periode_ami
         );
 
-        $this->abortIfPeriodeClosed(
-            $periodeAmi
-        );
+        $this->abortIfPeriodeClosed($periodeAmi);
+
+        /*
+        |--------------------------------------------------------------------------
+        | ANGGOTA LAIN DALAM PERIODE
+        |--------------------------------------------------------------------------
+        */
+
+        $anggotaLain = TimAmi::query()
+            ->where(
+                'id_periode_ami',
+                $periodeAmi->id
+            )
+            ->where(
+                'id',
+                '!=',
+                $tim->id
+            );
+
+        $idUserSudahDipakai = (clone $anggotaLain)
+            ->pluck('id_user')
+            ->toArray();
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAMA ANGGOTA LAIN
+        |--------------------------------------------------------------------------
+        */
+
+        $namaSudahDipakai = TimAmi::query()
+            ->join(
+                'users',
+                'users.id',
+                '=',
+                'tim_ami.id_user'
+            )
+            ->where(
+                'tim_ami.id_periode_ami',
+                $periodeAmi->id
+            )
+            ->where(
+                'tim_ami.id',
+                '!=',
+                $tim->id
+            )
+            ->selectRaw(
+                'LOWER(TRIM(users.nama)) AS nama_normal'
+            )
+            ->pluck('nama_normal')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        /*
+        |--------------------------------------------------------------------------
+        | PILIHAN USER EDIT
+        |--------------------------------------------------------------------------
+        |
+        | User saat ini tetap boleh muncul.
+        |
+        */
 
         $users = User::query()
             ->whereRaw(
                 'LOWER(TRIM(status)) = ?',
                 ['aktif']
+            )
+            ->where(
+                function ($query) use (
+                    $tim,
+                    $idUserSudahDipakai,
+                    $namaSudahDipakai
+                ) {
+                    /*
+                    |--------------------------------------------------------------------------
+                    | USER SAAT INI
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $query->where(
+                        'id',
+                        $tim->id_user
+                    );
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ATAU USER BARU YANG BELUM DIPAKAI
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $query->orWhere(
+                        function ($subQuery) use (
+                            $idUserSudahDipakai,
+                            $namaSudahDipakai
+                        ) {
+                            if (!empty($idUserSudahDipakai)) {
+                                $subQuery->whereNotIn(
+                                    'id',
+                                    $idUserSudahDipakai
+                                );
+                            }
+
+                            if (!empty($namaSudahDipakai)) {
+                                $placeholders = implode(
+                                    ',',
+                                    array_fill(
+                                        0,
+                                        count($namaSudahDipakai),
+                                        '?'
+                                    )
+                                );
+
+                                $subQuery->whereRaw(
+                                    "LOWER(TRIM(nama)) NOT IN ($placeholders)",
+                                    $namaSudahDipakai
+                                );
+                            }
+                        }
+                    );
+                }
             )
             ->orderBy('nama')
             ->get();
@@ -255,14 +489,18 @@ class TimAmiController extends Controller
             'tim_ami.edit',
             compact(
                 'tim',
+                'periodeAmi',
                 'users'
             )
         );
     }
 
-    /**
-     * Memperbarui anggota Tim AMI.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
+
     public function update(
         Request $request,
         $id
@@ -273,9 +511,7 @@ class TimAmiController extends Controller
             $tim->id_periode_ami
         );
 
-        $this->abortIfPeriodeClosed(
-            $periodeAmi
-        );
+        $this->abortIfPeriodeClosed($periodeAmi);
 
         $validated = $request->validate(
             [
@@ -300,9 +536,7 @@ class TimAmiController extends Controller
                         'id_user'
                     )
                         ->where(
-                            function ($query) use (
-                                $periodeAmi
-                            ) {
+                            function ($query) use ($periodeAmi) {
                                 $query->where(
                                     'id_periode_ami',
                                     $periodeAmi->id
@@ -322,40 +556,52 @@ class TimAmiController extends Controller
                         'auditee',
                     ]),
                 ],
-            ],
-            [
-                'id_user.required' =>
-                    'Pengguna wajib dipilih.',
-
-                'id_user.integer' =>
-                    'Pengguna yang dipilih tidak valid.',
-
-                'id_user.exists' =>
-                    'Pengguna tidak ditemukan atau sudah tidak aktif.',
-
-                'id_user.unique' =>
-                    'Pengguna tersebut sudah terdaftar dalam Tim AMI pada periode ini.',
-
-                'role.required' =>
-                    'Role anggota Tim AMI wajib dipilih.',
-
-                'role.string' =>
-                    'Role anggota Tim AMI tidak valid.',
-
-                'role.in' =>
-                    'Role hanya boleh Ketua Auditor, Auditor, atau Auditee.',
             ]
+        );
+
+        $userDipilih = User::findOrFail(
+            $validated['id_user']
+        );
+
+        $namaDipilih = strtolower(
+            trim(
+                (string) $userDipilih->nama
+            )
         );
 
         /*
         |--------------------------------------------------------------------------
-        | CEK KOMPOSISI TIM SEBELUM ROLE DIUBAH
+        | CEK DUPLIKAT NAMA
         |--------------------------------------------------------------------------
-        |
-        | Ketua auditor terakhir tidak boleh diubah menjadi role lain.
-        | Auditee terakhir tidak boleh diubah menjadi role lain.
-        |
         */
+
+        $namaSudahAda = TimAmi::query()
+            ->join(
+                'users',
+                'users.id',
+                '=',
+                'tim_ami.id_user'
+            )
+            ->where(
+                'tim_ami.id_periode_ami',
+                $periodeAmi->id
+            )
+            ->where(
+                'tim_ami.id',
+                '!=',
+                $tim->id
+            )
+            ->whereRaw(
+                'LOWER(TRIM(users.nama)) = ?',
+                [$namaDipilih]
+            )
+            ->exists();
+
+        abort_if(
+            $namaSudahAda,
+            422,
+            'Nama pengguna tersebut sudah terdaftar dalam Tim AMI pada periode ini.'
+        );
 
         $roleLama = strtolower(
             trim(
@@ -369,46 +615,52 @@ class TimAmiController extends Controller
             )
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | KETUA AUDITOR TERAKHIR
+        |--------------------------------------------------------------------------
+        */
+
         if (
             $roleLama === 'ketua auditor'
             && $roleBaru !== 'ketua auditor'
         ) {
-            $jumlahKetuaAuditor =
+            abort_if(
                 $this->jumlahRoleDalamPeriode(
                     $periodeAmi->id,
                     'ketua auditor'
-                );
-
-            abort_if(
-                $jumlahKetuaAuditor <= 1,
+                ) <= 1,
                 422,
-                'Role tidak dapat diubah karena periode ini harus memiliki minimal satu Ketua Auditor.'
+                'Periode AMI harus memiliki minimal satu Ketua Auditor.'
             );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUDITEE TERAKHIR
+        |--------------------------------------------------------------------------
+        */
 
         if (
             $roleLama === 'auditee'
             && $roleBaru !== 'auditee'
         ) {
-            $jumlahAuditee =
+            abort_if(
                 $this->jumlahRoleDalamPeriode(
                     $periodeAmi->id,
                     'auditee'
-                );
-
-            abort_if(
-                $jumlahAuditee <= 1,
+                ) <= 1,
                 422,
-                'Role tidak dapat diubah karena periode ini harus memiliki minimal satu Auditee.'
+                'Periode AMI harus memiliki minimal satu Auditee.'
             );
         }
 
         $tim->update([
             'id_user' =>
-                $validated['id_user'],
+                $userDipilih->id,
 
             'role' =>
-                $validated['role'],
+                $roleBaru,
         ]);
 
         return redirect()
@@ -418,13 +670,16 @@ class TimAmiController extends Controller
             )
             ->with(
                 'success',
-                'Tim AMI berhasil diperbarui.'
+                'Anggota Tim AMI berhasil diperbarui.'
             );
     }
 
-    /**
-     * Menghapus anggota Tim AMI.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | DESTROY
+    |--------------------------------------------------------------------------
+    */
+
     public function destroy($id)
     {
         $tim = TimAmi::findOrFail($id);
@@ -433,15 +688,7 @@ class TimAmiController extends Controller
             $tim->id_periode_ami
         );
 
-        $this->abortIfPeriodeClosed(
-            $periodeAmi
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | CEK KOMPOSISI TIM SEBELUM DELETE
-        |--------------------------------------------------------------------------
-        */
+        $this->abortIfPeriodeClosed($periodeAmi);
 
         $role = strtolower(
             trim(
@@ -450,30 +697,24 @@ class TimAmiController extends Controller
         );
 
         if ($role === 'ketua auditor') {
-            $jumlahKetuaAuditor =
+            abort_if(
                 $this->jumlahRoleDalamPeriode(
                     $periodeAmi->id,
                     'ketua auditor'
-                );
-
-            abort_if(
-                $jumlahKetuaAuditor <= 1,
+                ) <= 1,
                 422,
-                'Ketua Auditor tidak dapat dihapus karena periode ini harus memiliki minimal satu Ketua Auditor.'
+                'Ketua Auditor terakhir tidak dapat dihapus.'
             );
         }
 
         if ($role === 'auditee') {
-            $jumlahAuditee =
+            abort_if(
                 $this->jumlahRoleDalamPeriode(
                     $periodeAmi->id,
                     'auditee'
-                );
-
-            abort_if(
-                $jumlahAuditee <= 1,
+                ) <= 1,
                 422,
-                'Auditee tidak dapat dihapus karena periode ini harus memiliki minimal satu Auditee.'
+                'Auditee terakhir tidak dapat dihapus.'
             );
         }
 
@@ -488,13 +729,16 @@ class TimAmiController extends Controller
             )
             ->with(
                 'success',
-                'Tim AMI berhasil dihapus.'
+                'Anggota Tim AMI berhasil dihapus.'
             );
     }
 
-    /**
-     * Menghitung jumlah anggota berdasarkan role pada satu periode.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | HITUNG ROLE
+    |--------------------------------------------------------------------------
+    */
+
     private function jumlahRoleDalamPeriode(
         int $periodeId,
         string $role

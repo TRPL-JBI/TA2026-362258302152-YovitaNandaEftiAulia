@@ -304,11 +304,52 @@ class DashboardAuditeeController extends Controller
         $periodeBerjalan = PeriodeAmi::with([
             'standarMutu',
             'unitKerja',
+            'unitKerjas',
+            'tim.user',
         ])
-            ->where(
-                'id_unit_kerja',
-                $idUnitKerja
-            )
+            /*
+            |------------------------------------------------------------------
+            | HANYA PERIODE PENUGASAN AUDITEE YANG LOGIN
+            |------------------------------------------------------------------
+            |
+            | Periode tidak cukup difilter berdasarkan unit kerja. Auditee
+            | juga harus benar-benar terdaftar di tim_ami pada periode itu
+            | dengan role auditee. Dengan begitu periode milik auditee lain
+            | tidak akan muncul di dashboard.
+            |
+            */
+            ->whereHas('tim', function ($query) use ($idUser) {
+                $query
+                    ->where('id_user', $idUser)
+                    ->whereRaw(
+                        "LOWER(TRIM(COALESCE(role, ''))) = ?",
+                        ['auditee']
+                    );
+            })
+
+            /*
+            |------------------------------------------------------------------
+            | RUANG LINGKUP UNIT KERJA
+            |------------------------------------------------------------------
+            |
+            | Mendukung struktur baru many-to-many melalui unitKerjas dan
+            | tetap kompatibel dengan periode lama yang masih menggunakan
+            | kolom id_unit_kerja.
+            |
+            */
+            ->where(function ($query) use ($idUnitKerja) {
+                $query
+                    ->whereHas('unitKerjas', function ($unitQuery) use ($idUnitKerja) {
+                        $unitQuery->where(
+                            'unit_kerja.id',
+                            $idUnitKerja
+                        );
+                    })
+                    ->orWhere(
+                        'id_unit_kerja',
+                        $idUnitKerja
+                    );
+            })
             ->whereRaw(
                 "LOWER(TRIM(COALESCE(status, ''))) = ?",
                 ['berjalan']
@@ -363,7 +404,7 @@ class DashboardAuditeeController extends Controller
             ?? \App\Models\User::find(session('user_id'));
 
         abort_unless(
-            $sessionUser && $sessionUser->status === 'aktif',
+            $sessionUser && strtolower(trim((string) $sessionUser->status)) === 'aktif',
             403,
             'Akun tidak ditemukan atau sudah dinonaktifkan.'
         );

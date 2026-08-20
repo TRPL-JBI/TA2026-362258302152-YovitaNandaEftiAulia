@@ -822,75 +822,19 @@
 
                     </div>
 
-                    {{-- STATUS --}}
+                    {{-- STATUS OTOMATIS --}}
                     <div class="periode-form-group">
 
                         <label class="periode-label">
-                            Status
-                            <span class="periode-required">*</span>
+                            Status Awal
                         </label>
 
-                        @php
-                            $statusDipilih = old('status', 'draft');
-                        @endphp
-
-                        <div class="status-list">
-
-                            <label class="status-item">
-
-                                <input
-                                    type="radio"
-                                    name="status"
-                                    value="draft"
-                                    class="status-radio"
-                                    @checked($statusDipilih === 'draft')
-                                >
-
-                                <span class="status-name">
-                                    Draft
-                                </span>
-
-                            </label>
-
-                            <label class="status-item">
-
-                                <input
-                                    type="radio"
-                                    name="status"
-                                    value="berjalan"
-                                    class="status-radio"
-                                    @checked($statusDipilih === 'berjalan')
-                                >
-
-                                <span class="status-name">
-                                    Berjalan
-                                </span>
-
-                            </label>
-
-                            <label class="status-item">
-
-                                <input
-                                    type="radio"
-                                    name="status"
-                                    value="ditutup"
-                                    class="status-radio"
-                                    @checked($statusDipilih === 'ditutup')
-                                >
-
-                                <span class="status-name">
-                                    Ditutup
-                                </span>
-
-                            </label>
-
-                        </div>
-
-                        @error('status')
-                            <span class="periode-error">
-                                {{ $message }}
+                        <div class="periode-control" style="display:flex;align-items:center;gap:10px;background:#f8fafc;cursor:default;">
+                            <span class="badge-draft">Draft</span>
+                            <span style="color:#667085;font-size:13px;">
+                                Periode baru otomatis dibuat dengan status Draft.
                             </span>
-                        @enderror
+                        </div>
 
                     </div>
 

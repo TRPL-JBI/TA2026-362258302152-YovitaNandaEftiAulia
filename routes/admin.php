@@ -189,6 +189,16 @@ Route::middleware([
             [PeriodeAmiController::class, 'delete']
         )->name('periode-ami.delete');
 
+        Route::patch(
+            '/periode-ami/{id}/start',
+            [PeriodeAmiController::class, 'start']
+        )->name('periode-ami.start');
+
+        Route::patch(
+            '/periode-ami/{id}/close',
+            [PeriodeAmiController::class, 'close']
+        )->name('periode-ami.close');
+
         Route::resource(
             'periode-ami',
             PeriodeAmiController::class

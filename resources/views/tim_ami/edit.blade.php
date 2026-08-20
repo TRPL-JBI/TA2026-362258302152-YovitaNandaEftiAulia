@@ -21,7 +21,7 @@
 
             <div class="form-group">
 
-                <label>Nama Auditor</label>
+                <label>Nama Tim AMI</label>
 
                 <select name="id_user" required>
 

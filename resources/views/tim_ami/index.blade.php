@@ -67,7 +67,7 @@
 
                     <th>No.</th>
 
-                    <th>Nama Auditor</th>
+                    <th>Nama Tim AMI</th>
 
                     <th>Role</th>
 

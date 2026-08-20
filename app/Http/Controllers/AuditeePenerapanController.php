@@ -42,10 +42,43 @@ class AuditeePenerapanController extends Controller
             ->whereHas(
                 'periodeAmi',
                 function ($query) use ($user) {
-                    $query->where(
-                        'id_unit_kerja',
-                        $user['id_unit_kerja']
-                    );
+                    $query
+                        ->whereRaw(
+                            "LOWER(TRIM(COALESCE(status, ''))) = ?",
+                            ['berjalan']
+                        )
+                        ->whereHas(
+                            'tim',
+                            function ($tim) use ($user) {
+                                $tim
+                                    ->where(
+                                        'id_user',
+                                        $user['id']
+                                    )
+                                    ->whereRaw(
+                                        "LOWER(TRIM(COALESCE(role, ''))) = ?",
+                                        ['auditee']
+                                    );
+                            }
+                        )
+                        ->where(
+                            function ($scope) use ($user) {
+                                $scope
+                                    ->where(
+                                        'id_unit_kerja',
+                                        $user['id_unit_kerja']
+                                    )
+                                    ->orWhereHas(
+                                        'unitKerjas',
+                                        function ($unit) use ($user) {
+                                            $unit->where(
+                                                'unit_kerja.id',
+                                                $user['id_unit_kerja']
+                                            );
+                                        }
+                                    );
+                            }
+                        );
                 }
             )
             ->findOrFail($standar);
@@ -245,10 +278,43 @@ class AuditeePenerapanController extends Controller
             ->whereHas(
                 'periodeAmi',
                 function ($query) use ($user) {
-                    $query->where(
-                        'id_unit_kerja',
-                        $user['id_unit_kerja']
-                    );
+                    $query
+                        ->whereRaw(
+                            "LOWER(TRIM(COALESCE(status, ''))) = ?",
+                            ['berjalan']
+                        )
+                        ->whereHas(
+                            'tim',
+                            function ($tim) use ($user) {
+                                $tim
+                                    ->where(
+                                        'id_user',
+                                        $user['id']
+                                    )
+                                    ->whereRaw(
+                                        "LOWER(TRIM(COALESCE(role, ''))) = ?",
+                                        ['auditee']
+                                    );
+                            }
+                        )
+                        ->where(
+                            function ($scope) use ($user) {
+                                $scope
+                                    ->where(
+                                        'id_unit_kerja',
+                                        $user['id_unit_kerja']
+                                    )
+                                    ->orWhereHas(
+                                        'unitKerjas',
+                                        function ($unit) use ($user) {
+                                            $unit->where(
+                                                'unit_kerja.id',
+                                                $user['id_unit_kerja']
+                                            );
+                                        }
+                                    );
+                            }
+                        );
                 }
             )
             ->findOrFail(
@@ -544,10 +610,39 @@ class AuditeePenerapanController extends Controller
             ->whereHas(
                 'standarmutuPeriode.periodeAmi',
                 function ($query) use ($user) {
-                    $query->where(
-                        'id_unit_kerja',
-                        $user['id_unit_kerja']
-                    );
+                    $query
+                        ->whereHas(
+                            'tim',
+                            function ($tim) use ($user) {
+                                $tim
+                                    ->where(
+                                        'id_user',
+                                        $user['id']
+                                    )
+                                    ->whereRaw(
+                                        "LOWER(TRIM(COALESCE(role, ''))) = ?",
+                                        ['auditee']
+                                    );
+                            }
+                        )
+                        ->where(
+                            function ($scope) use ($user) {
+                                $scope
+                                    ->where(
+                                        'id_unit_kerja',
+                                        $user['id_unit_kerja']
+                                    )
+                                    ->orWhereHas(
+                                        'unitKerjas',
+                                        function ($unit) use ($user) {
+                                            $unit->where(
+                                                'unit_kerja.id',
+                                                $user['id_unit_kerja']
+                                            );
+                                        }
+                                    );
+                            }
+                        );
                 }
             )
             ->findOrFail($id);

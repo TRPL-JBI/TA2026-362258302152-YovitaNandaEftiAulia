@@ -22,13 +22,13 @@
             <div class="form-group">
 
                 <label>
-                    Nama Auditor
+                    Nama Tim AMI
                 </label>
 
                 <select name="id_user" required>
 
                     <option value="">
-                        -- Pilih Auditor --
+                        -- Pilih Tim AMI--
                     </option>
 
                     @foreach($users as $user)

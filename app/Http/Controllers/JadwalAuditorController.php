@@ -9,18 +9,74 @@ class JadwalAuditorController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
+    | Mengambil ID Auditor yang Login
+    |--------------------------------------------------------------------------
+    */
+
+    private function getAuditorId(): int
+    {
+        $auditorId = session('user_id');
+
+        abort_if(
+            empty($auditorId),
+            403,
+            'Sesi auditor tidak ditemukan. Silakan login kembali.'
+        );
+
+        return (int) $auditorId;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Memastikan Auditor Ditugaskan pada Periode AMI
+    |--------------------------------------------------------------------------
+    */
+
+    private function getPeriodeAuditor(int $id): PeriodeAmi
+    {
+        $auditorId = $this->getAuditorId();
+
+        return PeriodeAmi::with([
+            'standarMutu',
+            'unitKerja',
+            'user',
+            'tim.user',
+        ])
+            ->whereHas('tim', function ($query) use ($auditorId) {
+                $query->where(
+                    'id_user',
+                    $auditorId
+                );
+            })
+            ->findOrFail($id);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Daftar Jadwal AMI
     |--------------------------------------------------------------------------
     */
 
     public function index($id)
     {
-        $periodeAmi = PeriodeAmi::findOrFail($id);
+        /*
+        | Pastikan periode AMI memang menjadi
+        | penugasan auditor yang sedang login.
+        */
+        $periodeAmi = $this->getPeriodeAuditor(
+            (int) $id
+        );
 
+        /*
+        | Setelah periode dinyatakan valid,
+        | baru ambil jadwal pada periode tersebut.
+        */
         $data = JadwalAmi::where(
             'id_periode_ami',
-            $id
-        )->orderBy('id')->get();
+            $periodeAmi->id
+        )
+            ->orderBy('id')
+            ->get();
 
         return view(
             'auditor.periode.jadwal.index',
@@ -39,10 +95,17 @@ class JadwalAuditorController extends Controller
 
     public function show($id)
     {
+        /*
+        | Ambil jadwal terlebih dahulu.
+        */
         $jadwal = JadwalAmi::findOrFail($id);
 
-        $periodeAmi = PeriodeAmi::findOrFail(
-            $jadwal->id_periode_ami
+        /*
+        | Pastikan auditor yang login memang
+        | ditugaskan pada periode jadwal tersebut.
+        */
+        $periodeAmi = $this->getPeriodeAuditor(
+            (int) $jadwal->id_periode_ami
         );
 
         return view(

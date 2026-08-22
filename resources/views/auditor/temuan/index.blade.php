@@ -1700,45 +1700,60 @@
 
                                         <div class="audit-flow-buttons">
 
-                                            <a
-                                                href="{{
-                                                    route(
-                                                        'auditor.rekomendasi.show',
-                                                        $rekomendasiTerbaru->id
-                                                    )
-                                                }}"
-                                                class="
-                                                    audit-flow-button
-                                                    button-view
-                                                "
-                                            >
+    @php
+        $temuanRekomendasi = $penerapan->temuan;
 
-                                                <i class="bi bi-eye"></i>
+        if (
+            $temuanRekomendasi
+            instanceof \Illuminate\Support\Collection
+        ) {
+            $temuanRekomendasi = $temuanRekomendasi
+                ->sortByDesc('id')
+                ->first();
+        }
+    @endphp
 
-                                                Lihat
+    @if($temuanRekomendasi)
 
-                                            </a>
+        <a
+            href="{{
+                route(
+                    'auditor.temuan.show',
+                    $temuanRekomendasi->id
+                )
+            }}"
+            class="
+                audit-flow-button
+                button-view
+            "
+        >
+            <i class="bi bi-eye"></i>
 
-                                            <a
-                                                href="{{
-                                                    route(
-                                                        'auditor.rekomendasi.edit',
-                                                        $rekomendasiTerbaru->id
-                                                    )
-                                                }}"
-                                                class="
-                                                    audit-flow-button
-                                                    button-edit
-                                                "
-                                            >
+            Lihat
 
-                                                <i class="bi bi-pencil-square"></i>
+        </a>
 
-                                                Edit
+        <a
+            href="{{
+                route(
+                    'auditor.temuan.show',
+                    $temuanRekomendasi->id
+                )
+            }}"
+            class="
+                audit-flow-button
+                button-edit
+            "
+        >
+            <i class="bi bi-pencil-square"></i>
 
-                                            </a>
+            Edit
 
-                                        </div>
+        </a>
+
+    @endif
+
+</div>
 
                                     </div>
 

@@ -227,21 +227,6 @@ Route::middleware([
         |
         */
 
-        Route::get(
-            '/rekomendasi/{rekomendasi}',
-            [TemuanAuditorController::class, 'showRekomendasi']
-        )->name('auditor.rekomendasi.show');
-
-        Route::get(
-            '/rekomendasi/{rekomendasi}/edit',
-            [TemuanAuditorController::class, 'editRekomendasi']
-        )->name('auditor.rekomendasi.edit');
-
-        Route::put(
-            '/rekomendasi/{rekomendasi}',
-            [TemuanAuditorController::class, 'updateRekomendasi']
-        )->name('auditor.rekomendasi.update');
-
         Route::put(
             '/temuan/{temuan}/rekomendasi',
             [TemuanAuditorController::class, 'simpanRekomendasi']

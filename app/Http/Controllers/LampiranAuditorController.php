@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Carbon\Carbon;
 
 class LampiranAuditorController extends Controller
 {
@@ -42,6 +43,7 @@ class LampiranAuditorController extends Controller
             compact('data')
         );
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -79,10 +81,14 @@ class LampiranAuditorController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | STORE
     |--------------------------------------------------------------------------
+    |
+    | Menyimpan lampiran baru.
+    |
     */
 
     public function store(
@@ -125,6 +131,7 @@ class LampiranAuditorController extends Controller
             ]
         );
 
+
         /*
         |--------------------------------------------------------------------------
         | VALIDASI PERIODE SESUAI PENUGASAN
@@ -141,6 +148,18 @@ class LampiranAuditorController extends Controller
         )->findOrFail(
             $validated['id_periode_ami']
         );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK PERIODE MASIH TERBUKA
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensurePeriodeAmiTerbuka(
+            (int) $periode->id
+        );
+
 
         /*
         |--------------------------------------------------------------------------
@@ -159,6 +178,7 @@ class LampiranAuditorController extends Controller
                 $auditorId,
         ]);
 
+
         return redirect()
             ->route(
                 'auditor.lampiran.index'
@@ -168,6 +188,7 @@ class LampiranAuditorController extends Controller
                 'Lampiran audit berhasil ditambahkan.'
             );
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -187,43 +208,59 @@ class LampiranAuditorController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | EDIT
     |--------------------------------------------------------------------------
+    |
+    | Form edit hanya dapat dibuka jika periode AMI
+    | masih terbuka.
+    |
+    | Periode lampiran dibuat tetap pada periode asal.
+    | Lampiran tidak dapat dipindahkan ke periode lain.
+    |
     */
 
     public function edit($id): View
     {
-        $auditorId = $this->getAuditorId();
-
-        /*
-        | Lampiran dipastikan berasal dari periode penugasan auditor.
-        */
-
         $data = $this->findLampiranAuditor(
             $id
         );
 
+
         /*
-        | Dropdown periode hanya menampilkan periode tugas auditor.
+        |--------------------------------------------------------------------------
+        | CEK PERIODE LAMPIRAN
+        |--------------------------------------------------------------------------
         */
 
-        $periodeIds = $this->getPeriodeIdsAuditor(
-            $auditorId
+        $this->ensurePeriodeAmiTerbuka(
+            (int) $data->id_periode_ami
         );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PERIODE LAMPIRAN
+        |--------------------------------------------------------------------------
+        |
+        | Hanya tampilkan periode asli lampiran.
+        | Ini mencegah UI memberikan pilihan untuk
+        | memindahkan lampiran ke periode lain.
+        |
+        */
 
         $periode = PeriodeAmi::with([
             'standarMutu',
             'unitKerja',
         ])
-            ->whereIn(
+            ->where(
                 'id',
-                $periodeIds
+                $data->id_periode_ami
             )
-            ->orderByDesc('tahun')
-            ->orderByDesc('id')
             ->get();
+
 
         return view(
             'auditor.lampiran.edit',
@@ -234,26 +271,75 @@ class LampiranAuditorController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | UPDATE
     |--------------------------------------------------------------------------
+    |
+    | Memperbarui isi/link lampiran.
+    |
+    | PENTING:
+    | id_periode_ami TIDAK BOLEH diubah.
+    |
+    | Lampiran yang sudah menjadi bukti suatu periode
+    | harus tetap melekat pada periode tersebut.
+    |
     */
 
     public function update(
         Request $request,
         $id
     ): RedirectResponse {
-        $auditorId = $this->getAuditorId();
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI LAMPIRAN LAMA
+        |--------------------------------------------------------------------------
+        |
+        | Lampiran dipastikan berasal dari periode
+        | penugasan auditor.
+        |
+        */
+
+        $data = $this->findLampiranAuditor(
+            $id
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK PERIODE ASAL
+        |--------------------------------------------------------------------------
+        |
+        | Lampiran yang berada pada periode yang sudah
+        | ditutup tidak boleh diubah.
+        |
+        */
+
+        $this->ensurePeriodeAmiTerbuka(
+            (int) $data->id_periode_ami
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI UPDATE
+        |--------------------------------------------------------------------------
+        |
+        | id_periode_ami SENGAJA tidak dimasukkan
+        | ke dalam data yang dapat diperbarui.
+        |
+        | Dengan demikian walaupun request mencoba
+        | mengirim:
+        |
+        | id_periode_ami = periode lain
+        |
+        | nilai tersebut tidak akan pernah digunakan.
+        |
+        */
 
         $validated = $request->validate(
             [
-                'id_periode_ami' => [
-                    'required',
-                    'integer',
-                    'exists:periode_ami,id',
-                ],
-
                 'link_file' => [
                     'required',
                     'string',
@@ -261,15 +347,6 @@ class LampiranAuditorController extends Controller
                 ],
             ],
             [
-                'id_periode_ami.required' =>
-                    'Periode AMI wajib dipilih.',
-
-                'id_periode_ami.integer' =>
-                    'Data periode AMI tidak valid.',
-
-                'id_periode_ami.exists' =>
-                    'Periode AMI tidak ditemukan.',
-
                 'link_file.required' =>
                     'Link lampiran wajib diisi.',
 
@@ -281,54 +358,25 @@ class LampiranAuditorController extends Controller
             ]
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI LAMPIRAN LAMA
-        |--------------------------------------------------------------------------
-        |
-        | Auditor tidak dapat mengedit lampiran periode lain
-        | dengan mengganti ID pada URL.
-        |
-        */
-
-        $data = $this->findLampiranAuditor(
-            $id
-        );
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDASI PERIODE BARU
-        |--------------------------------------------------------------------------
-        |
-        | Auditor juga tidak dapat memindahkan lampiran
-        | ke periode yang bukan menjadi penugasannya.
-        |
-        */
-
-        $periodeIds = $this->getPeriodeIdsAuditor(
-            $auditorId
-        );
-
-        $periode = PeriodeAmi::whereIn(
-            'id',
-            $periodeIds
-        )->findOrFail(
-            $validated['id_periode_ami']
-        );
 
         /*
         |--------------------------------------------------------------------------
         | PERBARUI LAMPIRAN
         |--------------------------------------------------------------------------
+        |
+        | id_periode_ami TIDAK DIUBAH.
+        |
+        | Periode tetap menggunakan:
+        |
+        | $data->id_periode_ami
+        |
         */
 
         $data->update([
-            'id_periode_ami' =>
-                $periode->id,
-
             'link_file' =>
                 $validated['link_file'],
         ]);
+
 
         return redirect()
             ->route(
@@ -340,25 +388,53 @@ class LampiranAuditorController extends Controller
             );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | DESTROY
     |--------------------------------------------------------------------------
+    |
+    | Menghapus lampiran.
+    |
     */
 
     public function destroy(
         $id
     ): RedirectResponse {
         /*
+        |--------------------------------------------------------------------------
         | Lampiran dicari dengan filter penugasan terlebih dahulu.
         | Auditor tidak dapat menghapus lampiran periode lain.
+        |--------------------------------------------------------------------------
         */
 
         $data = $this->findLampiranAuditor(
             $id
         );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK PERIODE
+        |--------------------------------------------------------------------------
+        |
+        | Lampiran tidak dapat dihapus setelah periode AMI ditutup.
+        |
+        */
+
+        $this->ensurePeriodeAmiTerbuka(
+            (int) $data->id_periode_ami
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HAPUS LAMPIRAN
+        |--------------------------------------------------------------------------
+        */
+
         $data->delete();
+
 
         return redirect()
             ->route(
@@ -369,6 +445,102 @@ class LampiranAuditorController extends Controller
                 'Lampiran audit berhasil dihapus.'
             );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MEMASTIKAN PERIODE AMI MASIH TERBUKA
+    |--------------------------------------------------------------------------
+    |
+    | Digunakan untuk mencegah:
+    |
+    | - tambah lampiran
+    | - edit lampiran
+    | - update lampiran
+    | - hapus lampiran
+    |
+    | setelah periode AMI ditutup.
+    |
+    */
+
+    private function ensurePeriodeAmiTerbuka(
+        int $periodeId
+    ): void {
+        $periode = PeriodeAmi::findOrFail(
+            $periodeId
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        $status = strtolower(
+            trim(
+                (string) $periode->status
+            )
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | STATUS PERIODE DITUTUP
+        |--------------------------------------------------------------------------
+        */
+
+        $sudahDitutup = in_array(
+            $status,
+            [
+                'ditutup',
+                'closed',
+                'selesai',
+            ],
+            true
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK TANGGAL TUTUP
+        |--------------------------------------------------------------------------
+        |
+        | Jika tanggal tutup sudah dilewati,
+        | periode dianggap sudah ditutup.
+        |
+        */
+
+        if (
+            !$sudahDitutup
+            &&
+            !empty(
+                $periode->tanggal_tutup_ami
+            )
+        ) {
+            $tanggalTutup = Carbon::parse(
+                $periode->tanggal_tutup_ami
+            )->endOfDay();
+
+            $sudahDitutup = now()->greaterThan(
+                $tanggalTutup
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOLAK PERUBAHAN
+        |--------------------------------------------------------------------------
+        */
+
+        abort_if(
+            $sudahDitutup,
+            403,
+            'Periode AMI sudah ditutup. Data lampiran tidak dapat diubah.'
+        );
+    }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -388,8 +560,11 @@ class LampiranAuditorController extends Controller
         return LampiranAudit::whereIn(
             'id_periode_ami',
             $periodeIds
-        )->findOrFail($id);
+        )->findOrFail(
+            $id
+        );
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -400,16 +575,21 @@ class LampiranAuditorController extends Controller
     private function getPeriodeIdsAuditor(
         int $auditorId
     ): Collection {
-        return DB::table('tim_ami')
+        return DB::table(
+            'tim_ami'
+        )
             ->where(
                 'id_user',
                 $auditorId
             )
-            ->pluck('id_periode_ami')
+            ->pluck(
+                'id_periode_ami'
+            )
             ->filter()
             ->unique()
             ->values();
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -419,27 +599,55 @@ class LampiranAuditorController extends Controller
 
     private function getAuditorId(): int
     {
-        $auditorId = session('user_id');
+        $auditorId = session(
+            'user_id'
+        );
+
 
         if (!$auditorId) {
-            $user = request()->attributes->get('auth_user')
-                ?? \App\Models\User::find(session('user_id'));
+            $user =
+                request()
+                    ->attributes
+                    ->get(
+                        'auth_user'
+                    )
+                ??
+                \App\Models\User::find(
+                    session(
+                        'user_id'
+                    )
+                );
+
 
             abort_unless(
-                $user && $user->status === 'aktif',
+                $user
+                &&
+                $user->status === 'aktif',
                 403,
                 'Akun tidak ditemukan atau sudah dinonaktifkan.'
             );
-            $auditorId = is_array($user)
-                ? ($user['id'] ?? null)
-                : ($user->id ?? null);
+
+
+            $auditorId = is_array(
+                $user
+            )
+                ? (
+                    $user['id']
+                    ?? null
+                )
+                : (
+                    $user->id
+                    ?? null
+                );
         }
+
 
         abort_if(
             !$auditorId,
             401,
             'Sesi auditor tidak ditemukan. Silakan login kembali.'
         );
+
 
         return (int) $auditorId;
     }

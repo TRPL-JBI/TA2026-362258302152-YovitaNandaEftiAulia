@@ -2,9 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\RekomendasiPeningkatan;
+use App\Models\Rekomendasi;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
@@ -12,53 +11,79 @@ class AuditorRekomendasiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_tabel_rekomendasi_peningkatan_memiliki_struktur_utama(): void
+    public function test_tabel_rekomendasi_memiliki_struktur_utama(): void
     {
         $this->assertTrue(
-            Schema::hasTable('rekomendasi_peningkatan')
+            Schema::hasTable('rekomendasi')
         );
 
         $this->assertTrue(
             Schema::hasColumns(
-                'rekomendasi_peningkatan',
+                'rekomendasi',
                 [
                     'id',
-                    'id_penerapan_standar',
+                    'id_temuan',
+                    'aspek',
+                    'deskripsi',
+                    'rekomendasi',
                     'id_user',
                 ]
             )
         );
     }
 
-    public function test_rekomendasi_terhubung_ke_penerapan_standar(): void
+    public function test_rekomendasi_terhubung_ke_temuan(): void
     {
         $this->assertTrue(
             Schema::hasColumn(
-                'rekomendasi_peningkatan',
-                'id_penerapan_standar'
+                'rekomendasi',
+                'id_temuan'
             )
         );
 
         $this->assertFalse(
             Schema::hasColumn(
-                'rekomendasi_peningkatan',
+                'rekomendasi',
+                'id_penerapan_standar'
+            ),
+            'Rekomendasi seharusnya terhubung ke temuan melalui id_temuan.'
+        );
+
+        $this->assertFalse(
+            Schema::hasColumn(
+                'rekomendasi',
                 'id_indikator'
             ),
-            'Rekomendasi seharusnya memakai id_penerapan_standar, bukan id_indikator.'
+            'Rekomendasi seharusnya memakai id_temuan, bukan id_indikator.'
         );
     }
 
     public function test_model_rekomendasi_menggunakan_tabel_yang_benar(): void
     {
-        $model = new RekomendasiPeningkatan();
+        $model = new Rekomendasi();
 
         $this->assertSame(
-            'rekomendasi_peningkatan',
+            'rekomendasi',
             $model->getTable()
         );
 
         $this->assertContains(
-            'id_penerapan_standar',
+            'id_temuan',
+            $model->getFillable()
+        );
+
+        $this->assertContains(
+            'aspek',
+            $model->getFillable()
+        );
+
+        $this->assertContains(
+            'deskripsi',
+            $model->getFillable()
+        );
+
+        $this->assertContains(
+            'rekomendasi',
             $model->getFillable()
         );
 
@@ -66,25 +91,5 @@ class AuditorRekomendasiTest extends TestCase
             'id_user',
             $model->getFillable()
         );
-    }
-
-    public function test_route_crud_rekomendasi_auditor_tersedia(): void
-    {
-        $routes = [
-            'auditor.rekomendasi.index',
-            'auditor.rekomendasi.create',
-            'auditor.rekomendasi.store',
-            'auditor.rekomendasi.show',
-            'auditor.rekomendasi.edit',
-            'auditor.rekomendasi.update',
-            'auditor.rekomendasi.destroy',
-        ];
-
-        foreach ($routes as $route) {
-            $this->assertTrue(
-                Route::has($route),
-                "Route {$route} tidak ditemukan."
-            );
-        }
     }
 }

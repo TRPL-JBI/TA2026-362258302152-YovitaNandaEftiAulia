@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Carbon\Carbon;
 
 class AkarMasalahAuditorController extends Controller
 {
@@ -47,13 +48,13 @@ class AkarMasalahAuditorController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | CREATE
     |--------------------------------------------------------------------------
     |
-    | Pilihan temuan hanya berasal dari periode AMI
-    | yang menjadi penugasan auditor.
+    | Menampilkan form tambah akar masalah.
     |
     */
 
@@ -78,10 +79,14 @@ class AkarMasalahAuditorController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | STORE
     |--------------------------------------------------------------------------
+    |
+    | Menyimpan akar masalah baru.
+    |
     */
 
     public function store(
@@ -124,6 +129,7 @@ class AkarMasalahAuditorController extends Controller
             ]
         );
 
+
         /*
         |--------------------------------------------------------------------------
         | VALIDASI TEMUAN SESUAI PENUGASAN
@@ -140,6 +146,22 @@ class AkarMasalahAuditorController extends Controller
         )->findOrFail(
             $validated['id_temuan']
         );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK PERIODE AMI
+        |--------------------------------------------------------------------------
+        |
+        | Auditor hanya boleh menambahkan akar masalah
+        | jika periode AMI masih terbuka.
+        |
+        */
+
+        $this->ensurePeriodeAmiTerbuka(
+            (int) $temuan->id
+        );
+
 
         /*
         |--------------------------------------------------------------------------
@@ -158,6 +180,7 @@ class AkarMasalahAuditorController extends Controller
                 $auditorId,
         ]);
 
+
         return redirect()
             ->route(
                 'auditor.akarmasalah.index'
@@ -167,6 +190,7 @@ class AkarMasalahAuditorController extends Controller
                 'Akar masalah berhasil ditambahkan.'
             );
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -191,10 +215,15 @@ class AkarMasalahAuditorController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | EDIT
     |--------------------------------------------------------------------------
+    |
+    | Form edit tidak dapat dibuka jika periode AMI
+    | sudah ditutup.
+    |
     */
 
     public function edit($id): View
@@ -202,6 +231,18 @@ class AkarMasalahAuditorController extends Controller
         $data = $this->findAkarMasalahAuditor(
             $id
         );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK PERIODE AMI
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensurePeriodeAmiTerbuka(
+            (int) $data->id_temuan
+        );
+
 
         $data->load([
             'temuan',
@@ -214,16 +255,22 @@ class AkarMasalahAuditorController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | UPDATE
     |--------------------------------------------------------------------------
+    |
+    | Data tidak dapat diperbarui jika periode AMI
+    | sudah ditutup.
+    |
     */
 
     public function update(
         Request $request,
         $id
     ): RedirectResponse {
+
         $validated = $request->validate(
             [
                 'akar_masalah' => [
@@ -244,19 +291,40 @@ class AkarMasalahAuditorController extends Controller
             ]
         );
 
+
         /*
-        | Data dicari dengan filter penugasan terlebih dahulu.
-        | Auditor tidak dapat mengubah akar masalah periode lain.
+        |--------------------------------------------------------------------------
+        | VALIDASI DATA SESUAI PENUGASAN AUDITOR
+        |--------------------------------------------------------------------------
         */
 
         $data = $this->findAkarMasalahAuditor(
             $id
         );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK PERIODE AMI
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensurePeriodeAmiTerbuka(
+            (int) $data->id_temuan
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE
+        |--------------------------------------------------------------------------
+        */
+
         $data->update([
             'akar_masalah' =>
                 $validated['akar_masalah'],
         ]);
+
 
         return redirect()
             ->route(
@@ -268,25 +336,51 @@ class AkarMasalahAuditorController extends Controller
             );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | DESTROY
     |--------------------------------------------------------------------------
+    |
+    | Data tidak dapat dihapus jika periode AMI
+    | sudah ditutup.
+    |
     */
 
     public function destroy(
         $id
     ): RedirectResponse {
+
         /*
-        | Data dicari dengan filter penugasan terlebih dahulu.
-        | Auditor tidak dapat menghapus akar masalah periode lain.
+        |--------------------------------------------------------------------------
+        | VALIDASI DATA SESUAI PENUGASAN AUDITOR
+        |--------------------------------------------------------------------------
         */
 
         $data = $this->findAkarMasalahAuditor(
             $id
         );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK PERIODE AMI
+        |--------------------------------------------------------------------------
+        */
+
+        $this->ensurePeriodeAmiTerbuka(
+            (int) $data->id_temuan
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HAPUS
+        |--------------------------------------------------------------------------
+        */
+
         $data->delete();
+
 
         return redirect()
             ->route(
@@ -298,6 +392,154 @@ class AkarMasalahAuditorController extends Controller
             );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | CEK PERIODE AMI MASIH TERBUKA
+    |--------------------------------------------------------------------------
+    |
+    | Digunakan untuk mencegah:
+    | - tambah akar masalah
+    | - edit akar masalah
+    | - update akar masalah
+    | - hapus akar masalah
+    |
+    */
+
+    private function ensurePeriodeAmiTerbuka(
+        int $temuanId
+    ): void {
+
+        $periode = DB::table(
+            'temuan_ami as temuan'
+        )
+            ->join(
+                'penerapan_standar as penerapan',
+                'penerapan.id',
+                '=',
+                'temuan.id_penerapan_standar'
+            )
+            ->join(
+                'standarmutu_periodeami as standar_periode',
+                'standar_periode.id',
+                '=',
+                'penerapan.id_standarmutu_periodeami'
+            )
+            ->join(
+                'periode_ami as periode',
+                'periode.id',
+                '=',
+                'standar_periode.id_periode_ami'
+            )
+            ->where(
+                'temuan.id',
+                $temuanId
+            )
+            ->select([
+                'periode.id',
+                'periode.status',
+                'periode.tanggal_buka_ami',
+                'periode.tanggal_tutup_ami',
+            ])
+            ->first();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PERIODE TIDAK DITEMUKAN
+        |--------------------------------------------------------------------------
+        */
+
+        abort_unless(
+            $periode,
+            404,
+            'Periode AMI tidak ditemukan.'
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK STATUS PERIODE
+        |--------------------------------------------------------------------------
+        */
+
+        $status = strtolower(
+            trim(
+                (string) $periode->status
+            )
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK APAKAH PERIODE SUDAH DITUTUP
+        |--------------------------------------------------------------------------
+        */
+
+        $sudahDitutup = false;
+
+
+        /*
+        | Jika status secara eksplisit menunjukkan
+        | periode sudah ditutup.
+        */
+
+        if (
+            in_array(
+                $status,
+                [
+                    'ditutup',
+                    'closed',
+                    'selesai',
+                ],
+                true
+            )
+        ) {
+            $sudahDitutup = true;
+        }
+
+
+        /*
+        | Jika terdapat tanggal tutup dan
+        | tanggal tersebut sudah terlewati.
+        */
+
+        if (
+            !$sudahDitutup
+            &&
+            !empty(
+                $periode->tanggal_tutup_ami
+            )
+        ) {
+
+            $tanggalTutup = Carbon::parse(
+                $periode->tanggal_tutup_ami
+            )->endOfDay();
+
+            if (
+                now()->greaterThan(
+                    $tanggalTutup
+                )
+            ) {
+                $sudahDitutup = true;
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOLAK PERUBAHAN
+        |--------------------------------------------------------------------------
+        */
+
+        abort_if(
+            $sudahDitutup,
+            403,
+            'Periode AMI sudah ditutup. Data akar masalah tidak dapat diubah.'
+        );
+    }
+
+
     /*
     |--------------------------------------------------------------------------
     | MENCARI AKAR MASALAH SESUAI PENUGASAN AUDITOR
@@ -307,6 +549,7 @@ class AkarMasalahAuditorController extends Controller
     private function findAkarMasalahAuditor(
         $id
     ): AkarMasalah {
+
         $auditorId = $this->getAuditorId();
 
         $temuanIds = $this->getTemuanIdsAuditor(
@@ -316,8 +559,11 @@ class AkarMasalahAuditorController extends Controller
         return AkarMasalah::whereIn(
             'id_temuan',
             $temuanIds
-        )->findOrFail($id);
+        )->findOrFail(
+            $id
+        );
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -328,7 +574,10 @@ class AkarMasalahAuditorController extends Controller
     private function getTemuanIdsAuditor(
         int $auditorId
     ): Collection {
-        return DB::table('temuan_ami as temuan')
+
+        return DB::table(
+            'temuan_ami as temuan'
+        )
             ->join(
                 'penerapan_standar as penerapan',
                 'penerapan.id',
@@ -351,10 +600,15 @@ class AkarMasalahAuditorController extends Controller
                 'tim.id_user',
                 $auditorId
             )
-            ->select('temuan.id')
+            ->select(
+                'temuan.id'
+            )
             ->distinct()
-            ->pluck('temuan.id');
+            ->pluck(
+                'temuan.id'
+            );
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -364,27 +618,56 @@ class AkarMasalahAuditorController extends Controller
 
     private function getAuditorId(): int
     {
-        $auditorId = session('user_id');
+        $auditorId = session(
+            'user_id'
+        );
+
 
         if (!$auditorId) {
-            $user = request()->attributes->get('auth_user')
-                ?? \App\Models\User::find(session('user_id'));
+
+            $user =
+                request()
+                    ->attributes
+                    ->get(
+                        'auth_user'
+                    )
+                ??
+                \App\Models\User::find(
+                    session(
+                        'user_id'
+                    )
+                );
+
 
             abort_unless(
-                $user && $user->status === 'aktif',
+                $user
+                &&
+                $user->status === 'aktif',
                 403,
                 'Akun tidak ditemukan atau sudah dinonaktifkan.'
             );
-            $auditorId = is_array($user)
-                ? ($user['id'] ?? null)
-                : ($user->id ?? null);
+
+
+            $auditorId = is_array(
+                $user
+            )
+                ? (
+                    $user['id']
+                    ?? null
+                )
+                : (
+                    $user->id
+                    ?? null
+                );
         }
+
 
         abort_if(
             !$auditorId,
             401,
             'Sesi auditor tidak ditemukan. Silakan login kembali.'
         );
+
 
         return (int) $auditorId;
     }

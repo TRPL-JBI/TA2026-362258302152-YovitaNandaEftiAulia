@@ -1242,16 +1242,34 @@ class TemuanAuditorController extends Controller
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | UBAH STATUS MENJADI CLOSED
-        |--------------------------------------------------------------------------
-        */
+     /*
+|--------------------------------------------------------------------------
+| VERIFIKASI FORMAL TEMUAN
+|--------------------------------------------------------------------------
+| Setelah seluruh persyaratan penutupan terpenuhi:
+|
+| 1. Auditor dicatat sebagai verifier
+| 2. Waktu verifikasi dicatat
+| 3. Auditor dicatat sebagai pihak yang menutup
+| 4. Waktu penutupan dicatat
+| 5. Catatan verifikasi disimpan
+|--------------------------------------------------------------------------
+*/
 
-        $temuan->update([
-            'status_temuan' =>
-                'closed',
-        ]);
+    $user = auth()->user();
+
+    $temuan->update([
+        'status_temuan' => 'closed',
+
+        'verified_by' => $user->id,
+        'verified_at' => now(),
+
+        'closed_by' => $user->id,
+        'closed_at' => now(),
+
+        'verification_note' =>
+            'Temuan telah diverifikasi dan dinyatakan selesai oleh auditor.',
+    ]);
 
         return redirect()
             ->route(
@@ -1263,7 +1281,6 @@ class TemuanAuditorController extends Controller
                 'Temuan berhasil diverifikasi dan ditutup.'
             );
     }
-
     /*
     |--------------------------------------------------------------------------
     | DESTROY

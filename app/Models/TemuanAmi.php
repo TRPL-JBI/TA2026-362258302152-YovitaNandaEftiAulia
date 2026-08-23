@@ -12,12 +12,6 @@ class TemuanAmi extends Model
 {
     use SoftDeletes;
 
-    /*
-    |--------------------------------------------------------------------------
-    | KONFIGURASI MODEL
-    |--------------------------------------------------------------------------
-    */
-
     protected $table = 'temuan_ami';
 
     public $timestamps = false;
@@ -27,16 +21,28 @@ class TemuanAmi extends Model
         'jenis_temuan',
         'temuan',
         'status_temuan',
+
+        // Verifikasi formal
+        'verified_by',
+        'verified_at',
+        'closed_by',
+        'closed_at',
+        'verification_note',
     ];
 
     protected $casts = [
         'id_penerapan_standar' => 'integer',
+        'verified_by' => 'integer',
+        'closed_by' => 'integer',
+
+        'verified_at' => 'datetime',
+        'closed_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
     /*
     |--------------------------------------------------------------------------
-    | PENERAPAN STANDAR
+    | Relasi Penerapan Standar
     |--------------------------------------------------------------------------
     */
 
@@ -49,16 +55,6 @@ class TemuanAmi extends Model
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ALIAS PENERAPAN
-    |--------------------------------------------------------------------------
-    |
-    | Relasi ini digunakan agar kode lama yang memakai
-    | $temuan->penerapan tetap dapat berjalan.
-    |
-    */
-
     public function penerapan(): BelongsTo
     {
         return $this->belongsTo(
@@ -70,11 +66,8 @@ class TemuanAmi extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | REKOMENDASI
+    | Relasi Rekomendasi
     |--------------------------------------------------------------------------
-    |
-    | Satu temuan memiliki satu rekomendasi.
-    |
     */
 
     public function rekomendasi(): HasOne
@@ -88,11 +81,8 @@ class TemuanAmi extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | TANGGAPAN AUDITEE
+    | Relasi Tanggapan Auditee
     |--------------------------------------------------------------------------
-    |
-    | Satu temuan dapat memiliki beberapa tanggapan dari auditee.
-    |
     */
 
     public function tanggapan(): HasMany
@@ -106,11 +96,8 @@ class TemuanAmi extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | AKAR MASALAH
+    | Relasi Akar Masalah
     |--------------------------------------------------------------------------
-    |
-    | Foreign key pada tabel akar_masalah adalah id_temuan.
-    |
     */
 
     public function akarMasalah(): HasMany
@@ -124,7 +111,53 @@ class TemuanAmi extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | HELPER JENIS TEMUAN
+    | Relasi User Verifikator
+    |--------------------------------------------------------------------------
+    */
+
+    public function verifier(): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
+            'verified_by',
+            'id'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relasi User Penutup
+    |--------------------------------------------------------------------------
+    */
+
+    public function closer(): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
+            'closed_by',
+            'id'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helper Status Verifikasi
+    |--------------------------------------------------------------------------
+    */
+
+    public function sudahDiverifikasi(): bool
+    {
+        return !is_null($this->verified_at);
+    }
+
+    public function sudahDitutup(): bool
+    {
+        return $this->status_temuan === 'closed';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helper Jenis Temuan
     |--------------------------------------------------------------------------
     */
 
@@ -157,12 +190,8 @@ class TemuanAmi extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | LABEL JENIS TEMUAN
+    | Label Jenis Temuan
     |--------------------------------------------------------------------------
-    |
-    | Dapat dipanggil menggunakan:
-    | $temuan->label_jenis_temuan
-    |
     */
 
     public function getLabelJenisTemuanAttribute(): string

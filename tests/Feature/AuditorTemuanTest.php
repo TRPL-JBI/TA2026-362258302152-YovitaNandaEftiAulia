@@ -125,7 +125,9 @@ class AuditorTemuanTest extends TestCase
                 continue;
             }
 
-            $idTersedia = DB::table($tabel)->orderBy('id')->value('id');
+            $idTersedia = DB::table($tabel)
+                ->orderBy('id')
+                ->value('id');
 
             if ($idTersedia) {
                 return (int) $idTersedia;
@@ -137,27 +139,41 @@ class AuditorTemuanTest extends TestCase
             if (in_array('nama', $kolom, true)) {
                 $data['nama'] = 'Sangat Baik';
             }
+
             if (in_array('nama_skala', $kolom, true)) {
                 $data['nama_skala'] = 'Sangat Baik';
             }
+
+            // PERBAIKAN REVISI:
+            // Kolom label_skor wajib diisi pada tabel skala_skor.
+            if (in_array('label_skor', $kolom, true)) {
+                $data['label_skor'] = 'Sangat Baik';
+            }
+
             if (in_array('keterangan', $kolom, true)) {
                 $data['keterangan'] = 'Penerapan sangat baik';
             }
+
             if (in_array('deskripsi', $kolom, true)) {
                 $data['deskripsi'] = 'Penerapan sangat baik';
             }
+
             if (in_array('nilai_skor', $kolom, true)) {
                 $data['nilai_skor'] = 4;
             }
+
             if (in_array('skor', $kolom, true)) {
                 $data['skor'] = 4;
             }
+
             if (in_array('nilai', $kolom, true)) {
                 $data['nilai'] = 4;
             }
+
             if (in_array('created_at', $kolom, true)) {
                 $data['created_at'] = now();
             }
+
             if (in_array('updated_at', $kolom, true)) {
                 $data['updated_at'] = now();
             }
@@ -166,11 +182,14 @@ class AuditorTemuanTest extends TestCase
         }
 
         $this->fail('Tabel skala skor tidak ditemukan.');
+
         return 0;
     }
 
-    private function dataPenilaian(PenerapanStandar $penerapan, array $tambahan = []): array
-    {
+    private function dataPenilaian(
+        PenerapanStandar $penerapan,
+        array $tambahan = []
+    ): array {
         return array_merge([
             'id_penerapan_standar' => $penerapan->id,
             'status_penerapan' => 'belum_sesuai',
@@ -197,8 +216,16 @@ class AuditorTemuanTest extends TestCase
     public function test_auditor_dapat_membuka_daftar_temuan(): void
     {
         $setup = $this->siapkanAudit();
-        $this->tugaskanAuditor($setup['auditor'], $setup['data']['periode']);
-        $this->buatPenerapan($setup['data'], $setup['auditee']);
+
+        $this->tugaskanAuditor(
+            $setup['auditor'],
+            $setup['data']['periode']
+        );
+
+        $this->buatPenerapan(
+            $setup['data'],
+            $setup['auditee']
+        );
 
         $this->loginSebagai($setup['auditor'])
             ->get(route('auditor.temuan.index'))
@@ -208,8 +235,16 @@ class AuditorTemuanTest extends TestCase
     public function test_auditor_dapat_membuka_form_temuan_jika_penerapan_lengkap(): void
     {
         $setup = $this->siapkanAudit();
-        $this->tugaskanAuditor($setup['auditor'], $setup['data']['periode']);
-        $penerapan = $this->buatPenerapan($setup['data'], $setup['auditee']);
+
+        $this->tugaskanAuditor(
+            $setup['auditor'],
+            $setup['data']['periode']
+        );
+
+        $penerapan = $this->buatPenerapan(
+            $setup['data'],
+            $setup['auditee']
+        );
 
         $this->loginSebagai($setup['auditor'])
             ->get(route('auditor.temuan.create', $penerapan->id))
@@ -219,7 +254,12 @@ class AuditorTemuanTest extends TestCase
     public function test_form_temuan_ditolak_jika_deskripsi_penerapan_kosong(): void
     {
         $setup = $this->siapkanAudit();
-        $this->tugaskanAuditor($setup['auditor'], $setup['data']['periode']);
+
+        $this->tugaskanAuditor(
+            $setup['auditor'],
+            $setup['data']['periode']
+        );
+
         $penerapan = $this->buatPenerapan(
             $setup['data'],
             $setup['auditee'],
@@ -235,7 +275,12 @@ class AuditorTemuanTest extends TestCase
     public function test_form_temuan_ditolak_jika_link_bukti_kosong(): void
     {
         $setup = $this->siapkanAudit();
-        $this->tugaskanAuditor($setup['auditor'], $setup['data']['periode']);
+
+        $this->tugaskanAuditor(
+            $setup['auditor'],
+            $setup['data']['periode']
+        );
+
         $penerapan = $this->buatPenerapan(
             $setup['data'],
             $setup['auditee'],
@@ -251,16 +296,29 @@ class AuditorTemuanTest extends TestCase
     public function test_auditor_dapat_menyimpan_temuan(): void
     {
         $setup = $this->siapkanAudit();
-        $this->tugaskanAuditor($setup['auditor'], $setup['data']['periode']);
-        $penerapan = $this->buatPenerapan($setup['data'], $setup['auditee']);
+
+        $this->tugaskanAuditor(
+            $setup['auditor'],
+            $setup['data']['periode']
+        );
+
+        $penerapan = $this->buatPenerapan(
+            $setup['data'],
+            $setup['auditee']
+        );
 
         $response = $this->loginSebagai($setup['auditor'])
-            ->post(route('auditor.temuan.store'), $this->dataPenilaian($penerapan));
+            ->post(
+                route('auditor.temuan.store'),
+                $this->dataPenilaian($penerapan)
+            );
 
         $temuan = TemuanAmi::query()->firstOrFail();
 
         $response
-            ->assertRedirect(route('auditor.temuan.show', $temuan->id))
+            ->assertRedirect(
+                route('auditor.temuan.show', $temuan->id)
+            )
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('temuan_ami', [
@@ -270,7 +328,9 @@ class AuditorTemuanTest extends TestCase
             'status_temuan' => 'open',
         ]);
 
-        $this->assertDatabaseHas('rekomendasi_peningkatan', [
+        // Revisi 8:
+        // Menggunakan tabel rekomendasi yang baru.
+        $this->assertDatabaseHas('rekomendasi', [
             'id_temuan' => $temuan->id,
             'aspek' => 'Kelengkapan dokumen',
         ]);
@@ -279,30 +339,61 @@ class AuditorTemuanTest extends TestCase
     public function test_isi_temuan_wajib_diisi_untuk_jenis_kts(): void
     {
         $setup = $this->siapkanAudit();
-        $this->tugaskanAuditor($setup['auditor'], $setup['data']['periode']);
-        $penerapan = $this->buatPenerapan($setup['data'], $setup['auditee']);
+
+        $this->tugaskanAuditor(
+            $setup['auditor'],
+            $setup['data']['periode']
+        );
+
+        $penerapan = $this->buatPenerapan(
+            $setup['data'],
+            $setup['auditee']
+        );
 
         $response = $this->loginSebagai($setup['auditor'])
-            ->from(route('auditor.temuan.create', $penerapan->id))
+            ->from(
+                route(
+                    'auditor.temuan.create',
+                    $penerapan->id
+                )
+            )
             ->post(
                 route('auditor.temuan.store'),
-                $this->dataPenilaian($penerapan, ['temuan' => ''])
+                $this->dataPenilaian(
+                    $penerapan,
+                    ['temuan' => '']
+                )
             );
 
         $response->assertSessionHasErrors('temuan');
-        $this->assertDatabaseCount('temuan_ami', 0);
+
+        $this->assertDatabaseCount(
+            'temuan_ami',
+            0
+        );
     }
 
     public function test_status_temuan_otomatis_open_saat_disimpan(): void
     {
         $setup = $this->siapkanAudit();
-        $this->tugaskanAuditor($setup['auditor'], $setup['data']['periode']);
-        $penerapan = $this->buatPenerapan($setup['data'], $setup['auditee']);
+
+        $this->tugaskanAuditor(
+            $setup['auditor'],
+            $setup['data']['periode']
+        );
+
+        $penerapan = $this->buatPenerapan(
+            $setup['data'],
+            $setup['auditee']
+        );
 
         $this->loginSebagai($setup['auditor'])
             ->post(
                 route('auditor.temuan.store'),
-                $this->dataPenilaian($penerapan, ['status_temuan' => 'closed'])
+                $this->dataPenilaian(
+                    $penerapan,
+                    ['status_temuan' => 'closed']
+                )
             );
 
         $this->assertDatabaseHas('temuan_ami', [
@@ -319,20 +410,38 @@ class AuditorTemuanTest extends TestCase
     public function test_auditor_tidak_dapat_membuat_temuan_pada_periode_yang_bukan_penugasannya(): void
     {
         $setup = $this->siapkanAudit();
-        $penerapan = $this->buatPenerapan($setup['data'], $setup['auditee']);
+
+        $penerapan = $this->buatPenerapan(
+            $setup['data'],
+            $setup['auditee']
+        );
 
         $this->loginSebagai($setup['auditor'])
-            ->post(route('auditor.temuan.store'), $this->dataPenilaian($penerapan))
+            ->post(
+                route('auditor.temuan.store'),
+                $this->dataPenilaian($penerapan)
+            )
             ->assertNotFound();
 
-        $this->assertDatabaseCount('temuan_ami', 0);
+        $this->assertDatabaseCount(
+            'temuan_ami',
+            0
+        );
     }
 
     public function test_auditor_dapat_memperbarui_temuan_dan_status_tetap_open(): void
     {
         $setup = $this->siapkanAudit();
-        $this->tugaskanAuditor($setup['auditor'], $setup['data']['periode']);
-        $penerapan = $this->buatPenerapan($setup['data'], $setup['auditee']);
+
+        $this->tugaskanAuditor(
+            $setup['auditor'],
+            $setup['data']['periode']
+        );
+
+        $penerapan = $this->buatPenerapan(
+            $setup['data'],
+            $setup['auditee']
+        );
 
         $temuan = TemuanAmi::create([
             'id_penerapan_standar' => $penerapan->id,
@@ -341,12 +450,23 @@ class AuditorTemuanTest extends TestCase
         ]);
 
         $this->loginSebagai($setup['auditor'])
-            ->put(route('auditor.temuan.update', $temuan->id), [
-                'temuan' => 'Temuan sudah diperbarui.',
-                'jenis_temuan' => 'kts',
-                'status_temuan' => 'closed',
-            ])
-            ->assertRedirect(route('auditor.temuan.show', $temuan->id));
+            ->put(
+                route(
+                    'auditor.temuan.update',
+                    $temuan->id
+                ),
+                [
+                    'temuan' => 'Temuan sudah diperbarui.',
+                    'jenis_temuan' => 'kts',
+                    'status_temuan' => 'closed',
+                ]
+            )
+            ->assertRedirect(
+                route(
+                    'auditor.temuan.show',
+                    $temuan->id
+                )
+            );
 
         $this->assertDatabaseHas('temuan_ami', [
             'id' => $temuan->id,
@@ -358,8 +478,16 @@ class AuditorTemuanTest extends TestCase
     public function test_auditor_dapat_menghapus_temuan(): void
     {
         $setup = $this->siapkanAudit();
-        $this->tugaskanAuditor($setup['auditor'], $setup['data']['periode']);
-        $penerapan = $this->buatPenerapan($setup['data'], $setup['auditee']);
+
+        $this->tugaskanAuditor(
+            $setup['auditor'],
+            $setup['data']['periode']
+        );
+
+        $penerapan = $this->buatPenerapan(
+            $setup['data'],
+            $setup['auditee']
+        );
 
         $temuan = TemuanAmi::create([
             'id_penerapan_standar' => $penerapan->id,
@@ -368,8 +496,15 @@ class AuditorTemuanTest extends TestCase
         ]);
 
         $this->loginSebagai($setup['auditor'])
-            ->delete(route('auditor.temuan.destroy', $temuan->id))
-            ->assertRedirect(route('auditor.temuan.index'));
+            ->delete(
+                route(
+                    'auditor.temuan.destroy',
+                    $temuan->id
+                )
+            )
+            ->assertRedirect(
+                route('auditor.temuan.index')
+            );
 
         $this->assertSoftDeleted('temuan_ami', [
             'id' => $temuan->id,
@@ -379,7 +514,11 @@ class AuditorTemuanTest extends TestCase
     public function test_auditor_tidak_dapat_memperbarui_temuan_dari_periode_lain(): void
     {
         $setup = $this->siapkanAudit();
-        $penerapan = $this->buatPenerapan($setup['data'], $setup['auditee']);
+
+        $penerapan = $this->buatPenerapan(
+            $setup['data'],
+            $setup['auditee']
+        );
 
         $temuan = TemuanAmi::create([
             'id_penerapan_standar' => $penerapan->id,
@@ -388,10 +527,16 @@ class AuditorTemuanTest extends TestCase
         ]);
 
         $this->loginSebagai($setup['auditor'])
-            ->put(route('auditor.temuan.update', $temuan->id), [
-                'temuan' => 'Percobaan perubahan ilegal.',
-                'jenis_temuan' => 'kts',
-            ])
+            ->put(
+                route(
+                    'auditor.temuan.update',
+                    $temuan->id
+                ),
+                [
+                    'temuan' => 'Percobaan perubahan ilegal.',
+                    'jenis_temuan' => 'kts',
+                ]
+            )
             ->assertNotFound();
 
         $this->assertDatabaseHas('temuan_ami', [

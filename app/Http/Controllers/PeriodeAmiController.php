@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Traits\ChecksPeriodeAmiStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\IndikatorStandar;
 
 class PeriodeAmiController extends Controller
 {
@@ -616,6 +617,54 @@ class PeriodeAmiController extends Controller
                     );
                 }
             );
+
+        /*
+        |--------------------------------------------------------------------------
+        | SEMUA INDIKATOR WAJIB HARUS SUDAH MEMILIKI PENERAPAN
+        |--------------------------------------------------------------------------
+        |
+        | Periode AMI tidak boleh ditutup hanya karena sebagian indikator
+        | sudah memiliki penerapan. Seluruh indikator yang termasuk dalam
+        | Standar Mutu yang digunakan pada periode ini wajib sudah memiliki
+        | minimal satu penerapan standar.
+        |
+        */
+
+        $totalIndikatorWajib = IndikatorStandar::query()
+            ->whereHas(
+                'isiStandar',
+                function ($query) use ($periode) {
+                    $query->where(
+                        'id_standar_mutu',
+                        $periode->id_standar_mutu
+                    );
+                }
+            )
+            ->count();
+
+        $totalIndikatorTerisi = (clone $penerapanQuery)
+            ->whereNotNull('id_indikator')
+            ->distinct()
+            ->count('id_indikator');
+
+        if ($totalIndikatorWajib === 0) {
+            return back()->with(
+                'error',
+                'Periode AMI belum dapat ditutup karena indikator pada Standar Mutu belum tersedia.'
+            );
+        }
+
+        if ($totalIndikatorTerisi < $totalIndikatorWajib) {
+            $jumlahIndikatorBelumDiisi =
+                $totalIndikatorWajib - $totalIndikatorTerisi;
+
+            return back()->with(
+                'error',
+                'Periode AMI belum dapat ditutup karena masih terdapat '
+                . $jumlahIndikatorBelumDiisi
+                . ' indikator yang belum memiliki penerapan standar.'
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------

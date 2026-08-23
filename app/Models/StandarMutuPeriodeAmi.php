@@ -13,9 +13,12 @@ class StandarMutuPeriodeAmi extends Model
     protected $fillable = [
         'id_standar_mutu',
         'id_periode_ami',
-        'status'
+        'status',
     ];
 
+    /**
+     * Relasi ke Standar Mutu.
+     */
     public function standarMutu()
     {
         return $this->belongsTo(
@@ -24,6 +27,9 @@ class StandarMutuPeriodeAmi extends Model
         );
     }
 
+    /**
+     * Relasi ke Periode AMI.
+     */
     public function periodeAmi()
     {
         return $this->belongsTo(
@@ -32,6 +38,9 @@ class StandarMutuPeriodeAmi extends Model
         );
     }
 
+    /**
+     * Relasi ke data Penerapan Standar.
+     */
     public function penerapanStandar()
     {
         return $this->hasMany(
@@ -39,23 +48,4 @@ class StandarMutuPeriodeAmi extends Model
             'id_standarmutu_periodeami'
         );
     }
-
-
-    /*
-|--------------------------------------------------------------------------
-| INDIKATOR
-|--------------------------------------------------------------------------
-*/
-
-public function indikator()
-{
-    return $this->belongsTo(
-
-        IndikatorStandar::class,
-
-        'id_indikator'
-
-    );
-}
-    
 }

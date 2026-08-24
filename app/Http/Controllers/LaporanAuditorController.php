@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\PeriodeAmi;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class LaporanAuditorController extends Controller
@@ -25,7 +24,12 @@ class LaporanAuditorController extends Controller
             'unitKerja',
             'tim.user',
             'jadwal',
+
             'standarMutuPeriode.penerapanStandar.temuan',
+
+            // SKOR
+            'standarMutuPeriode.penerapanStandar.skor',
+            'standarMutuPeriode.penerapanStandar.skor.skalaSkor',
         ])
             ->whereHas(
                 'tim',
@@ -65,6 +69,35 @@ class LaporanAuditorController extends Controller
                 return $standarPeriode->penerapanStandar;
             })
             ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | NORMALISASI DATA SKOR DAN STATUS UNTUK LAPORAN
+        |--------------------------------------------------------------------------
+        |
+        | Skor diambil dari:
+        |
+        | penerapan_standar
+        |       -> skor
+        |       -> skalaSkor
+        |
+        | Nilai skor  = skala_skor.nilai_skor
+        | Label skor  = skala_skor.label_skor
+        |
+        | Status diambil langsung dari penerapan_standar.
+        |
+        */
+
+        foreach ($penerapanList as $penerapan) {
+            $penerapan->laporan_nilai_skor =
+                $penerapan->skor?->skalaSkor?->nilai_skor;
+
+            $penerapan->laporan_label_skor =
+                $penerapan->skor?->skalaSkor?->label_skor;
+
+            $penerapan->laporan_status =
+                $penerapan->status_penerapan;
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -209,20 +242,42 @@ class LaporanAuditorController extends Controller
             : 0;
 
         $statistik = [
-            'jumlah_standar' => $jumlahStandar,
-            'jumlah_indikator' => $jumlahIndikator,
-            'jumlah_penerapan' => $jumlahPenerapan,
-            'jumlah_bukti' => $jumlahBukti,
-            'jumlah_temuan' => $jumlahTemuan,
-            'jumlah_temuan_open' => $jumlahTemuanOpen,
-            'jumlah_temuan_closed' => $jumlahTemuanClosed,
-            'jumlah_tanggapan' => $tanggapanList->count(),
-            'jumlah_akar_masalah' => $akarMasalahList->count(),
-            'jumlah_rekomendasi' => $rekomendasiList->count(),
+            'jumlah_standar' =>
+                $jumlahStandar,
+
+            'jumlah_indikator' =>
+                $jumlahIndikator,
+
+            'jumlah_penerapan' =>
+                $jumlahPenerapan,
+
+            'jumlah_bukti' =>
+                $jumlahBukti,
+
+            'jumlah_temuan' =>
+                $jumlahTemuan,
+
+            'jumlah_temuan_open' =>
+                $jumlahTemuanOpen,
+
+            'jumlah_temuan_closed' =>
+                $jumlahTemuanClosed,
+
+            'jumlah_tanggapan' =>
+                $tanggapanList->count(),
+
+            'jumlah_akar_masalah' =>
+                $akarMasalahList->count(),
+
+            'jumlah_rekomendasi' =>
+                $rekomendasiList->count(),
+
             'jumlah_kesimpulan' =>
                 $periode->kesimpulanAudit->count(),
+
             'jumlah_lampiran' =>
                 $periode->lampiran->count(),
+
             'persentase_penyelesaian' =>
                 $persentasePenyelesaian,
         ];
@@ -231,12 +286,15 @@ class LaporanAuditorController extends Controller
         |--------------------------------------------------------------------------
         | LOGO DALAM FORMAT BASE64
         |--------------------------------------------------------------------------
-        |
-        | Base64 digunakan supaya logo tetap muncul ketika PDF dibuat.
-        |
         */
 
         $logoBase64 = $this->getLogoBase64();
+
+        /*
+        |--------------------------------------------------------------------------
+        | NOMOR DOKUMEN
+        |--------------------------------------------------------------------------
+        */
 
         $nomorDokumen = sprintf(
             'AMI/%s/%04d',
@@ -248,6 +306,12 @@ class LaporanAuditorController extends Controller
             $periode->id
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | NAMA FILE PDF
+        |--------------------------------------------------------------------------
+        */
+
         $namaFile = sprintf(
             'Laporan-AMI-%s-%s.pdf',
             Str::slug(
@@ -258,6 +322,12 @@ class LaporanAuditorController extends Controller
                 (string) $periode->tahun
             )
         );
+
+        /*
+        |--------------------------------------------------------------------------
+        | GENERATE PDF
+        |--------------------------------------------------------------------------
+        */
 
         $pdf = Pdf::loadView(
             'auditor.laporan.pdf',
@@ -277,18 +347,25 @@ class LaporanAuditorController extends Controller
             )
         );
 
-        $pdf->setPaper('A4', 'portrait');
+        $pdf->setPaper(
+            'A4',
+            'portrait'
+        );
 
         $pdf->setOptions([
-            'defaultFont' => 'DejaVu Sans',
-            'isHtml5ParserEnabled' => true,
-            'isRemoteEnabled' => false,
+            'defaultFont' =>
+                'DejaVu Sans',
+
+            'isHtml5ParserEnabled' =>
+                true,
+
+            'isRemoteEnabled' =>
+                false,
         ]);
 
-        /*
-         * stream() membuka PDF langsung pada browser.
-         */
-        return $pdf->stream($namaFile);
+        return $pdf->stream(
+            $namaFile
+        );
     }
 
     /*
@@ -343,6 +420,20 @@ class LaporanAuditorController extends Controller
 
             /*
             |--------------------------------------------------------------------------
+            | SKOR
+            |--------------------------------------------------------------------------
+            |
+            | PenerapanStandar
+            |     -> skor
+            |          -> skalaSkor
+            |
+            */
+
+            'standarMutuPeriode.penerapanStandar.skor',
+            'standarMutuPeriode.penerapanStandar.skor.skalaSkor',
+
+            /*
+            |--------------------------------------------------------------------------
             | TEMUAN
             |--------------------------------------------------------------------------
             */
@@ -385,7 +476,10 @@ class LaporanAuditorController extends Controller
             ->whereHas(
                 'tim',
                 function (Builder $query) use ($idAuditor) {
-                    $query->where('id_user', $idAuditor);
+                    $query->where(
+                        'id_user',
+                        $idAuditor
+                    );
                 }
             )
             ->findOrFail($id);
@@ -408,17 +502,26 @@ class LaporanAuditorController extends Controller
         }
 
         $extension = strtolower(
-            pathinfo($path, PATHINFO_EXTENSION)
+            pathinfo(
+                $path,
+                PATHINFO_EXTENSION
+            )
         );
 
         $mime = match ($extension) {
-            'jpg', 'jpeg' => 'image/jpeg',
+            'jpg',
+            'jpeg' => 'image/jpeg',
+
             'gif' => 'image/gif',
+
             'webp' => 'image/webp',
+
             default => 'image/png',
         };
 
-        $content = file_get_contents($path);
+        $content = file_get_contents(
+            $path
+        );
 
         if ($content === false) {
             return null;
@@ -439,14 +542,20 @@ class LaporanAuditorController extends Controller
 
     private function getLoginUserId(): int
     {
-        $user = request()->attributes->get('auth_user')
-            ?? \App\Models\User::find(session('user_id'));
+        $user =
+            request()
+                ->attributes
+                ->get('auth_user')
+            ?? \App\Models\User::find(
+                session('user_id')
+            );
 
         abort_unless(
             $user && $user->status === 'aktif',
             403,
             'Akun tidak ditemukan atau sudah dinonaktifkan.'
         );
+
         abort_if(
             !$user,
             401,

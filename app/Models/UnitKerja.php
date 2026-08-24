@@ -12,6 +12,7 @@ class UnitKerja extends Model
 
     protected $fillable = [
         'nama',
+        'kategori_unit_kerja',
         'id_user',
     ];
 

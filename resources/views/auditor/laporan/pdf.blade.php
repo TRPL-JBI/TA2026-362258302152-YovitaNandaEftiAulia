@@ -193,85 +193,207 @@
             text-align: right;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | BAGIAN LAPORAN
-        |--------------------------------------------------------------------------
-        */
+        <style>
+    /*
+    |--------------------------------------------------------------------------
+    | TABEL LAPORAN PDF
+    |--------------------------------------------------------------------------
+    */
 
-        .section {
-            margin-bottom: 20px;
-        }
+    .official-table {
+        width: 100%;
+        max-width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin: 0;
+        font-size: 9px;
+    }
 
-        .section-title {
-            margin: 0 0 10px;
-            padding: 8px 10px;
-            border-left: 5px solid #244b7a;
-            background: #eef3f8;
-            color: #16375f;
-            font-size: 11pt;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+    .official-table th,
+    .official-table td {
+        border: 1px solid #8da0b8;
+        padding: 6px 5px;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+        word-wrap: break-word;
+        word-break: normal;
+    }
 
-        .subsection-title {
-            margin: 14px 0 8px;
-            color: #244b7a;
-            font-size: 9.5pt;
-            font-weight: bold;
-        }
+    .official-table th {
+        text-align: center;
+        vertical-align: middle;
+        font-weight: 700;
+        background: #e8eef5;
+        color: #173f70;
+    }
 
-        .paragraph {
-            margin-bottom: 10px;
-            text-align: justify;
-        }
+    .official-table td {
+        line-height: 1.45;
+    }
 
-        .ordered-list {
-            margin: 4px 0 0 19px;
-            padding: 0;
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | KHUSUS TABEL REKAPITULASI PENERAPAN
+    |--------------------------------------------------------------------------
+    */
 
-        .ordered-list li {
-            margin-bottom: 5px;
-            padding-left: 3px;
-            text-align: justify;
-        }
+    .table-penerapan {
+        width: 100%;
+        table-layout: fixed;
+    }
 
-        /*
-        |--------------------------------------------------------------------------
-        | TABEL
-        |--------------------------------------------------------------------------
-        */
+    .table-penerapan th:nth-child(1),
+    .table-penerapan td:nth-child(1) {
+        width: 5%;
+        text-align: center;
+    }
 
-        .official-table {
-            margin-bottom: 11px;
-        }
+    .table-penerapan th:nth-child(2),
+    .table-penerapan td:nth-child(2) {
+        width: 17%;
+    }
 
-        .official-table th,
-        .official-table td {
-            padding: 6px 7px;
-            border: 0.7px solid #64748b;
-            vertical-align: top;
-        }
+    .table-penerapan th:nth-child(3),
+    .table-penerapan td:nth-child(3) {
+        width: 22%;
+    }
 
-        .official-table th {
-            background: #e7edf5;
-            color: #17375e;
-            font-size: 8.5pt;
-            text-align: center;
-        }
+    .table-penerapan th:nth-child(4),
+    .table-penerapan td:nth-child(4) {
+        width: 26%;
+    }
 
-        .identity-table td:first-child {
-            width: 175px;
-            background: #f8fafc;
-            color: #475569;
-            font-weight: bold;
-        }
+    .table-penerapan th:nth-child(5),
+    .table-penerapan td:nth-child(5) {
+        width: 8%;
+        text-align: center;
+    }
 
-        .identity-table td:nth-child(2) {
-            width: 15px;
-            text-align: center;
-        }
+    .table-penerapan th:nth-child(6),
+    .table-penerapan td:nth-child(6) {
+        width: 12%;
+        text-align: center;
+    }
+
+    .table-penerapan th:nth-child(7),
+    .table-penerapan td:nth-child(7) {
+        width: 10%;
+        text-align: center;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SKOR
+    |--------------------------------------------------------------------------
+    */
+
+    .score-number {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .score-label {
+        display: block;
+        margin-top: 3px;
+        font-size: 8px;
+        line-height: 1.2;
+        text-align: center;
+        color: #64748b;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATUS
+    |--------------------------------------------------------------------------
+    */
+
+    .status-badge {
+        display: inline-block;
+        max-width: 100%;
+        padding: 3px 5px;
+        border: 1px solid #6b7280;
+        border-radius: 10px;
+        font-size: 8px;
+        font-weight: 600;
+        line-height: 1.2;
+        text-align: center;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .status-sesuai {
+        color: #166534;
+        border-color: #22c55e;
+    }
+
+    .status-belum-sesuai {
+        color: #c2410c;
+        border-color: #f97316;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | BUKTI
+    |--------------------------------------------------------------------------
+    */
+
+    .bukti-text {
+        font-size: 8px;
+        line-height: 1.3;
+        text-align: center;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CATATAN KECIL
+    |--------------------------------------------------------------------------
+    */
+
+    .small-note {
+        font-size: 8px;
+        line-height: 1.2;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOMPDF
+    |--------------------------------------------------------------------------
+    */
+
+    @page {
+        size: A4 portrait;
+        margin: 15mm 12mm 15mm 12mm;
+    }
+
+    .section {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    /*
+    | Jangan memaksa tabel melewati halaman.
+    */
+
+    table {
+        max-width: 100%;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tfoot {
+        display: table-footer-group;
+    }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -1052,95 +1174,204 @@
 <div class="page-break"></div>
 
 {{-- ============================================================
-     VI. REKAPITULASI PENERAPAN
+     VI. REKAPITULASI PENERAPAN STANDAR
 ============================================================ --}}
 
 <section class="section">
 
     <h2 class="section-title">
-        VI. Rekapitulasi Penerapan Standar
+        VI. REKAPITULASI PENERAPAN STANDAR
     </h2>
 
     @if($penerapanList->isNotEmpty())
 
-        <table class="official-table">
+        <table class="official-table table-penerapan">
 
             <thead>
-
                 <tr>
-                    <th width="31">
-                        No.
-                    </th>
-
-                    <th width="100">
-                        Standar
-                    </th>
-
-                    <th width="160">
-                        Indikator
-                    </th>
-
-                    <th>
-                        Hasil Penerapan
-                    </th>
-
-                    <th width="65">
-                        Bukti
-                    </th>
+                    <th>No.</th>
+                    <th>Standar</th>
+                    <th>Indikator</th>
+                    <th>Hasil Penerapan</th>
+                    <th>Skor</th>
+                    <th>Status</th>
+                    <th>Bukti</th>
                 </tr>
-
             </thead>
 
             <tbody>
 
                 @foreach($penerapanList as $penerapan)
 
+                    @php
+                        $nilaiSkor =
+                            $penerapan->skor?->skalaSkor?->nilai_skor;
+
+                        $labelSkor =
+                            $penerapan->skor?->skalaSkor?->label_skor;
+
+                        $status =
+                            trim(
+                                (string) (
+                                    $penerapan->status_penerapan ?? ''
+                                )
+                            );
+
+                        $statusNormal =
+                            strtolower(
+                                str_replace(
+                                    [' ', '-'],
+                                    '_',
+                                    $status
+                                )
+                            );
+                    @endphp
+
                     <tr>
 
-                        <td style="text-align: center;">
+                        {{-- NO --}}
+                        <td style="text-align:center;">
                             {{ $loop->iteration }}
                         </td>
 
+                        {{-- STANDAR --}}
                         <td>
                             {{
                                 $penerapan
                                     ->standarmutuPeriode
-                                    ->standarMutu
-                                    ->nama_standar_mutu
-                                ?? $penerapan
+                                    ?->standarMutu
+                                    ?->nama_standar_mutu
+                                ??
+                                $penerapan
                                     ->standarmutuPeriode
-                                    ->standarMutu
-                                    ->nama
-                                ?? '-'
+                                    ?->standarMutu
+                                    ?->nama
+                                ??
+                                '-'
                             }}
                         </td>
 
+                        {{-- INDIKATOR --}}
                         <td>
                             {{
                                 $penerapan
                                     ->indikator
-                                    ->deskripsi
-                                ?? $penerapan
+                                    ?->deskripsi
+                                ??
+                                $penerapan
                                     ->indikator
-                                    ->indikator
-                                ?? '-'
+                                    ?->indikator
+                                ??
+                                '-'
                             }}
                         </td>
 
+                        {{-- HASIL PENERAPAN --}}
                         <td>
-                            {!! nl2br(e(
-                                $penerapan->deskripsi_hasil
-                                ?? '-'
-                            )) !!}
+                            {!! nl2br(
+                                e(
+                                    $penerapan->deskripsi_hasil
+                                    ?? '-'
+                                )
+                            ) !!}
                         </td>
 
-                        <td style="text-align: center;">
+                        {{-- SKOR --}}
+                        <td>
 
-                            @if(filled($penerapan->link_bukti))
-                                Tersedia
+                            @if($nilaiSkor !== null)
+
+                                <span class="score-number">
+                                    {{ $nilaiSkor }}
+                                </span>
+
+                                @if($labelSkor)
+                                    <span class="score-label">
+                                        {{ $labelSkor }}
+                                    </span>
+                                @endif
+
                             @else
-                                Belum ada
+
+                                <span class="small-note">
+                                    -
+                                </span>
+
                             @endif
+
+                        </td>
+
+                        {{-- STATUS --}}
+                        <td>
+
+                            @if(
+                                in_array(
+                                    $statusNormal,
+                                    [
+                                        'sesuai',
+                                        'terpenuhi',
+                                        'memenuhi'
+                                    ]
+                                )
+                            )
+
+                                <span
+                                    class="status-badge status-sesuai"
+                                >
+                                    {{ $status ?: 'Sesuai' }}
+                                </span>
+
+                            @elseif(
+                                in_array(
+                                    $statusNormal,
+                                    [
+                                        'belum_sesuai',
+                                        'tidak_sesuai',
+                                        'belum_terpenuhi'
+                                    ]
+                                )
+                            )
+
+                                <span
+                                    class="status-badge status-belum-sesuai"
+                                >
+                                    {{ $status }}
+                                </span>
+
+                            @elseif($status !== '')
+
+                                <span class="status-badge">
+                                    {{ $status }}
+                                </span>
+
+                            @else
+
+                                -
+
+                            @endif
+
+                        </td>
+
+                        {{-- BUKTI --}}
+                        <td>
+
+                            <div class="bukti-text">
+
+                                @if(
+                                    filled(
+                                        $penerapan->link_bukti
+                                    )
+                                )
+
+                                    Tersedia
+
+                                @else
+
+                                    Belum ada
+
+                                @endif
+
+                            </div>
 
                         </td>
 
@@ -1467,6 +1698,10 @@
      IX. REKOMENDASI PENINGKATAN
 ============================================================ --}}
 
+{{-- ============================================================
+     IX. REKOMENDASI PENINGKATAN
+============================================================ --}}
+
 <section class="section">
 
     <h2 class="section-title">
@@ -1480,21 +1715,23 @@
             <thead>
 
                 <tr>
+
                     <th width="31">
                         No.
                     </th>
 
-                    <th width="125">
-                        Aspek/Bidang
+                    <th width="120">
+                        Aspek
                     </th>
 
-                    <th width="165">
-                        Kelebihan/Kondisi
+                    <th width="190">
+                        Deskripsi
                     </th>
 
                     <th>
-                        Rekomendasi Peningkatan
+                        Rekomendasi
                     </th>
+
                 </tr>
 
             </thead>
@@ -1513,27 +1750,30 @@
                         </td>
 
                         <td>
-                            {{
-                                $rekomendasi->aspek
-                                ?? $rekomendasi->aspek_bidang
-                                ?? '-'
-                            }}
-                        </td>
 
-                        <td>
                             {!! nl2br(e(
-                                $rekomendasi->kelebihan
-                                ?? $rekomendasi->kondisi
+                                $rekomendasi->aspek
                                 ?? '-'
                             )) !!}
+
                         </td>
 
                         <td>
+
+                            {!! nl2br(e(
+                                $rekomendasi->deskripsi
+                                ?? '-'
+                            )) !!}
+
+                        </td>
+
+                        <td>
+
                             {!! nl2br(e(
                                 $rekomendasi->rekomendasi
-                                ?? $rekomendasi->rekomendasi_peningkatan
                                 ?? '-'
                             )) !!}
+
                         </td>
 
                     </tr>

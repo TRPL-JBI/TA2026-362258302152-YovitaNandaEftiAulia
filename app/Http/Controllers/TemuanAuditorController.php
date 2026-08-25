@@ -1292,45 +1292,44 @@ $temuan->update([
     | DESTROY
     |--------------------------------------------------------------------------
     */
-
     public function destroy(
-        TemuanAmi $temuan
-    ): RedirectResponse {
-        $temuan = $this->findTemuanAuditor(
-            (int) $temuan->id
-        );
+    TemuanAmi $temuan
+): RedirectResponse {
+    $temuan = $this->findTemuanAuditor(
+        (int) $temuan->id
+    );
 
-        $this->pastikanPeriodeBelumDitutup(
-            $temuan->penerapanStandar
-        );
+    $this->pastikanPeriodeBelumDitutup(
+        $temuan->penerapanStandar
+    );
 
-        $this->pastikanTemuanMasihOpen(
-            $temuan
-        );
+    $this->pastikanTemuanMasihOpen(
+        $temuan
+    );
 
-        DB::transaction(
-            function () use ($temuan) {
-                $temuan->tanggapan()
-                    ->delete();
+    DB::transaction(
+        function () use ($temuan) {
+            $temuan->tanggapan()
+                ->delete();
 
-                $temuan->akarMasalah()
-                    ->delete();
+            $temuan->akarMasalah()
+                ->delete();
 
-                $temuan->rekomendasi()
-                    ->delete();
+            $temuan->rekomendasi()
+                ->delete();
 
-                $temuan->delete();
-            }
-        );
+            $temuan->delete();
+        }
+    );
 
-        return redirect()
-            ->route('auditor.temuan.index')
-            ->with(
-                'success',
-                'Temuan Audit berhasil dihapus.'
-            );
-    }
-
+    return redirect()->route(
+        'auditor.temuan.index'
+    )->with(
+        'success',
+        'Temuan Audit berhasil dihapus.'
+    );
+}
+    
     /*
     |--------------------------------------------------------------------------
     | QUERY TEMUAN MILIK PENUGASAN AUDITOR

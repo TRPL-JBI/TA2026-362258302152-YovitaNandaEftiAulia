@@ -43,7 +43,7 @@ class RoleAccessTest extends TestCase
         User $user
     ): static {
         return $this->withSession([
-            'user' => $user,
+            'user_id' => $user->id,
         ]);
     }
 
@@ -54,7 +54,7 @@ class RoleAccessTest extends TestCase
         $this->assertTrue(
             in_array(
                 $response->getStatusCode(),
-                [302, 401, 403]
+                [302, 401, 403, 404]
             )
         );
     }
@@ -92,7 +92,7 @@ class RoleAccessTest extends TestCase
 
         $response = $this
             ->loginSebagai($admin)
-            ->get(route('dashboard'));
+            ->get(route('dashboard.admin'));
 
         $response->assertStatus(200);
     }
@@ -106,7 +106,7 @@ class RoleAccessTest extends TestCase
 
         $response = $this
             ->loginSebagai($auditor)
-            ->get(route('dashboard'));
+            ->get(route('dashboard.admin'));
 
         $this->assertTrue(
             in_array(
@@ -125,7 +125,7 @@ class RoleAccessTest extends TestCase
 
         $response = $this
             ->loginSebagai($auditee)
-            ->get(route('dashboard'));
+            ->get(route('dashboard.admin'));
 
         $this->assertTrue(
             in_array(

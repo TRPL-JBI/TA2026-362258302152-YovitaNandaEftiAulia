@@ -9,12 +9,15 @@ class AkarMasalah extends Model
 {
     use SoftDeletes;
 
+    public $timestamps = false;
+
     protected $table = 'akar_masalah';
 
     protected $fillable = [
         'id_temuan',
         'id_user',
         'deskripsi',
+        'akar_masalah',
     ];
 
     protected $casts = [
@@ -23,12 +26,6 @@ class AkarMasalah extends Model
         'deleted_at' => 'datetime',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | RELASI TEMUAN
-    |--------------------------------------------------------------------------
-    */
-
     public function temuan()
     {
         return $this->belongsTo(
@@ -36,12 +33,6 @@ class AkarMasalah extends Model
             'id_temuan'
         );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RELASI USER
-    |--------------------------------------------------------------------------
-    */
 
     public function user()
     {

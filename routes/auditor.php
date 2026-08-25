@@ -169,7 +169,7 @@ Route::middleware([
 
         Route::get(
             '/periode/{id}/penerapan/{penerapan}',
-            [PeriodeAuditorController::class, 'show']
+            [PenerapanAuditorController::class, 'show']
         )->name('auditor.penerapan.show');
 
         /*

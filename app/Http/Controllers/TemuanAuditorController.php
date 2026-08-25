@@ -1256,20 +1256,26 @@ class TemuanAuditorController extends Controller
 |--------------------------------------------------------------------------
 */
 
-    $user = auth()->user();
+$user = request()->attributes->get('auth_user');
 
-    $temuan->update([
-        'status_temuan' => 'closed',
+abort_unless(
+    $user,
+    401,
+    'Sesi auditor tidak ditemukan. Silakan login kembali.'
+);
 
-        'verified_by' => $user->id,
-        'verified_at' => now(),
+$temuan->update([
+    'status_temuan' => 'closed',
 
-        'closed_by' => $user->id,
-        'closed_at' => now(),
+    'verified_by' => $user->id,
+    'verified_at' => now(),
 
-        'verification_note' =>
-            'Temuan telah diverifikasi dan dinyatakan selesai oleh auditor.',
-    ]);
+    'closed_by' => $user->id,
+    'closed_at' => now(),
+
+    'verification_note' =>
+        'Temuan telah diverifikasi dan dinyatakan selesai oleh auditor.',
+]);
 
         return redirect()
             ->route(

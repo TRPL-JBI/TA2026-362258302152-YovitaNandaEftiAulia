@@ -646,8 +646,7 @@
                                                         </strong>
 
                                                         {!! nl2br(e(
-                                                            $akar
-                                                                ->akar_masalah
+                                                            $akar->deskripsi
                                                             ?? '-'
                                                         )) !!}
 
@@ -707,12 +706,12 @@
 
                                 @endif
 
-                                @if(filled($rekomendasi->kelebihan))
+                                @if(filled($rekomendasi->deskripsi))
 
                                     <div style="margin-bottom:8px;">
-                                        <strong>Kelebihan:</strong>
+                                        <strong>Deskripsi:</strong>
 
-                                        {{ $rekomendasi->kelebihan }}
+                                        {{ $rekomendasi->deskripsi }}
                                     </div>
 
                                 @endif

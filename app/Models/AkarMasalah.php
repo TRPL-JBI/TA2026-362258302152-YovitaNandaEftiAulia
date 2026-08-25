@@ -3,52 +3,51 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AkarMasalah extends Model
 {
-    protected $table = 'akar_masalah';
+    use SoftDeletes;
 
-    public $timestamps = false;
+    protected $table = 'akar_masalah';
 
     protected $fillable = [
         'id_temuan',
-        'akar_masalah',
         'id_user',
+        'deskripsi',
     ];
 
     protected $casts = [
         'id_temuan' => 'integer',
         'id_user' => 'integer',
+        'deleted_at' => 'datetime',
     ];
 
     /*
     |--------------------------------------------------------------------------
-    | TEMUAN AMI
+    | RELASI TEMUAN
     |--------------------------------------------------------------------------
     */
 
-    public function temuan(): BelongsTo
+    public function temuan()
     {
         return $this->belongsTo(
             TemuanAmi::class,
-            'id_temuan',
-            'id'
+            'id_temuan'
         );
     }
 
     /*
     |--------------------------------------------------------------------------
-    | USER
+    | RELASI USER
     |--------------------------------------------------------------------------
     */
 
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(
             User::class,
-            'id_user',
-            'id'
+            'id_user'
         );
     }
 }

@@ -5,26 +5,30 @@
 
     <meta charset="UTF-8">
 
-    <title>
-        Laporan Audit Mutu Internal
-    </title>
+    <title>Laporan Audit Mutu Internal</title>
 
     <style>
 
         @page {
-            margin: 22mm 16mm 19mm 16mm;
+            size: A4 portrait;
+            margin: 18mm 14mm 17mm 14mm;
         }
 
         * {
             box-sizing: border-box;
         }
 
+        html,
         body {
             margin: 0;
+            padding: 0;
+        }
+
+        body {
             color: #1f2937;
-            font-family: DejaVu Sans, sans-serif;
+            font-family: "DejaVu Sans", sans-serif;
             font-size: 9.5pt;
-            line-height: 1.55;
+            line-height: 1.5;
         }
 
         h1,
@@ -40,12 +44,54 @@
             border-collapse: collapse;
         }
 
+        img {
+            max-width: 100%;
+        }
+
         .page-break {
             page-break-after: always;
         }
 
         .avoid-break {
             page-break-inside: avoid;
+        }
+
+        .section {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 0 18px 0;
+        }
+
+        .paragraph {
+            margin: 0 0 9px 0;
+            text-align: justify;
+        }
+
+        .ordered-list {
+            margin: 0 0 10px 20px;
+            padding: 0;
+        }
+
+        .ordered-list li {
+            margin-bottom: 5px;
+        }
+
+        .section-title {
+            margin: 0 0 11px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #244b7a;
+            color: #16375f;
+            font-size: 14pt;
+            line-height: 1.25;
+            font-weight: bold;
+        }
+
+        .subsection-title {
+            margin: 12px 0 7px 0;
+            color: #244b7a;
+            font-size: 10.5pt;
+            line-height: 1.3;
+            font-weight: bold;
         }
 
         /*
@@ -56,15 +102,15 @@
 
         .cover {
             position: relative;
-            min-height: 238mm;
-            padding: 14mm 14mm;
+            min-height: 250mm;
+            padding: 14mm;
             border: 1.5px solid #244b7a;
             page-break-after: always;
         }
 
         .cover-top-line {
             height: 7px;
-            margin: -14mm -14mm 20mm;
+            margin: -14mm -14mm 20mm -14mm;
             background: #244b7a;
         }
 
@@ -74,7 +120,7 @@
         }
 
         .cover-institution {
-            margin-bottom: 42px;
+            margin-bottom: 40px;
             color: #244b7a;
             font-size: 11pt;
             font-weight: bold;
@@ -121,7 +167,7 @@
             right: 14mm;
             bottom: 25mm;
             left: 14mm;
-            padding: 14px 16px;
+            padding: 13px 15px;
             border-left: 5px solid #244b7a;
             background: #f4f7fb;
         }
@@ -159,12 +205,12 @@
 
         .document-header {
             width: 100%;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             border-bottom: 2px solid #244b7a;
         }
 
         .document-header td {
-            padding-bottom: 10px;
+            padding-bottom: 9px;
             vertical-align: middle;
         }
 
@@ -193,261 +239,171 @@
             text-align: right;
         }
 
-        <style>
-    /*
-    |--------------------------------------------------------------------------
-    | TABEL LAPORAN PDF
-    |--------------------------------------------------------------------------
-    */
-
-    .official-table {
-        width: 100%;
-        max-width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed;
-        margin: 0;
-        font-size: 9px;
-    }
-
-    .official-table th,
-    .official-table td {
-        border: 1px solid #8da0b8;
-        padding: 6px 5px;
-        vertical-align: top;
-        overflow-wrap: anywhere;
-        word-wrap: break-word;
-        word-break: normal;
-    }
-
-    .official-table th {
-        text-align: center;
-        vertical-align: middle;
-        font-weight: 700;
-        background: #e8eef5;
-        color: #173f70;
-    }
-
-    .official-table td {
-        line-height: 1.45;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | KHUSUS TABEL REKAPITULASI PENERAPAN
-    |--------------------------------------------------------------------------
-    */
-
-    .table-penerapan {
-        width: 100%;
-        table-layout: fixed;
-    }
-
-    .table-penerapan th:nth-child(1),
-    .table-penerapan td:nth-child(1) {
-        width: 5%;
-        text-align: center;
-    }
-
-    .table-penerapan th:nth-child(2),
-    .table-penerapan td:nth-child(2) {
-        width: 17%;
-    }
-
-    .table-penerapan th:nth-child(3),
-    .table-penerapan td:nth-child(3) {
-        width: 22%;
-    }
-
-    .table-penerapan th:nth-child(4),
-    .table-penerapan td:nth-child(4) {
-        width: 26%;
-    }
-
-    .table-penerapan th:nth-child(5),
-    .table-penerapan td:nth-child(5) {
-        width: 8%;
-        text-align: center;
-    }
-
-    .table-penerapan th:nth-child(6),
-    .table-penerapan td:nth-child(6) {
-        width: 12%;
-        text-align: center;
-    }
-
-    .table-penerapan th:nth-child(7),
-    .table-penerapan td:nth-child(7) {
-        width: 10%;
-        text-align: center;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SKOR
-    |--------------------------------------------------------------------------
-    */
-
-    .score-number {
-        display: block;
-        font-size: 13px;
-        font-weight: 700;
-        line-height: 1.2;
-        text-align: center;
-    }
-
-    .score-label {
-        display: block;
-        margin-top: 3px;
-        font-size: 8px;
-        line-height: 1.2;
-        text-align: center;
-        color: #64748b;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | STATUS
-    |--------------------------------------------------------------------------
-    */
-
-    .status-badge {
-        display: inline-block;
-        max-width: 100%;
-        padding: 3px 5px;
-        border: 1px solid #6b7280;
-        border-radius: 10px;
-        font-size: 8px;
-        font-weight: 600;
-        line-height: 1.2;
-        text-align: center;
-        white-space: normal;
-        overflow-wrap: anywhere;
-    }
-
-    .status-sesuai {
-        color: #166534;
-        border-color: #22c55e;
-    }
-
-    .status-belum-sesuai {
-        color: #c2410c;
-        border-color: #f97316;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | BUKTI
-    |--------------------------------------------------------------------------
-    */
-
-    .bukti-text {
-        font-size: 8px;
-        line-height: 1.3;
-        text-align: center;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | CATATAN KECIL
-    |--------------------------------------------------------------------------
-    */
-
-    .small-note {
-        font-size: 8px;
-        line-height: 1.2;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | DOMPDF
-    |--------------------------------------------------------------------------
-    */
-
-    @page {
-        size: A4 portrait;
-        margin: 15mm 12mm 15mm 12mm;
-    }
-
-    .section {
-        width: 100%;
-        max-width: 100%;
-        overflow: hidden;
-    }
-
-    /*
-    | Jangan memaksa tabel melewati halaman.
-    */
-
-    table {
-        max-width: 100%;
-    }
-
-    tr {
-        page-break-inside: avoid;
-    }
-
-    thead {
-        display: table-header-group;
-    }
-
-    tfoot {
-        display: table-footer-group;
-    }
-
-
         /*
         |--------------------------------------------------------------------------
-        | RINGKASAN
+        | TABEL UTAMA
         |--------------------------------------------------------------------------
         */
 
-        .summary-grid td {
-            width: 25%;
-            padding: 5px;
-            border: 0;
+        .official-table {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 8.7pt;
         }
 
-        .summary-box {
-            min-height: 68px;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 5px;
-            background: #f8fafc;
+        .official-table th,
+        .official-table td {
+            border: 1px solid #8da0b8;
+            padding: 5px 5px;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+            word-wrap: break-word;
+        }
+
+        .official-table th {
+            color: #173f70;
+            background: #e8eef5;
+            font-weight: 700;
             text-align: center;
+            vertical-align: middle;
         }
 
-        .summary-number {
-            margin-bottom: 3px;
-            color: #16375f;
-            font-size: 18pt;
-            font-weight: bold;
+        .official-table td {
+            line-height: 1.4;
         }
 
-        .summary-label {
-            color: #64748b;
-            font-size: 7.5pt;
-            font-weight: bold;
-            text-transform: uppercase;
+        .official-table thead {
+            display: table-header-group;
         }
 
-        .summary-highlight {
-            border-color: #d7a52a;
-            background: #fffaf0;
-        }
-
-        .summary-danger {
-            border-color: #f1a6a6;
-            background: #fff5f5;
-        }
-
-        .summary-success {
-            border-color: #9bd4ae;
-            background: #f2fbf5;
+        .official-table tr {
+            page-break-inside: avoid;
         }
 
         /*
         |--------------------------------------------------------------------------
-        | STATUS
+        | IDENTITAS
+        |--------------------------------------------------------------------------
+        */
+
+        .identity-table td:first-child {
+            width: 175px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .identity-table td:nth-child(2) {
+            width: 18px;
+            text-align: center;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | REKAP PENERAPAN
+        |--------------------------------------------------------------------------
+        */
+
+        .table-penerapan th:nth-child(1),
+        .table-penerapan td:nth-child(1) {
+            width: 5%;
+            text-align: center;
+        }
+
+        .table-penerapan th:nth-child(2),
+        .table-penerapan td:nth-child(2) {
+            width: 17%;
+        }
+
+        .table-penerapan th:nth-child(3),
+        .table-penerapan td:nth-child(3) {
+            width: 22%;
+        }
+
+        .table-penerapan th:nth-child(4),
+        .table-penerapan td:nth-child(4) {
+            width: 26%;
+        }
+
+        .table-penerapan th:nth-child(5),
+        .table-penerapan td:nth-child(5) {
+            width: 8%;
+            text-align: center;
+        }
+
+        .table-penerapan th:nth-child(6),
+        .table-penerapan td:nth-child(6) {
+            width: 12%;
+            text-align: center;
+        }
+
+        .table-penerapan th:nth-child(7),
+        .table-penerapan td:nth-child(7) {
+            width: 10%;
+            text-align: center;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SKOR
+        |--------------------------------------------------------------------------
+        */
+
+        .score-number {
+            display: block;
+            color: #16375f;
+            font-size: 12pt;
+            font-weight: bold;
+            line-height: 1.15;
+            text-align: center;
+        }
+
+        .score-label {
+            display: block;
+            margin-top: 3px;
+            color: #64748b;
+            font-size: 7.5pt;
+            line-height: 1.2;
+            text-align: center;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | STATUS PENERAPAN
+        |--------------------------------------------------------------------------
+        */
+
+        .status-badge {
+            display: inline-block;
+            max-width: 100%;
+            padding: 3px 5px;
+            border: 1px solid #6b7280;
+            border-radius: 10px;
+            font-size: 7.5pt;
+            font-weight: 600;
+            line-height: 1.2;
+            text-align: center;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .status-sesuai {
+            color: #166534;
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .status-belum-sesuai {
+            color: #c2410c;
+            border-color: #f97316;
+            background: #fff7ed;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | STATUS TEMUAN
         |--------------------------------------------------------------------------
         */
 
@@ -476,28 +432,89 @@
 
         /*
         |--------------------------------------------------------------------------
-        | DETAIL TEMUAN
+        | RINGKASAN
+        |--------------------------------------------------------------------------
+        */
+
+        .summary-grid {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .summary-grid td {
+            width: 25%;
+            padding: 4px;
+            border: 0;
+            vertical-align: top;
+        }
+
+        .summary-box {
+            min-height: 65px;
+            padding: 9px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            text-align: center;
+        }
+
+        .summary-number {
+            margin-bottom: 3px;
+            color: #16375f;
+            font-size: 17pt;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .summary-label {
+            color: #64748b;
+            font-size: 7.5pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .summary-highlight {
+            border-color: #d7a52a;
+            background: #fffaf0;
+        }
+
+        .summary-danger {
+            border-color: #f1a6a6;
+            background: #fff5f5;
+        }
+
+        .summary-success {
+            border-color: #9bd4ae;
+            background: #f2fbf5;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | TEMUAN
         |--------------------------------------------------------------------------
         */
 
         .finding-card {
-            margin-bottom: 15px;
-            padding: 11px 12px;
+            margin-bottom: 13px;
+            padding: 10px 11px;
             border: 1px solid #cbd5e1;
             border-left: 5px solid #244b7a;
             page-break-inside: avoid;
         }
 
         .finding-heading {
-            margin-bottom: 9px;
-            padding-bottom: 7px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
             border-bottom: 1px solid #e2e8f0;
             color: #16375f;
             font-weight: bold;
         }
 
+        .detail-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
         .detail-table td {
-            padding: 5px 4px;
+            padding: 4px 4px;
             vertical-align: top;
         }
 
@@ -514,12 +531,12 @@
 
         /*
         |--------------------------------------------------------------------------
-        | KOSONG DAN INFORMASI
+        | KOSONG / INFORMASI
         |--------------------------------------------------------------------------
         */
 
         .empty-value {
-            padding: 12px;
+            padding: 11px;
             border: 1px dashed #cbd5e1;
             background: #f8fafc;
             color: #64748b;
@@ -527,7 +544,8 @@
         }
 
         .commitment-box {
-            padding: 13px 15px;
+            margin-top: 12px;
+            padding: 12px 14px;
             border: 1px solid #aebfd2;
             background: #f8fafc;
             text-align: justify;
@@ -536,11 +554,19 @@
         .small-note {
             color: #64748b;
             font-size: 7.5pt;
+            line-height: 1.2;
+        }
+
+        .bukti-text {
+            font-size: 7.5pt;
+            line-height: 1.3;
+            text-align: center;
         }
 
         .link-text {
             color: #244b7a;
             font-size: 7.5pt;
+            overflow-wrap: anywhere;
             word-break: break-all;
         }
 
@@ -551,18 +577,20 @@
         */
 
         .signature-table {
-            margin-top: 28px;
+            width: 100%;
+            margin-top: 25px;
+            table-layout: fixed;
         }
 
         .signature-table td {
             width: 33.33%;
-            padding: 4px 10px;
+            padding: 4px 8px;
             text-align: center;
             vertical-align: top;
         }
 
         .signature-space {
-            height: 62px;
+            height: 60px;
         }
 
         .signature-name {
@@ -570,11 +598,54 @@
             text-decoration: underline;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | DOMPDF
+        |--------------------------------------------------------------------------
+        */
+
+        table {
+            max-width: 100%;
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
+
     </style>
 
 </head>
 
 <body>
+
+{{-- ============================================================
+     DATA BANTUAN
+============================================================ --}}
+
+@php
+
+    $namaUnit =
+        $periode->unitKerja?->nama
+        ?? $periode->unitKerja?->nama_unit_kerja
+        ?? 'UNIT KERJA';
+
+    $namaStandar =
+        $periode->standarMutu?->nama_standar_mutu
+        ?? $periode->standarMutu?->nama
+        ?? '-';
+
+    $namaKetuaAuditor =
+        $ketuaAuditor?->user?->nama
+        ?? $ketuaAuditor?->user?->name
+        ?? '-';
+
+    $namaAuditee =
+        $auditeeList?->first()?->nama
+        ?? $auditeeList?->first()?->name
+        ?? '________________________';
+
+@endphp
+
 
 {{-- ============================================================
      COVER
@@ -610,13 +681,7 @@
     <div class="cover-divider"></div>
 
     <div class="cover-unit">
-
-        {{
-            $periode->unitKerja->nama
-            ?? $periode->unitKerja->nama_unit_kerja
-            ?? 'UNIT KERJA'
-        }}
-
+        {{ $namaUnit }}
     </div>
 
     <div class="cover-period">
@@ -630,47 +695,31 @@
             <tr>
                 <td>Nomor Dokumen</td>
                 <td>:</td>
-                <td>{{ $nomorDokumen }}</td>
+                <td>{{ $nomorDokumen ?? '-' }}</td>
             </tr>
 
             <tr>
                 <td>Standar Mutu</td>
                 <td>:</td>
-                <td>
-                    {{
-                        $periode->standarMutu->nama_standar_mutu
-                        ?? $periode->standarMutu->nama
-                        ?? '-'
-                    }}
-                </td>
+                <td>{{ $namaStandar }}</td>
             </tr>
 
             <tr>
                 <td>Ketua Tim Auditor</td>
                 <td>:</td>
-                <td>
-                    {{
-                        $ketuaAuditor->user->nama
-                        ?? $ketuaAuditor->user->name
-                        ?? '-'
-                    }}
-                </td>
+                <td>{{ $namaKetuaAuditor }}</td>
             </tr>
 
             <tr>
                 <td>Status Audit</td>
                 <td>:</td>
-                <td>
-                    {{ ucfirst($periode->status ?? '-') }}
-                </td>
+                <td>{{ ucfirst($periode->status ?? '-') }}</td>
             </tr>
 
             <tr>
                 <td>Tanggal Dokumen</td>
                 <td>:</td>
-                <td>
-                    {{ now()->format('d/m/Y') }}
-                </td>
+                <td>{{ now()->format('d/m/Y') }}</td>
             </tr>
 
         </table>
@@ -682,6 +731,7 @@
     </div>
 
 </section>
+
 
 {{-- ============================================================
      HEADER DOKUMEN
@@ -718,13 +768,14 @@
         </td>
 
         <td class="document-number">
-            {{ $nomorDokumen }}<br>
+            {{ $nomorDokumen ?? '-' }}<br>
             Periode {{ $periode->tahun ?? '-' }}
         </td>
 
     </tr>
 
 </table>
+
 
 {{-- ============================================================
      I. IDENTITAS AUDIT
@@ -747,40 +798,26 @@
         <tr>
             <td>Unit Kerja/Program Studi</td>
             <td>:</td>
-            <td>
-                {{
-                    $periode->unitKerja->nama
-                    ?? $periode->unitKerja->nama_unit_kerja
-                    ?? '-'
-                }}
-            </td>
+            <td>{{ $namaUnit }}</td>
         </tr>
 
         <tr>
             <td>Standar Mutu</td>
             <td>:</td>
-            <td>
-                {{
-                    $periode->standarMutu->nama_standar_mutu
-                    ?? $periode->standarMutu->nama
-                    ?? '-'
-                }}
-            </td>
+            <td>{{ $namaStandar }}</td>
         </tr>
 
         <tr>
             <td>Periode Audit</td>
             <td>:</td>
-            <td>
-                {{ $periode->tahun ?? '-' }}
-            </td>
+            <td>{{ $periode->tahun ?? '-' }}</td>
         </tr>
 
         <tr>
             <td>Tanggal Pembukaan AMI</td>
             <td>:</td>
             <td>
-                {{ $periode->tanggal_buka_ami ?? '-' }}
+                {{ $periode->tanggal_buka_ami?->format('d/m/Y') ?? '-' }}
             </td>
         </tr>
 
@@ -788,28 +825,20 @@
             <td>Tanggal Penutupan AMI</td>
             <td>:</td>
             <td>
-                {{ $periode->tanggal_tutup_ami ?? '-' }}
+                {{ $periode->tanggal_tutup_ami?->format('d/m/Y') ?? '-' }}
             </td>
         </tr>
 
         <tr>
             <td>Waktu Audit</td>
             <td>:</td>
-            <td>
-                {{ $periode->waktu_audit ?? '-' }}
-            </td>
+            <td>{{ $periode->waktu_audit ?? '-' }}</td>
         </tr>
 
         <tr>
             <td>Ketua Tim Auditor</td>
             <td>:</td>
-            <td>
-                {{
-                    $ketuaAuditor->user->nama
-                    ?? $ketuaAuditor->user->name
-                    ?? '-'
-                }}
-            </td>
+            <td>{{ $namaKetuaAuditor }}</td>
         </tr>
 
         <tr>
@@ -821,8 +850,8 @@
 
                     {{ $loop->iteration }}.
                     {{
-                        $anggota->user->nama
-                        ?? $anggota->user->name
+                        $anggota->user?->nama
+                        ?? $anggota->user?->name
                         ?? '-'
                     }}
 
@@ -831,7 +860,9 @@
                     @endif
 
                 @empty
+
                     -
+
                 @endforelse
 
             </td>
@@ -856,7 +887,9 @@
                     @endif
 
                 @empty
+
                     -
+
                 @endforelse
 
             </td>
@@ -874,6 +907,7 @@
 
 </section>
 
+
 {{-- ============================================================
      II. RINGKASAN EKSEKUTIF
 ============================================================ --}}
@@ -881,7 +915,7 @@
 <section class="section">
 
     <h2 class="section-title">
-        II. Ringkasan Eksekif
+        II. Ringkasan Eksekutif
     </h2>
 
     <p class="paragraph">
@@ -897,45 +931,57 @@
 
             <td>
                 <div class="summary-box">
+
                     <div class="summary-number">
-                        {{ $statistik['jumlah_standar'] }}
+                        {{ $statistik['jumlah_standar'] ?? 0 }}
                     </div>
+
                     <div class="summary-label">
                         Standar Diaudit
                     </div>
+
                 </div>
             </td>
 
             <td>
                 <div class="summary-box">
+
                     <div class="summary-number">
-                        {{ $statistik['jumlah_indikator'] }}
+                        {{ $statistik['jumlah_indikator'] ?? 0 }}
                     </div>
+
                     <div class="summary-label">
                         Indikator
                     </div>
+
                 </div>
             </td>
 
             <td>
                 <div class="summary-box">
+
                     <div class="summary-number">
-                        {{ $statistik['jumlah_penerapan'] }}
+                        {{ $statistik['jumlah_penerapan'] ?? 0 }}
                     </div>
+
                     <div class="summary-label">
                         Penerapan
                     </div>
+
                 </div>
             </td>
 
             <td>
                 <div class="summary-box">
+
                     <div class="summary-number">
-                        {{ $statistik['jumlah_bukti'] }}
+                        {{ $statistik['jumlah_bukti'] ?? 0 }}
                     </div>
+
                     <div class="summary-label">
                         Bukti Pendukung
                     </div>
+
                 </div>
             </td>
 
@@ -945,52 +991,66 @@
 
             <td>
                 <div class="summary-box summary-highlight">
+
                     <div class="summary-number">
-                        {{ $statistik['jumlah_temuan'] }}
+                        {{ $statistik['jumlah_temuan'] ?? 0 }}
                     </div>
+
                     <div class="summary-label">
                         Total Temuan
                     </div>
+
                 </div>
             </td>
 
             <td>
                 <div class="summary-box summary-danger">
+
                     <div class="summary-number">
-                        {{ $statistik['jumlah_temuan_open'] }}
+                        {{ $statistik['jumlah_temuan_open'] ?? 0 }}
                     </div>
+
                     <div class="summary-label">
                         Temuan Open
                     </div>
+
                 </div>
             </td>
 
             <td>
                 <div class="summary-box summary-success">
+
                     <div class="summary-number">
-                        {{ $statistik['jumlah_temuan_closed'] }}
+                        {{ $statistik['jumlah_temuan_closed'] ?? 0 }}
                     </div>
+
                     <div class="summary-label">
                         Temuan Closed
                     </div>
+
                 </div>
             </td>
 
             <td>
                 <div class="summary-box summary-success">
+
                     <div class="summary-number">
+
                         {{
                             number_format(
-                                $statistik['persentase_penyelesaian'],
+                                $statistik['persentase_penyelesaian'] ?? 0,
                                 2,
                                 ',',
                                 '.'
                             )
                         }}%
+
                     </div>
+
                     <div class="summary-label">
                         Penyelesaian
                     </div>
+
                 </div>
             </td>
 
@@ -999,6 +1059,7 @@
     </table>
 
 </section>
+
 
 {{-- ============================================================
      III. PENDAHULUAN
@@ -1018,24 +1079,29 @@
     </p>
 
     <p class="paragraph">
+
         Pelaksanaan audit pada
+
         <strong>
-            {{
-                $periode->unitKerja->nama
-                ?? $periode->unitKerja->nama_unit_kerja
-                ?? 'unit kerja'
-            }}
+            {{ $namaUnit }}
         </strong>
+
         dilaksanakan dalam Periode AMI
-        <strong>{{ $periode->tahun ?? '-' }}</strong>
+
+        <strong>
+            {{ $periode->tahun ?? '-' }}
+        </strong>
+
         sebagai bagian dari peningkatan mutu secara berkelanjutan
         di lingkungan Politeknik Negeri Banyuwangi.
+
     </p>
 
 </section>
 
+
 {{-- ============================================================
-     IV. TUJUAN DAN LINGKUP
+     IV. TUJUAN DAN LINGKUP AUDIT
 ============================================================ --}}
 
 <section class="section">
@@ -1057,6 +1123,7 @@
     @else
 
         <ol class="ordered-list">
+
             <li>
                 Memastikan pelaksanaan standar mutu telah sesuai
                 dengan ketentuan yang ditetapkan.
@@ -1076,6 +1143,7 @@
                 Mendorong pelaksanaan peningkatan mutu secara
                 berkelanjutan.
             </li>
+
         </ol>
 
     @endif
@@ -1103,8 +1171,9 @@
 
 </section>
 
+
 {{-- ============================================================
-     V. JADWAL AUDIT
+     V. JADWAL PELAKSANAAN AUDIT
 ============================================================ --}}
 
 <section class="section">
@@ -1120,6 +1189,7 @@
             <thead>
 
                 <tr>
+
                     <th width="38">
                         No.
                     </th>
@@ -1131,6 +1201,7 @@
                     <th>
                         Kegiatan Audit
                     </th>
+
                 </tr>
 
             </thead>
@@ -1141,7 +1212,7 @@
 
                     <tr>
 
-                        <td style="text-align: center;">
+                        <td style="text-align:center;">
                             {{ $loop->iteration }}
                         </td>
 
@@ -1171,7 +1242,9 @@
 
 </section>
 
+
 <div class="page-break"></div>
+
 
 {{-- ============================================================
      VI. REKAPITULASI PENERAPAN STANDAR
@@ -1180,7 +1253,7 @@
 <section class="section">
 
     <h2 class="section-title">
-        VI. REKAPITULASI PENERAPAN STANDAR
+        VI. Rekapitulasi Penerapan Standar
     </h2>
 
     @if($penerapanList->isNotEmpty())
@@ -1188,7 +1261,9 @@
         <table class="official-table table-penerapan">
 
             <thead>
+
                 <tr>
+
                     <th>No.</th>
                     <th>Standar</th>
                     <th>Indikator</th>
@@ -1196,7 +1271,9 @@
                     <th>Skor</th>
                     <th>Status</th>
                     <th>Bukti</th>
+
                 </tr>
+
             </thead>
 
             <tbody>
@@ -1204,16 +1281,31 @@
                 @foreach($penerapanList as $penerapan)
 
                     @php
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | SKOR DAN STATUS DARI CONTROLLER
+                        |--------------------------------------------------------------------------
+                        |
+                        | Controller sudah menghitung nilai laporan dan
+                        | menyimpannya ke atribut laporan_*.
+                        |
+                        */
+
                         $nilaiSkor =
-                            $penerapan->skor?->skalaSkor?->nilai_skor;
+                            $penerapan->laporan_skor
+                            ?? null;
 
                         $labelSkor =
-                            $penerapan->skor?->skalaSkor?->label_skor;
+                            $penerapan->laporan_nama_skor
+                            ?? null;
 
                         $status =
                             trim(
                                 (string) (
-                                    $penerapan->status_penerapan ?? ''
+                                    $penerapan->laporan_status
+                                    ?? $penerapan->status_penerapan
+                                    ?? ''
                                 )
                             );
 
@@ -1225,17 +1317,22 @@
                                     $status
                                 )
                             );
+
                     @endphp
 
                     <tr>
 
                         {{-- NO --}}
+
                         <td style="text-align:center;">
                             {{ $loop->iteration }}
                         </td>
 
+
                         {{-- STANDAR --}}
+
                         <td>
+
                             {{
                                 $penerapan
                                     ->standarmutuPeriode
@@ -1249,10 +1346,14 @@
                                 ??
                                 '-'
                             }}
+
                         </td>
 
+
                         {{-- INDIKATOR --}}
+
                         <td>
+
                             {{
                                 $penerapan
                                     ->indikator
@@ -1264,19 +1365,26 @@
                                 ??
                                 '-'
                             }}
+
                         </td>
 
+
                         {{-- HASIL PENERAPAN --}}
+
                         <td>
+
                             {!! nl2br(
                                 e(
                                     $penerapan->deskripsi_hasil
                                     ?? '-'
                                 )
                             ) !!}
+
                         </td>
 
+
                         {{-- SKOR --}}
+
                         <td>
 
                             @if($nilaiSkor !== null)
@@ -1285,10 +1393,12 @@
                                     {{ $nilaiSkor }}
                                 </span>
 
-                                @if($labelSkor)
+                                @if(filled($labelSkor))
+
                                     <span class="score-label">
                                         {{ $labelSkor }}
                                     </span>
+
                                 @endif
 
                             @else
@@ -1301,7 +1411,9 @@
 
                         </td>
 
+
                         {{-- STATUS --}}
+
                         <td>
 
                             @if(
@@ -1311,13 +1423,12 @@
                                         'sesuai',
                                         'terpenuhi',
                                         'memenuhi'
-                                    ]
+                                    ],
+                                    true
                                 )
                             )
 
-                                <span
-                                    class="status-badge status-sesuai"
-                                >
+                                <span class="status-badge status-sesuai">
                                     {{ $status ?: 'Sesuai' }}
                                 </span>
 
@@ -1328,13 +1439,12 @@
                                         'belum_sesuai',
                                         'tidak_sesuai',
                                         'belum_terpenuhi'
-                                    ]
+                                    ],
+                                    true
                                 )
                             )
 
-                                <span
-                                    class="status-badge status-belum-sesuai"
-                                >
+                                <span class="status-badge status-belum-sesuai">
                                     {{ $status }}
                                 </span>
 
@@ -1352,7 +1462,9 @@
 
                         </td>
 
+
                         {{-- BUKTI --}}
+
                         <td>
 
                             <div class="bukti-text">
@@ -1393,6 +1505,7 @@
 
 </section>
 
+
 {{-- ============================================================
      VII. TEMUAN AUDIT
 ============================================================ --}}
@@ -1410,6 +1523,7 @@
             <thead>
 
                 <tr>
+
                     <th width="31">
                         No.
                     </th>
@@ -1429,6 +1543,7 @@
                     <th width="56">
                         Status
                     </th>
+
                 </tr>
 
             </thead>
@@ -1438,57 +1553,73 @@
                 @foreach($temuanList as $temuan)
 
                     @php
-                        $statusTemuan = strtolower(
-                            trim(
-                                (string) $temuan->status_temuan
-                            )
-                        );
+
+                        $statusTemuan =
+                            strtolower(
+                                trim(
+                                    (string)
+                                    $temuan->status_temuan
+                                )
+                            );
+
                     @endphp
 
                     <tr>
 
-                        <td style="text-align: center;">
+                        <td style="text-align:center;">
                             {{ $loop->iteration }}
                         </td>
 
                         <td>
+
                             {{
                                 $temuan
                                     ->penerapan
-                                    ->standarmutuPeriode
-                                    ->standarMutu
-                                    ->nama_standar_mutu
-                                ?? $temuan
+                                    ?->standarmutuPeriode
+                                    ?->standarMutu
+                                    ?->nama_standar_mutu
+                                ??
+                                $temuan
                                     ->penerapan
-                                    ->standarmutuPeriode
-                                    ->standarMutu
-                                    ->nama
-                                ?? '-'
+                                    ?->standarmutuPeriode
+                                    ?->standarMutu
+                                    ?->nama
+                                ??
+                                '-'
                             }}
+
                         </td>
 
                         <td>
+
                             {{
                                 $temuan
                                     ->penerapan
-                                    ->indikator
-                                    ->deskripsi
-                                ?? $temuan
+                                    ?->indikator
+                                    ?->deskripsi
+                                ??
+                                $temuan
                                     ->penerapan
-                                    ->indikator
-                                    ->indikator
-                                ?? '-'
+                                    ?->indikator
+                                    ?->indikator
+                                ??
+                                '-'
                             }}
+
                         </td>
 
                         <td>
-                            {!! nl2br(e(
-                                $temuan->temuan
-                                ?? '-'
-                            )) !!}
+
+                            {!! nl2br(
+                                e(
+                                    $temuan->temuan
+                                    ?? '-'
+                                )
+                            ) !!}
+
                         </td>
 
-                        <td style="text-align: center;">
+                        <td style="text-align:center;">
 
                             @if($statusTemuan === 'closed')
 
@@ -1524,7 +1655,9 @@
 
 </section>
 
+
 <div class="page-break"></div>
+
 
 {{-- ============================================================
      VIII. DETAIL TEMUAN DAN TINDAK LANJUT
@@ -1539,11 +1672,15 @@
     @forelse($temuanList as $temuan)
 
         @php
-            $statusTemuan = strtolower(
-                trim(
-                    (string) $temuan->status_temuan
-                )
-            );
+
+            $statusTemuan =
+                strtolower(
+                    trim(
+                        (string)
+                        $temuan->status_temuan
+                    )
+                );
+
         @endphp
 
         <div class="finding-card">
@@ -1555,80 +1692,144 @@
                 &nbsp;·&nbsp;
 
                 @if($statusTemuan === 'closed')
+
                     Status Closed
+
                 @else
+
                     Status Open
+
                 @endif
 
             </div>
 
+
             <table class="detail-table">
 
                 <tr>
-                    <td>Standar Mutu</td>
-                    <td>:</td>
+
                     <td>
+                        Standar Mutu
+                    </td>
+
+                    <td>
+                        :
+                    </td>
+
+                    <td>
+
                         {{
                             $temuan
                                 ->penerapan
-                                ->standarmutuPeriode
-                                ->standarMutu
-                                ->nama_standar_mutu
-                            ?? $temuan
+                                ?->standarmutuPeriode
+                                ?->standarMutu
+                                ?->nama_standar_mutu
+                            ??
+                            $temuan
                                 ->penerapan
-                                ->standarmutuPeriode
-                                ->standarMutu
-                                ->nama
-                            ?? '-'
+                                ?->standarmutuPeriode
+                                ?->standarMutu
+                                ?->nama
+                            ??
+                            '-'
                         }}
+
                     </td>
+
                 </tr>
 
+
                 <tr>
-                    <td>Indikator</td>
-                    <td>:</td>
+
                     <td>
+                        Indikator
+                    </td>
+
+                    <td>
+                        :
+                    </td>
+
+                    <td>
+
                         {{
                             $temuan
                                 ->penerapan
-                                ->indikator
-                                ->deskripsi
-                            ?? $temuan
-                                ->penerapan
-                                ->indikator
-                                ->indikator
-                            ?? '-'
-                        }}
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>Hasil Penerapan</td>
-                    <td>:</td>
-                    <td>
-                        {!! nl2br(e(
+                                ?->indikator
+                                ?->deskripsi
+                            ??
                             $temuan
                                 ->penerapan
-                                ->deskripsi_hasil
-                            ?? '-'
-                        )) !!}
+                                ?->indikator
+                                ?->indikator
+                            ??
+                            '-'
+                        }}
+
                     </td>
+
                 </tr>
 
+
                 <tr>
-                    <td>Temuan Auditor</td>
-                    <td>:</td>
+
                     <td>
-                        {!! nl2br(e(
-                            $temuan->temuan
-                            ?? '-'
-                        )) !!}
+                        Hasil Penerapan
                     </td>
+
+                    <td>
+                        :
+                    </td>
+
+                    <td>
+
+                        {!! nl2br(
+                            e(
+                                $temuan
+                                    ->penerapan
+                                    ?->deskripsi_hasil
+                                ?? '-'
+                            )
+                        ) !!}
+
+                    </td>
+
                 </tr>
 
+
                 <tr>
-                    <td>Tanggapan Auditee</td>
-                    <td>:</td>
+
+                    <td>
+                        Temuan Auditor
+                    </td>
+
+                    <td>
+                        :
+                    </td>
+
+                    <td>
+
+                        {!! nl2br(
+                            e(
+                                $temuan->temuan
+                                ?? '-'
+                            )
+                        ) !!}
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Tanggapan Auditee
+                    </td>
+
+                    <td>
+                        :
+                    </td>
+
                     <td>
 
                         @forelse(
@@ -1637,25 +1838,41 @@
                         )
 
                             {{ $loop->iteration }}.
-                            {!! nl2br(e(
-                                $tanggapan->tanggapan
-                                ?? '-'
-                            )) !!}
+
+                            {!! nl2br(
+                                e(
+                                    $tanggapan->tanggapan
+                                    ?? '-'
+                                )
+                            ) !!}
 
                             @if(!$loop->last)
+
                                 <br><br>
+
                             @endif
 
                         @empty
+
                             Belum ada tanggapan.
+
                         @endforelse
 
                     </td>
+
                 </tr>
 
+
                 <tr>
-                    <td>Akar Masalah</td>
-                    <td>:</td>
+
+                    <td>
+                        Akar Masalah
+                    </td>
+
+                    <td>
+                        :
+                    </td>
+
                     <td>
 
                         @forelse(
@@ -1664,20 +1881,28 @@
                         )
 
                             {{ $loop->iteration }}.
-                            {!! nl2br(e(
-                                $akar->akar_masalah
-                                ?? '-'
-                            )) !!}
+
+                            {!! nl2br(
+                                e(
+                                    $akar->akar_masalah
+                                    ?? '-'
+                                )
+                            ) !!}
 
                             @if(!$loop->last)
+
                                 <br><br>
+
                             @endif
 
                         @empty
+
                             Belum ada akar masalah.
+
                         @endforelse
 
                     </td>
+
                 </tr>
 
             </table>
@@ -1694,9 +1919,6 @@
 
 </section>
 
-{{-- ============================================================
-     IX. REKOMENDASI PENINGKATAN
-============================================================ --}}
 
 {{-- ============================================================
      IX. REKOMENDASI PENINGKATAN
@@ -1745,34 +1967,40 @@
 
                     <tr>
 
-                        <td style="text-align: center;">
+                        <td style="text-align:center;">
                             {{ $loop->iteration }}
                         </td>
 
                         <td>
 
-                            {!! nl2br(e(
-                                $rekomendasi->aspek
-                                ?? '-'
-                            )) !!}
+                            {!! nl2br(
+                                e(
+                                    $rekomendasi->aspek
+                                    ?? '-'
+                                )
+                            ) !!}
 
                         </td>
 
                         <td>
 
-                            {!! nl2br(e(
-                                $rekomendasi->deskripsi
-                                ?? '-'
-                            )) !!}
+                            {!! nl2br(
+                                e(
+                                    $rekomendasi->deskripsi
+                                    ?? '-'
+                                )
+                            ) !!}
 
                         </td>
 
                         <td>
 
-                            {!! nl2br(e(
-                                $rekomendasi->rekomendasi
-                                ?? '-'
-                            )) !!}
+                            {!! nl2br(
+                                e(
+                                    $rekomendasi->rekomendasi
+                                    ?? '-'
+                                )
+                            ) !!}
 
                         </td>
 
@@ -1794,6 +2022,7 @@
 
 </section>
 
+
 {{-- ============================================================
      X. KESIMPULAN AUDIT
 ============================================================ --}}
@@ -1811,32 +2040,43 @@
 
         <div class="finding-card">
 
-            {!! nl2br(e(
-                $kesimpulan->kesimpulan
-                ?? '-'
-            )) !!}
+            {!! nl2br(
+                e(
+                    $kesimpulan->kesimpulan
+                    ?? '-'
+                )
+            ) !!}
 
         </div>
 
     @empty
 
         <p class="paragraph">
+
             Berdasarkan hasil Audit Mutu Internal, terdapat
+
             <strong>
-                {{ $statistik['jumlah_temuan'] }}
+                {{ $statistik['jumlah_temuan'] ?? 0 }}
             </strong>
+
             temuan audit, terdiri dari
+
             <strong>
-                {{ $statistik['jumlah_temuan_open'] }}
+                {{ $statistik['jumlah_temuan_open'] ?? 0 }}
             </strong>
+
             temuan berstatus open dan
+
             <strong>
-                {{ $statistik['jumlah_temuan_closed'] }}
+                {{ $statistik['jumlah_temuan_closed'] ?? 0 }}
             </strong>
+
             temuan berstatus closed.
+
         </p>
 
     @endforelse
+
 
     <div class="commitment-box">
 
@@ -1849,8 +2089,9 @@
 
 </section>
 
+
 {{-- ============================================================
-     XI. LAMPIRAN AUDIT
+     XI. DAFTAR LAMPIRAN AUDIT
 ============================================================ --}}
 
 <section class="section">
@@ -1866,6 +2107,7 @@
             <thead>
 
                 <tr>
+
                     <th width="38">
                         No.
                     </th>
@@ -1877,6 +2119,7 @@
                     <th width="140">
                         Pengunggah
                     </th>
+
                 </tr>
 
             </thead>
@@ -1887,26 +2130,32 @@
 
                     <tr>
 
-                        <td style="text-align: center;">
+                        <td style="text-align:center;">
                             {{ $loop->iteration }}
                         </td>
 
                         <td>
+
                             <span class="link-text">
+
                                 {{
                                     $lampiran->link_file
                                     ?? $lampiran->file
                                     ?? '-'
                                 }}
+
                             </span>
+
                         </td>
 
                         <td>
+
                             {{
-                                $lampiran->user->nama
-                                ?? $lampiran->user->name
+                                $lampiran->user?->nama
+                                ?? $lampiran->user?->name
                                 ?? '-'
                             }}
+
                         </td>
 
                     </tr>
@@ -1927,6 +2176,7 @@
 
 </section>
 
+
 {{-- ============================================================
      XII. PENGESAHAN
 ============================================================ --}}
@@ -1938,10 +2188,13 @@
     </h2>
 
     <p class="paragraph">
+
         Laporan ini disusun berdasarkan hasil Audit Mutu Internal
         dan data yang tercatat dalam Sistem Informasi SPMI
         Politeknik Negeri Banyuwangi.
+
     </p>
+
 
     <table class="signature-table">
 
@@ -1954,14 +2207,11 @@
                 <div class="signature-space"></div>
 
                 <div class="signature-name">
-                    {{
-                        $ketuaAuditor->user->nama
-                        ?? $ketuaAuditor->user->name
-                        ?? '________________________'
-                    }}
+                    {{ $namaKetuaAuditor }}
                 </div>
 
             </td>
+
 
             <td>
 
@@ -1970,14 +2220,11 @@
                 <div class="signature-space"></div>
 
                 <div class="signature-name">
-                    {{
-                        $auditeeList->first()->nama
-                        ?? $auditeeList->first()->name
-                        ?? '________________________'
-                    }}
+                    {{ $namaAuditee }}
                 </div>
 
             </td>
+
 
             <td>
 
@@ -1997,6 +2244,7 @@
 
 </section>
 
+
 {{-- ============================================================
      NOMOR HALAMAN
 ============================================================ --}}
@@ -2011,18 +2259,18 @@
         );
 
         $pdf->page_text(
-            470,
-            813,
-            "Halaman {PAGE_NUM} dari {PAGE_COUNT}",
+            45,
+            815,
+            "Laporan Audit Mutu Internal",
             $font,
             7,
             array(0.35, 0.39, 0.45)
         );
 
         $pdf->page_text(
-            45,
-            813,
-            "Laporan Audit Mutu Internal",
+            470,
+            815,
+            "Halaman {PAGE_NUM} dari {PAGE_COUNT}",
             $font,
             7,
             array(0.35, 0.39, 0.45)
@@ -2031,6 +2279,7 @@
     }
 
 </script>
+
 
 </body>
 

@@ -23,3 +23,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+*.sqlite
+*.db
+/database/*.sqlite
+/database/*.db
+spmi

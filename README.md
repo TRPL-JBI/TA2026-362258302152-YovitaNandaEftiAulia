@@ -262,10 +262,10 @@ Buka http://127.0.0.1:8000
 
 | Username | Password | Role |
 |----------|----------|------|
-| admin | password | Petugas K3LH |
-| kalab | password | Kalab |
-| satpam | password | Satpam |
-| pimpinan | password | Pimpinan |
+| yovita | password | admin |
+| vita | password | auditee |
+| auditor@gmail.com| password | auditor|
+
 
 ### MySQL
 
